@@ -4,12 +4,15 @@ import colors from './colors';
 
 const Panel = ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
     return (
-        <div className={`${className} ${css({ 
-            background: colors.sectionBackground,
-            padding: '8px',
-            margin: '8px',
-            borderRadius: '4px',
-        })}`}>
+        <div 
+            className={`${className} ${css({ 
+                background: colors.sectionBackground,
+                padding: '8px',
+                margin: '8px',
+                borderRadius: '4px',
+            })}`}
+            {...props}
+        >
             {children}
         </div>
     );

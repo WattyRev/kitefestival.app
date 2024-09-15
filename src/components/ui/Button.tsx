@@ -14,6 +14,7 @@ const Button = ({ className, children, ...props}: React.ButtonHTMLAttributes<HTM
                     margin: '4px',
                 })
             }`}
+            {...props}
         >{children}</button>
     );
 };

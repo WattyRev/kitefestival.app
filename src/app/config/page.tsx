@@ -3,7 +3,6 @@
 import Button from "@/components/ui/Button";
 import Panel from "@/components/ui/Panel";
 import TextInput from "@/components/ui/TextInput";
-import { kv } from "@vercel/kv";
 import { useState } from "react";
 
 interface PasscodesPayload {
