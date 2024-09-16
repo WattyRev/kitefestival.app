@@ -12,7 +12,15 @@ export default defineConfig({
 
   // Useful for theme customization
   theme: {
-    extend: {},
+    extend: {
+      tokens: {
+        colors: {
+          sectionBackground: { value: 'rgba(83, 174, 255, 0.29)' },
+          success: { value: '#a1d78e' },
+          danger: { value: '#ff6363' }
+        }
+      }
+    },
   },
 
   // The output directory for your css system

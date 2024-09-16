@@ -2,6 +2,8 @@
 
 import Button from "@/components/ui/Button";
 import Panel from "@/components/ui/Panel";
+import H1 from "@/components/ui/H1";
+import H2 from "@/components/ui/H2";
 import TextInput from "@/components/ui/TextInput";
 import { useState } from "react";
 
@@ -68,7 +70,7 @@ export default function ConfigPage() {
       payload.userPasscode = userPasscode;
     }
     const response = await fetch('/api/passcodes', {
-      method: 'POST',
+      method: 'PUT',
       body: JSON.stringify(payload)
     });
     const { message } = await response.json();
@@ -77,9 +79,9 @@ export default function ConfigPage() {
 
   return (
     <form onSubmit={e => { e.preventDefault(); submitPasscodes()}}>
-      <h1>Config</h1>
+      <H1>Config</H1>
       <Panel>
-        <h2>Set Passcodes</h2>
+        <H2>Set Passcodes</H2>
         <Panel>
           <label htmlFor="admin-passcode">Admin</label>&nbsp;
           <input type="checkbox" checked={useAdminPasscode} onChange={toggleAdminPasscode} />

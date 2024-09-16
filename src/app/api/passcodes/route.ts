@@ -1,7 +1,23 @@
 import { kv } from "@vercel/kv";
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+/**
+ * Change passcodes
+ * 
+ * PUT /api/passcodes
+ * {
+ *   adminPasscode?: string
+ *   editorPasscode?: string
+ *   userPasscode?: string
+ *   authentication: string // The current admin passcode is required
+ * }
+ * 
+ * Response:
+ * {
+ *   message: string
+ * }
+ */
+export async function PUT(req: Request) {
     const {
         adminPasscode,
         editorPasscode,
@@ -34,6 +50,39 @@ export async function POST(req: Request) {
     }
     await Promise.all(promises);
 
-    // const newAdminPasscode = await kv.get('adminPasscode');
     return NextResponse.json({ message: `${passcodesUpdated.join(', ')} passcode${passcodesUpdated.length > 1 ? 's have' : ' has'} been updated`});
+}
+
+/**
+ * Validate a passcode
+ * 
+ * POST /api/passcodes
+ * {
+ *   passcode: string
+ * }
+ * 
+ * Response:
+ * {
+ *    userType: 'editor' | 'user' // The user type matched by the provided passcode
+ * }
+ */
+export async function POST(req: Request) {
+    const {
+        passcode
+    } = await req.json();
+
+    if (!passcode) {
+        return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
+    }
+
+    const editorPasscode = await kv.get('editorPasscode');
+    if (passcode === editorPasscode) {
+        return NextResponse.json({ userType: 'editor' });
+    }
+    const userPasscode = await kv.get('userPasscode');
+    if (passcode === userPasscode) {
+       return NextResponse.json({ userType: 'user' });
+    }
+
+    return NextResponse.json({ message: 'Invalid passcode'}, { status: 401 });
 }
