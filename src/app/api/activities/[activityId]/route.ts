@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPasscodeByName } from "../../passcodes/route";
 import { sql } from "@vercel/postgres";
+import getPasscodeByName from "../../passcodes/getPasscodeByName";
 
 export async function DELETE(req: NextRequest, { params }: { params: { activityId: string } }) {
     const { activityId } = params;

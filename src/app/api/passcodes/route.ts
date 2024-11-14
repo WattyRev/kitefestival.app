@@ -1,13 +1,6 @@
 import { NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
-
-export async function getPasscodeByName(name: string) {
-    const editorPasscodeResponse = await sql`SELECT passcode FROM passcodes WHERE name = ${name}`;
-    if (!editorPasscodeResponse.rows.length) {
-        throw new Error(`${name} passcode not found`);
-    }
-    return editorPasscodeResponse.rows[0].passcode;
-}
+import getPasscodeByName from "./getPasscodeByName";
 
 /**
  * Change passcodes
