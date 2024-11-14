@@ -33,7 +33,7 @@ export async function PUT(req: Request) {
         NextResponse.json({ message: 'Provided authentication is invalid'}, { status: 403 });
     }
 
-    const promises = [];
+    // const promises = [];
     const passcodesUpdated = []
     if (adminPasscode) {
        // promises.push(kv.set('adminPasscode', adminPasscode));
