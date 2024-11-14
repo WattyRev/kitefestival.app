@@ -1,16 +1,13 @@
 import { NextResponse } from "next/server";
-
-export type Activity = {
-    title: string;
-    description: string;
-}
+import { getPasscodeByName } from "../passcodes/route";
+import { sql } from "@vercel/postgres";
 
 export async function POST(req: Request) {
     const { title, description, passcode } = await req.json();
     if (!passcode) {
         return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
     }
-    const editorPasscode = 'editor'; //await kv.get('editorPasscode');
+    const editorPasscode = await getPasscodeByName('editor');
     if (passcode !== editorPasscode) {
         return NextResponse.json({ message: 'Provided passcode is invalid'}, { status: 403 });
     }
@@ -20,14 +17,17 @@ export async function POST(req: Request) {
     }
 
     const id = crypto.randomUUID();
-    const activities = {
-        [id]: JSON.stringify({ title, description, }),
-    }
-    // await kv.hset('activities', activities);
+    const countResponse = await sql`SELECT COUNT(*) FROM activities`;
+    const sortIndex = countResponse.rows[0].count;
+    await sql`INSERT INTO activities (id, title, description, sortIndex) VALUES (${id}, ${title}, ${description}, ${sortIndex})`;
+    const activities = [
+        { id, title, description, sortIndex },
+    ]
     return NextResponse.json({ activities });
 }
 
 export async function GET() {
-    const activities: Activity[] = []; //await kv.hgetall('activities');
+    const activitiesResponse = await sql`SELECT id, title, description, sortIndex FROM activities`;
+    const activities = activitiesResponse.rows;
     return NextResponse.json({ activities });
 }

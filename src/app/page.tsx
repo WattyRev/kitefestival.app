@@ -1,14 +1,9 @@
 import HomePageContainer from "@/components/HomePageContainer";
-
-export interface ActivitiesHash {
-  [key: string]: {
-    title: string;
-    description: string;
-  }
-}
+import { sql } from "@vercel/postgres";
 
 export default async function Home() {
-  const activities: ActivitiesHash = {} // await kv.hgetall('activities') || {};
+  const activitiesResponse = await sql`SELECT * FROM activities ORDER BY sortIndex ASC`;
+  const activities = activitiesResponse.rows;
   const schedule: string[] = [];
  
   return (
