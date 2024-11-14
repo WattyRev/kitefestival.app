@@ -1,4 +1,3 @@
-import { kv } from "@vercel/kv";
 import HomePageContainer from "@/components/HomePageContainer";
 
 export interface ActivitiesHash {
@@ -9,7 +8,7 @@ export interface ActivitiesHash {
 }
 
 export default async function Home() {
-  const activities: ActivitiesHash = await kv.hgetall('activities') || {};
+  const activities: ActivitiesHash = {} // await kv.hgetall('activities') || {};
   const schedule: string[] = [];
  
   return (

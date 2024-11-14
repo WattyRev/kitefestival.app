@@ -1,4 +1,3 @@
-import { kv } from "@vercel/kv";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function DELETE(req: NextRequest, { params }: { params: { activityId: string } }) {
@@ -8,13 +7,13 @@ export async function DELETE(req: NextRequest, { params }: { params: { activityI
     if (!passcode) {
         return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
     }
-    const editorPasscode = await kv.get('editorPasscode');
+    const editorPasscode = 'editor'; //await kv.get('editorPasscode');
     if (passcode !== editorPasscode) {
         return NextResponse.json({ message: 'Provided passcode is invalid'}, { status: 403 });
     }
     if (!activityId) {
         return NextResponse.json({ message: 'No activity ID provided'}, { status: 400 });
     }
-    await kv.hdel('activities', activityId);
+    // await kv.hdel('activities', activityId);
     return NextResponse.json({ message: 'Activity deleted'});
 }

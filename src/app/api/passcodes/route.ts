@@ -1,4 +1,3 @@
-import { kv } from "@vercel/kv";
 import { NextResponse } from "next/server";
 
 /**
@@ -29,7 +28,7 @@ export async function PUT(req: Request) {
         NextResponse.json({ message: 'No authentication provided'}, { status: 401 });
     }
 
-    const currentPasscode = await kv.get('adminPasscode');
+    const currentPasscode = 'admin'; //await kv.get('adminPasscode');
     if (authentication !== currentPasscode) {
         NextResponse.json({ message: 'Provided authentication is invalid'}, { status: 403 });
     }
@@ -37,18 +36,18 @@ export async function PUT(req: Request) {
     const promises = [];
     const passcodesUpdated = []
     if (adminPasscode) {
-       promises.push(kv.set('adminPasscode', adminPasscode));
+       // promises.push(kv.set('adminPasscode', adminPasscode));
        passcodesUpdated.push('Admin');
     }
     if (editorPasscode) {
-       promises.push(kv.set('editorPasscode', editorPasscode));
+       // promises.push(kv.set('editorPasscode', editorPasscode));
        passcodesUpdated.push('Editor');
     }
     if (userPasscode) {
-       promises.push(kv.set('userPasscode', userPasscode));
+       // promises.push(kv.set('userPasscode', userPasscode));
        passcodesUpdated.push('User');
     }
-    await Promise.all(promises);
+    // await Promise.all(promises);
 
     return NextResponse.json({ message: `${passcodesUpdated.join(', ')} passcode${passcodesUpdated.length > 1 ? 's have' : ' has'} been updated`});
 }
@@ -75,11 +74,11 @@ export async function POST(req: Request) {
         return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
     }
 
-    const editorPasscode = await kv.get('editorPasscode');
+    const editorPasscode = 'editor'; //await kv.get('editorPasscode');
     if (passcode === editorPasscode) {
         return NextResponse.json({ userType: 'editor' });
     }
-    const userPasscode = await kv.get('userPasscode');
+    const userPasscode = 'user'; //await kv.get('userPasscode');
     if (passcode === userPasscode) {
        return NextResponse.json({ userType: 'user' });
     }
