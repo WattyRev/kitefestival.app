@@ -17,8 +17,13 @@ export async function POST(req: Request) {
     }
 
     const id = crypto.randomUUID();
-    const countResponse = await sql`SELECT COUNT(*) FROM activities`;
-    const sortIndex = countResponse.rows[0].count;
+    const highestSortIndexResponse = await sql`SELECT (sortIndex) FROM activities ORDER BY sortIndex DESC LIMIT 1`;
+    let sortIndex;
+    if (!highestSortIndexResponse.rows.length) {
+        sortIndex = 0;
+    } else {
+        sortIndex = highestSortIndexResponse.rows[0].sortindex + 1;
+    }
     await sql`INSERT INTO activities (id, title, description, sortIndex) VALUES (${id}, ${title}, ${description}, ${sortIndex})`;
     const activities = [
         { id, title, description, sortIndex },
@@ -27,7 +32,7 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
-    const activitiesResponse = await sql`SELECT id, title, description, sortIndex FROM activities`;
+    const activitiesResponse = await sql`SELECT id, title, description, sortIndex FROM activities ORDER BY sortIndex ASC`;
     const activities = activitiesResponse.rows;
     return NextResponse.json({ activities });
 }
