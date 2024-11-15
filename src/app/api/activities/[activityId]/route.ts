@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 import getPasscodeByName from "../../passcodes/getPasscodeByName";
+import logUpdateByTableName from "../../logUpdate";
 
 export async function DELETE(req: NextRequest, { params }: { params: { activityId: string } }) {
     const { activityId } = params;
@@ -16,5 +17,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { activityI
         return NextResponse.json({ message: 'No activity ID provided'}, { status: 400 });
     }
     await sql`DELETE FROM activities WHERE id = ${activityId}`;
+    await logUpdateByTableName('activities');
     return NextResponse.json({ message: 'Activity deleted'});
 }

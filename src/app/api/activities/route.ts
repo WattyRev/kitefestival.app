@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 import getPasscodeByName from "../passcodes/getPasscodeByName";
+import logUpdateByTableName from "../logUpdate";
 
 export async function POST(req: Request) {
     const { title, description, passcode } = await req.json();
@@ -25,6 +26,7 @@ export async function POST(req: Request) {
         sortIndex = highestSortIndexResponse.rows[0].sortindex + 1;
     }
     await sql`INSERT INTO activities (id, title, description, sortIndex) VALUES (${id}, ${title}, ${description}, ${sortIndex})`;
+    await logUpdateByTableName('activities');
     const activities = [
         { id, title, description, sortIndex },
     ]
