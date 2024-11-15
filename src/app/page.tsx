@@ -7,6 +7,7 @@ export default async function Home() {
     const { id, title, description, sortIndex } = activity;
     return { id, title, description, sortIndex };
   });
+  console.log('fetched activities', activities);
   const schedule: string[] = [];
  
   return (
