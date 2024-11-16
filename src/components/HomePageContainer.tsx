@@ -2,7 +2,9 @@
 import H1 from "@/components/ui/H1";
 import ActivityDisplay from "@/components/ActivityDisplay";
 import CreateActivityButton from "@/components/CreateActivityButton";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "./global/Auth";
+import CreateActivityForm from "./CreateActivityForm";
 
 
 export interface Activity {
@@ -20,8 +22,10 @@ export interface Change {
 let lastUpdate = new Date().getTime();
 
 const HomePageContainer = ({ activities:initialActivities }: { activities: Activity[]}) => {
+    const { auth } = useContext(AuthContext);
     const [isLoading, setIsLoading] = useState(false);
-    const [unscheduledActivities, setUnscheduledActivities] = useState(initialActivities);
+    const [activities, setActivities] = useState(initialActivities);
+    const [showCreateActivity, setShowCreateActivity] = useState(false);
 
     const fetchActivities = async () => {
       setIsLoading(true);
@@ -29,7 +33,7 @@ const HomePageContainer = ({ activities:initialActivities }: { activities: Activ
       const activitiesJson = await activitiesResponse.json();
       const { activities } = activitiesJson;
       console.log('fetchedActivities', activities);
-      setUnscheduledActivities(activities);
+      setActivities(activities);
       setIsLoading(false);
     }
 
@@ -57,6 +61,39 @@ const HomePageContainer = ({ activities:initialActivities }: { activities: Activ
       return Promise.all(refreshPromises);
     }
 
+    async function deleteActivity(id:String) {
+      const response = await fetch(`/api/activities/${id}`, {
+          method: 'DELETE',
+          body: JSON.stringify({
+              passcode: auth?.passcode
+          })
+      });
+      if (!response.ok) {
+          alert('Failed to delete activity');
+          return;
+      }
+      const updatedActivities = activities.filter(activity => activity.id !== id);
+      setActivities(updatedActivities);
+    }
+
+    async function createActivity({ title, description }: { title: string, description: string }) {
+      const response = await fetch('/api/activities', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ title, description, passcode: auth?.passcode })
+      })
+      if (!response.ok) {
+          alert('Failed to create activity');
+          return;
+      }
+      const updatedActivityJson = await response.json();
+      const updatedActivity = updatedActivityJson.activities[0];
+      const updatedActivities = [...activities, updatedActivity];
+      setActivities(updatedActivities);
+  }
+
     useEffect(() => {
       const interval = setInterval(() => {
         checkForUpdates();
@@ -71,11 +108,11 @@ const HomePageContainer = ({ activities:initialActivities }: { activities: Activ
         <p>There&apos;s nothing happening right now</p>
 
         <H1>Unscheduled Activities</H1>
-        {!unscheduledActivities.length && <p>There are no activities</p>}
-        {unscheduledActivities.map(activity => (
-          <ActivityDisplay key={activity.id} activity={activity} />
+        {!activities.length && <p>There are no activities</p>}
+        {activities.map(activity => (
+          <ActivityDisplay key={activity.id} activity={activity} onDelete={deleteActivity} />
         ))}
-        <CreateActivityButton />
+        <CreateActivityForm onSubmit={createActivity} />
       </>
     )
 }

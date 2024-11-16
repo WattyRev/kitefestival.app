@@ -3,6 +3,7 @@ import { sql } from "@vercel/postgres";
 import getPasscodeByName from "../passcodes/getPasscodeByName";
 import logUpdateByTableName from "../logUpdate";
 
+export const revalidate = 0;
 export async function POST(req: Request) {
     const { title, description, passcode } = await req.json();
     if (!passcode) {

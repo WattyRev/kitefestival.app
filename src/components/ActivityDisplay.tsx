@@ -8,9 +8,11 @@ import { useContext, useState } from "react"
 import { AuthContext } from "./global/Auth"
 
 const ActivityDisplay = ({
-    activity
+    activity,
+    onDelete
 }: {
-    activity: Activity
+    activity: Activity,
+    onDelete: (id: string) => Promise<void>
 }) => {
     const { isEditor, auth } = useContext(AuthContext);
 
@@ -23,18 +25,7 @@ const ActivityDisplay = ({
         }
 
         setPending(true);
-
-        const response = await fetch(`/api/activities/${activity.id}`, {
-            method: 'DELETE',
-            body: JSON.stringify({
-                passcode: auth?.passcode
-            })
-        });
-        if (!response.ok) {
-            alert('Failed to delete activity');
-            setPending(false);
-            return;
-        }
+        await onDelete(activity.id);
         setPending(false);
     }
 

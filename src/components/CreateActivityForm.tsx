@@ -6,44 +6,35 @@ import Panel from "./ui/Panel";
 import TextInput from "./ui/TextInput";
 import Textarea from "./ui/Textarea";
 import Button from "./ui/Button";
+import H2 from "./ui/H2";
 
-const CreateActivityForm = () => {
+const CreateActivityForm = ({ onSubmit }: { onSubmit: (activity: { title: string, description: string }) => Promise<void> }) => {
     const { isEditor, auth } = useContext(AuthContext);
     const [ pending, setPending ] = useState(false);
     const [ title, setTitle ] = useState('');
     const [ description, setDescription ] = useState('');
 
     if (!isEditor()) {
-        return (<p>Only an editor can create activities.</p>)
+        return null;
     }
 
     async function submit() {
         setPending(true);
-        const response = await fetch('/api/activities', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ title, description, passcode: auth?.passcode })
-        })
-        if (!response.ok) {
-            alert('Failed to create activity');
-            setPending(false);
-            return;
-        }
+        await onSubmit({ title, description });
         setTitle('');
         setDescription('');
         setPending(false);
     }
     return (
         <form onSubmit={e => {e.preventDefault(); submit()}}>
+            <H2>Create Activity</H2>
             <Panel>
                 <label>Title</label>
                 <TextInput required value={title} onChange={e => setTitle(e.target.value)} />
                 <label>Description</label>
                 <Textarea required value={description} onChange={e => setDescription(e.target.value)} />
             </Panel>
-            <Button type="submit" disabled={pending}>Submit</Button>
+            <Button type="submit" disabled={pending}>Save</Button>
         </form>
     )
 }
