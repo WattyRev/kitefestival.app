@@ -9,7 +9,7 @@ import Button from "./ui/Button";
 import H2 from "./ui/H2";
 
 const CreateActivityForm = ({ onSubmit }: { onSubmit: (activity: { title: string, description: string }) => Promise<void> }) => {
-    const { isEditor, auth } = useContext(AuthContext);
+    const { isEditor } = useContext(AuthContext);
     const [ pending, setPending ] = useState(false);
     const [ title, setTitle ] = useState('');
     const [ description, setDescription ] = useState('');

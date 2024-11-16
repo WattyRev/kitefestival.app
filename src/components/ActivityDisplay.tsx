@@ -14,7 +14,7 @@ const ActivityDisplay = ({
     activity: Activity,
     onDelete: (id: string) => Promise<void>
 }) => {
-    const { isEditor, auth } = useContext(AuthContext);
+    const { isEditor } = useContext(AuthContext);
 
     const [pending, setPending] = useState(false);
 

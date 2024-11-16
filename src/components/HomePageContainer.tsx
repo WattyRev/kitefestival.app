@@ -24,7 +24,6 @@ const HomePageContainer = ({ activities:initialActivities }: { activities: Activ
     const { auth } = useContext(AuthContext);
     const [isLoading, setIsLoading] = useState(false);
     const [activities, setActivities] = useState(initialActivities);
-    const [showCreateActivity, setShowCreateActivity] = useState(false);
 
     const fetchActivities = async () => {
       setIsLoading(true);
@@ -60,7 +59,7 @@ const HomePageContainer = ({ activities:initialActivities }: { activities: Activ
       return Promise.all(refreshPromises);
     }
 
-    async function deleteActivity(id:String) {
+    async function deleteActivity(id:string) {
       const response = await fetch(`/api/activities/${id}`, {
           method: 'DELETE',
           body: JSON.stringify({
