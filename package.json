@@ -29,6 +29,6 @@
     "typescript": "^5"
   },
   "lint-staged": {
-    "*.js": "next lint --fix"
+    "src/**/*.{js,tsx,ts,tsx,mjs}": "eslint --cache --fix"
   }
 }
