@@ -1,7 +1,6 @@
 'use client'
 import H1 from "@/components/ui/H1";
 import ActivityDisplay from "@/components/ActivityDisplay";
-import CreateActivityButton from "@/components/CreateActivityButton";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "./global/Auth";
 import CreateActivityForm from "./CreateActivityForm";
