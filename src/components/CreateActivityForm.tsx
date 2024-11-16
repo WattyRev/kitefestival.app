@@ -6,7 +6,7 @@ import Panel from "./ui/Panel";
 import TextInput from "./ui/TextInput";
 import Textarea from "./ui/Textarea";
 import Button from "./ui/Button";
-import H2 from "./ui/H2";
+import H1 from "./ui/H1";
 
 const CreateActivityForm = ({ onSubmit }: { onSubmit: (activity: { title: string, description: string }) => Promise<void> }) => {
     const { isEditor } = useContext(AuthContext);
@@ -27,7 +27,7 @@ const CreateActivityForm = ({ onSubmit }: { onSubmit: (activity: { title: string
     }
     return (
         <form onSubmit={e => {e.preventDefault(); submit()}}>
-            <H2>Create Activity</H2>
+            <H1>Create Activity</H1>
             <Panel>
                 <label>Title</label>
                 <TextInput required value={title} onChange={e => setTitle(e.target.value)} />

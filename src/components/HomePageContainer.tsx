@@ -4,14 +4,9 @@ import ActivityDisplay from "@/components/ActivityDisplay";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "./global/Auth";
 import CreateActivityForm from "./CreateActivityForm";
-
-
-export interface Activity {
-  id: string;
-  title: string;
-  description: string;
-  sortIndex: number;
-}
+import LoadingBar from "./ui/LoadingBar";
+import { css } from '../../styled-system/css';
+import { Activity } from "@/app/api/activities/route";
 
 export interface Change {
   tablename: string;
@@ -101,16 +96,18 @@ const HomePageContainer = ({ activities:initialActivities }: { activities: Activ
 
     return (
       <>
-        {isLoading && <p>Loading...</p>}
-        <H1>Happening Now</H1>
-        <p>There&apos;s nothing happening right now</p>
+        <LoadingBar isLoading={isLoading} />
+        <div className={css({ padding: '8px' })}>
+          <H1>Happening Now</H1>
+          <p>There&apos;s nothing happening right now</p>
 
-        <H1>Unscheduled Activities</H1>
-        {!activities.length && <p>There are no activities</p>}
-        {activities.map(activity => (
-          <ActivityDisplay key={activity.id} activity={activity} onDelete={deleteActivity} />
-        ))}
-        <CreateActivityForm onSubmit={createActivity} />
+          <H1>Unscheduled Activities</H1>
+          {!activities.length && <p>There are no activities</p>}
+          {activities.map(activity => (
+            <ActivityDisplay key={activity.id} activity={activity} onDelete={deleteActivity} />
+          ))}
+          <CreateActivityForm onSubmit={createActivity} />
+        </div>
       </>
     )
 }

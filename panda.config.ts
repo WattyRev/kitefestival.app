@@ -1,3 +1,4 @@
+// import { loadingBarKeyframes } from "@/components/ui/LoadingBar";
 import { defineConfig } from "@pandacss/dev";
 
 export default defineConfig({
@@ -18,6 +19,16 @@ export default defineConfig({
           sectionBackground: { value: 'rgba(83, 174, 255, 0.29)' },
           success: { value: '#a1d78e' },
           danger: { value: '#ff6363' }
+        }
+      },
+      keyframes: {
+        loadingBarKeyframes: {
+          '0%': {
+            backgroundPosition: "0% 0%",
+          },
+          '100%': {
+            backgroundPosition: "200% 0%",
+          }
         }
       }
     },
