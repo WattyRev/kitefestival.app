@@ -5,6 +5,19 @@ import logUpdateByTableName from "../../logUpdate";
 import validatePasscode, { PasscodeLevel } from "../../passcodes/validatePasscode";
 import patchActivity, { NoPatchableKeysError } from "./patchActivity";
 
+/**
+ * Deletes an activity by ID.
+ *
+ * DELETE /api/activities/:activityId
+ * {
+ *   passcode: string
+ * }
+ *
+ * Response:
+ * {
+ *   message: string
+ * }
+ */
 export async function DELETE(req: NextRequest, { params }: { params: { activityId: string } }) {
     const { activityId } = params;
     const { passcode } = await req.json();
@@ -18,11 +31,24 @@ export async function DELETE(req: NextRequest, { params }: { params: { activityI
     if (!activityId) {
         return NextResponse.json({ message: 'No activity ID provided'}, { status: 400 });
     }
-    await sql`DELETE FROM activities WHERE id = ${activityId}`;
-    await logUpdateByTableName('activities');
+    await Promise.all([sql`DELETE FROM activities WHERE id = ${activityId}`, logUpdateByTableName('activities')]);
     return NextResponse.json({ message: 'Activity deleted'});
 }
 
+/**
+ * Patches an existing activity with new values.
+ *
+ * PATCH /api/activities/:activityId
+ * {
+ *   activity: Partial<Activity>
+ *   passcode: string
+ * }
+ *
+ * Response:
+ * {
+ *   message?: string
+ * }
+ */
 export async function PATCH(req: NextRequest, { params }: { params: { activityId: string } }) {
     const { activity, passcode } = await req.json();
     const validationResponse = await validatePasscode(passcode, [PasscodeLevel.EDITOR]);
@@ -31,8 +57,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { activityId
     }
 
     try {
-        const updatedActivity = await patchActivity(params.activityId, activity);
-        return NextResponse.json({ activities: [updatedActivity] });
+        await Promise.all([patchActivity(params.activityId, activity), logUpdateByTableName('activities')]);
+        return NextResponse.json({ });
     } catch (error) {
         if (error === NoPatchableKeysError) {
             return NextResponse.json({ message: `No patchable keys provided for activity ${params.activityId}`}, { status: 400 });

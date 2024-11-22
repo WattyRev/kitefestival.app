@@ -8,7 +8,7 @@ export const NoPatchableKeysError = new Error('No patchable keys were provided')
  *
  * @param {string} activityId
  * @param {Partial<Activity>} activity
- * @returns {Promise<Activity>}
+ * @returns {Promise<void>}
  * @throws {NoPatchableKeysError} If no patchable keys were provided.
  */
 export default async function patchActivity(activityId: string, activity: Partial<Activity>) {
@@ -24,6 +24,5 @@ export default async function patchActivity(activityId: string, activity: Partia
     if (!setStrings.length) {
         throw NoPatchableKeysError;
     }
-    const response = await sql`UPDATE activities SET ${setStrings.join(', ')} WHERE id = ${activityId}`;
-    return response.rows[0];
+    await sql`UPDATE activities SET ${setStrings.join(', ')} WHERE id = ${activityId}`;
 }

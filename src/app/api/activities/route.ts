@@ -25,8 +25,11 @@ export const revalidate = 0;
  * }
  */
 export async function GET() {
-    const activitiesResponse = await sql`SELECT id, title, description, sortIndex FROM activities ORDER BY sortIndex ASC`;
-    const activities = activitiesResponse.rows;
+    const activitiesResponse = await sql`SELECT * FROM activities ORDER BY sortIndex ASC`;
+    const activities = activitiesResponse.rows.map(activity => {
+        const { id, title, description, sortindex, scheduleindex } = activity;
+        return { id, title, description, sortIndex: sortindex, scheduleIndex: scheduleindex };
+    })
     return NextResponse.json({ activities });
 }
 
@@ -64,10 +67,12 @@ export async function POST(req: Request) {
     } else {
         sortIndex = highestSortIndexResponse.rows[0].sortindex + 1;
     }
-    await sql`INSERT INTO activities (id, title, description, sortIndex) VALUES (${id}, ${title}, ${description}, ${sortIndex})`;
-    await logUpdateByTableName('activities');
+    await Promise.all([
+        sql`INSERT INTO activities (id, title, description, sortIndex, scheduleIndex) VALUES (${id}, ${title}, ${description}, ${sortIndex}, null)`,
+        logUpdateByTableName('activities')
+    ]);
     const activities = [
-        { id, title, description, sortIndex },
+        { id, title, description, sortIndex, scheduleIndex: null },
     ]
     return NextResponse.json({ activities });
 }
@@ -82,9 +87,7 @@ export async function POST(req: Request) {
  * }
  * 
  * Response:
- * {
- *   activities: Activity[]
- * }
+ * {}
  */
 export async function  PATCH(req: Request) {
     const { activities, passcode }: ({ activities: Partial<Activity>[], passcode: string }) = await req.json();
@@ -93,11 +96,11 @@ export async function  PATCH(req: Request) {
         return validationResponse;
     }
 
-    const updatedActivities = await Promise.all(activities.map(async activity => {
+    await Promise.all(activities.map(async activity => {
         if (!activity.id) {
             return;
         }
-        await patchActivity(activity.id, activity);
+        await Promise.all([patchActivity(activity.id, activity), logUpdateByTableName('activities')]);
     }));
-    return NextResponse.json({ activities: updatedActivities });
+    return NextResponse.json({});
 };
