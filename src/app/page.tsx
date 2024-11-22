@@ -9,7 +9,6 @@ export default async function Home() {
     const { id, title, description, sortindex, scheduleindex } = activity;
     return { id, title, description, sortIndex: sortindex, scheduleIndex: scheduleindex };
   });
-  console.log('fetched')
  
   return (
     <HomePageContainer activities={activities} />

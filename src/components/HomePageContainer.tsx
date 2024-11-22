@@ -13,9 +13,9 @@ export interface Change {
   updated: number;
 }
 
-let lastUpdate = new Date().getTime();
+let lastUpdate = new Date().getTime() - 15000;
 
-const HomePageContainer = ({ activities:initialActivities }: { activities: Activity[]}) => {
+const HomePageContainer = ({ activities:initialActivities }: { activities: Activity[] }) => {
     const { auth } = useContext(AuthContext);
     const [isLoading, setIsLoading] = useState(false);
     const [activities, setActivities] = useState(initialActivities);
@@ -35,6 +35,10 @@ const HomePageContainer = ({ activities:initialActivities }: { activities: Activ
       const changesJson = await changesResponse.json();
       const { changes }: { changes: Change[] } = changesJson;
       const newerChanges = changes.filter(change => new Date(change.updated).getTime() > lastUpdate);
+      console.log('newerChanges', {
+        newerChanges,
+        lastUpdate: new Date(lastUpdate)
+      })
       if (!newerChanges.length) {
         return;
       }
@@ -88,6 +92,7 @@ const HomePageContainer = ({ activities:initialActivities }: { activities: Activ
   }
 
     useEffect(() => {
+      checkForUpdates();
       const interval = setInterval(() => {
         checkForUpdates();
       }, 5000);
