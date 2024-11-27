@@ -1,21 +1,15 @@
 'use client'
-import H1 from "@/components/ui/H1";
-import ActivityDisplay from "@/components/ActivityDisplay";
+import H1 from "./ui/H1";
+import ActivityDisplay from "./ActivityDisplay";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "./global/Auth";
 import CreateActivityForm from "./CreateActivityForm";
 import LoadingBar from "./ui/LoadingBar";
 import { css } from '../../styled-system/css';
-import { Activity } from "@/app/api/activities/route";
-
-export interface Change {
-  tablename: string;
-  updated: number;
-}
 
 let lastUpdate = new Date().getTime() - 15000;
 
-const HomePageContainer = ({ activities:initialActivities }: { activities: Activity[] }) => {
+const HomePageContainer = ({ activities:initialActivities }) => {
     const { auth } = useContext(AuthContext);
     const [isLoading, setIsLoading] = useState(false);
     const [activities, setActivities] = useState(initialActivities);
@@ -32,7 +26,7 @@ const HomePageContainer = ({ activities:initialActivities }: { activities: Activ
     const checkForUpdates = async () => {
       const changesResponse = await fetch('/api/changes');
       const changesJson = await changesResponse.json();
-      const { changes }: { changes: Change[] } = changesJson;
+      const { changes } = changesJson;
       const newerChanges = changes.filter(change => new Date(change.updated).getTime() > lastUpdate);
       if (!newerChanges.length) {
         return;
@@ -47,7 +41,7 @@ const HomePageContainer = ({ activities:initialActivities }: { activities: Activ
       return Promise.all(refreshPromises);
     }
 
-    async function deleteActivity(id:string) {
+    async function deleteActivity(id) {
       const response = await fetch(`/api/activities/${id}`, {
           method: 'DELETE',
           body: JSON.stringify({
@@ -62,7 +56,7 @@ const HomePageContainer = ({ activities:initialActivities }: { activities: Activ
       setActivities(updatedActivities);
     }
 
-    async function createActivity({ title, description }: { title: string, description: string }) {
+    async function createActivity({ title, description }) {
       const response = await fetch('/api/activities', {
           method: 'POST',
           headers: {

@@ -2,7 +2,7 @@ import React from 'react';
 import { css } from '../../../styled-system/css';
 import AuthSelection from './TopNav/AuthSelection';
 
-const TopNav = ({ ...props }: React.HTMLAttributes<HTMLDivElement>) => {
+const TopNav = ({ ...props }) => {
     return (
         <nav 
             className={css({

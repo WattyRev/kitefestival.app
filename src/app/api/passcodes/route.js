@@ -18,7 +18,7 @@ import getPasscodeByName from "./getPasscodeByName";
  *   message: string
  * }
  */
-export async function PUT(req: Request) {
+export async function PUT(req) {
     const {
         adminPasscode,
         editorPasscode,
@@ -68,7 +68,7 @@ export async function PUT(req: Request) {
  *    userType: 'editor' | 'user' // The user type matched by the provided passcode
  * }
  */
-export async function POST(req: Request) {
+export async function POST(req) {
     const {
         passcode
     } = await req.json();

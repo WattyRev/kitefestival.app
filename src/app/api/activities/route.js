@@ -1,16 +1,8 @@
 import { NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 import logUpdateByTableName from "../logUpdate";
-import validatePasscode, { PasscodeLevel } from "../passcodes/validatePasscode";
+import validatePasscode from "../passcodes/validatePasscode";
 import patchActivity from "./[activityId]/patchActivity";
-
-export interface Activity {
-    id: string;
-    title: string;
-    description: string;
-    sortIndex: number;    
-    scheduleIndex: number;
-}
 
 export const revalidate = 0;
 
@@ -48,9 +40,9 @@ export async function GET() {
  *   activities: Activity[]
  * }
  */
-export async function POST(req: Request) {
+export async function POST(req) {
     const { title, description = '', passcode } = await req.json();
-    const validationResponse = await validatePasscode(passcode, [PasscodeLevel.EDITOR]);
+    const validationResponse = await validatePasscode(passcode, ['editor']);
     if (validationResponse !== true) {
         return validationResponse;
     }
@@ -89,9 +81,9 @@ export async function POST(req: Request) {
  * Response:
  * {}
  */
-export async function  PATCH(req: Request) {
-    const { activities, passcode }: ({ activities: Partial<Activity>[], passcode: string }) = await req.json();
-    const validationResponse = await validatePasscode(passcode, [PasscodeLevel.EDITOR]);
+export async function PATCH(req) {
+    const { activities, passcode } = await req.json();
+    const validationResponse = await validatePasscode(passcode, ['editor']);
     if (validationResponse !== true) {
         return validationResponse;
     }

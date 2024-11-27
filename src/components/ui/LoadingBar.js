@@ -1,10 +1,6 @@
 import React from 'react';
 import { css } from '../../../styled-system/css';
 
-interface LoadingBarProps extends React.HTMLAttributes<HTMLDivElement> {
-    isLoading: boolean;
-}
-
 export const loadingBarStyles = css({ 
     height: '8px',
     width: '100%',
@@ -15,7 +11,7 @@ export const loadingBarStyles = css({
     },
 })
 
-const LoadingBar = ({ className = '', isLoading, ...props}: LoadingBarProps ) => {
+const LoadingBar = ({ className = '', isLoading, ...props}) => {
     return <div className={`${className} ${loadingBarStyles}`} data-state={isLoading ? 'loading' : undefined} {...props} />
 };
 

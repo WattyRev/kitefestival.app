@@ -1,14 +1,14 @@
 'use client'
 
 import { useContext, useState } from "react";
-import { AuthContext } from "@/components/global/Auth";
+import { AuthContext } from "./global/Auth";
 import Panel from "./ui/Panel";
 import TextInput from "./ui/TextInput";
 import Textarea from "./ui/Textarea";
 import Button from "./ui/Button";
 import H1 from "./ui/H1";
 
-const CreateActivityForm = ({ onSubmit }: { onSubmit: (activity: { title: string, description: string }) => Promise<void> }) => {
+const CreateActivityForm = ({ onSubmit }) => {
     const { isEditor } = useContext(AuthContext);
     const [ pending, setPending ] = useState(false);
     const [ title, setTitle ] = useState('');

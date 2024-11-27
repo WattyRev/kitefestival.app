@@ -1,8 +1,8 @@
 import { Inter } from 'next/font/google'
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import TopNav from '@/components/global/TopNav';
-import { AuthProvider } from '@/components/global/Auth';
+import TopNav from '../components/global/TopNav';
+import { AuthProvider } from '../components/global/Auth';
 
 const inter = Inter({ subsets: ['latin'] })
  
@@ -13,8 +13,6 @@ export const metadata = {
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
 }) {
   return (
     <html lang="en">

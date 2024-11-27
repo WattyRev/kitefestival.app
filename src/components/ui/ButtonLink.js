@@ -1,7 +1,7 @@
 import React from 'react';
 import { buttonStyles } from './Button';
 
-const ButtonLink = ({ children, ...props}: React.AnchorHTMLAttributes<HTMLAnchorElement> ) => {
+const ButtonLink = ({ children, ...props }) => {
     return (
         <a
             className={buttonStyles}

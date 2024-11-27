@@ -1,5 +1,4 @@
 import { sql } from "@vercel/postgres";
-import { Activity } from "../route";
 
 export const NoPatchableKeysError = new Error('No patchable keys were provided');
 
@@ -11,14 +10,14 @@ export const NoPatchableKeysError = new Error('No patchable keys were provided')
  * @returns {Promise<void>}
  * @throws {NoPatchableKeysError} If no patchable keys were provided.
  */
-export default async function patchActivity(activityId: string, activity: Partial<Activity>) {
+export default async function patchActivity(activityId, activity) {
     const patchableKeys = ['title', 'description', 'sortIndex', 'scheduleIndex'];
 
-    const setStrings = patchableKeys.reduce((acc: string[], key) => {
+    const setStrings = patchableKeys.reduce((acc, key) => {
         if (!Object.hasOwn(activity, key)) {
             return acc;
         }
-        return [...acc, `${key} = ${activity[key as keyof Activity]}`];
+        return [...acc, `${key} = ${activity[key]}`];
     }, []);
 
     if (!setStrings.length) {
