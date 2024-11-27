@@ -1,4 +1,5 @@
-import { createContext, useReducer } from "react";
+import { createContext, useContext, useEffect, useReducer, useState } from "react";
+import { AuthContext } from "./global/Auth";
 
 export const ActivitiesContext = createContext({
     activities: [],
@@ -7,6 +8,8 @@ export const ActivitiesContext = createContext({
 });
 
 export const ActivitiesDispatchContext = createContext(null);
+
+let lastUpdate = new Date().getTime() - 15000;
 
 const ActivitiesReducer = (state, action) => {
     switch (action.type) {
@@ -43,24 +46,105 @@ const ActivitiesReducer = (state, action) => {
             };
             return newState;
         }
+        case 'refresh': {
+            return action.newState;
+        }
         default: {
             throw new Error(`Unhandled activities action type: ${action.type}`);
         }
     }
 }
 
-export const ActivitiedProvider = ({ children, initialActivities }) => {
+const ActivitiesContainer = ({ children, initialActivities }) => {
+    const { auth } = useContext(AuthContext);
     const [activitiesData, dispatch] = useReducer(ActivitiesReducer, {
         activities: initialActivities,
         scheduledActivities: initialActivities.filter(activity => activity.scheduleIndex !== null),
         unscheduledActivities: initialActivities.filter(activity => activity.scheduleIndex === null),
-    })
+    });
+    const [isLoading, setIsLoading] = useState(false);
+
+    const fetchActivities = async () => {
+        setIsLoading(true);
+        const activitiesResponse = await fetch('/api/activities')
+        const activitiesJson = await activitiesResponse.json();
+        const { activities } = activitiesJson;
+        dispatch({ type: 'refresh', newState: {
+            activities, 
+            scheduledActivities: activities.filter(activity => activity.scheduleIndex !== null), 
+            unscheduledActivities: activities.filter(activity => activity.scheduleIndex === null)
+        }});
+    }
+
+    const checkForUpdates = async () => {
+        const changesResponse = await fetch('/api/changes');
+        const changesJson = await changesResponse.json();
+        const { changes } = changesJson;
+        const newerChanges = changes.filter(change => new Date(change.updated).getTime() > lastUpdate);
+        if (!newerChanges.length) {
+            return;
+        }
+        lastUpdate = new Date().getTime();
+        const refreshPromises = newerChanges.map(change => {
+            if (change.tablename === 'activities') {
+                return fetchActivities();
+            }
+            return Promise.resolve();
+        });
+        return Promise.all(refreshPromises);
+    }
+
+    useEffect(() => {
+        checkForUpdates();
+        const interval = setInterval(() => {
+            checkForUpdates();
+        }, 5000);
+        return () => clearInterval(interval);
+      }, [])
+
+    const childData = {
+        activities: activitiesData.activities,
+        scheduledActivities: activitiesData.scheduledActivities,
+        unscheduledActivities: activitiesData.unscheduledActivities,
+        isLoading,
+        createActivity: async ({ title, description }) => {
+            const response = await fetch('/api/activities', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title, description, passcode: auth?.passcode })
+            })
+            if (!response.ok) {
+                alert('Failed to create activity');
+                return;
+            }
+            const updatedActivityJson = await response.json();
+            const updatedActivity = updatedActivityJson.activities[0];
+            dispatch({ type: 'create', activity: updatedActivity });
+        },
+        deleteActivity: async (id) => {
+            const response = await fetch(`/api/activities/${id}`, {
+                method: 'DELETE',
+                body: JSON.stringify({
+                    passcode: auth?.passcode
+                })
+            });
+            if (!response.ok) {
+                alert('Failed to delete activity');
+                return;
+            }
+            dispatch({ type: 'delete', id });
+        }
+    }
 
     return (
         <ActivitiesContext.Provider value={activitiesData}>
             <ActivitiesDispatchContext.Provider value={dispatch}>
-                {children}
+                {children?.(childData)}
             </ActivitiesDispatchContext.Provider>
         </ActivitiesContext.Provider>
     )
 };
+
+export default ActivitiesContainer;
