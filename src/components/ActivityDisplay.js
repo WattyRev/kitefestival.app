@@ -5,14 +5,10 @@ import H2 from "./ui/H2"
 import Button from "./ui/Button"
 import { useContext, useState } from "react"
 import { AuthContext } from "./global/Auth"
-import { Activity } from "@/app/api/activities/route"
 
 const ActivityDisplay = ({
     activity,
     onDelete
-}: {
-    activity: Activity,
-    onDelete: (id: string) => Promise<void>
 }) => {
     const { isEditor } = useContext(AuthContext);
 

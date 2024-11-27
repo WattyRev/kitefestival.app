@@ -1,12 +1,7 @@
 import { NextResponse } from "next/server";
 import getPasscodeByName from "./getPasscodeByName";
 
-export enum PasscodeLevel {
-    ADMIN = 'admin',
-    EDITOR = 'editor',
-    USER = 'user',
-}
-export default async function validatePasscode(passcode: string, levels: PasscodeLevel[]) {
+export default async function validatePasscode(passcode, levels) {
     if (!passcode) {
         return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
     }

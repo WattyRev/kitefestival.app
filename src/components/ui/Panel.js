@@ -1,7 +1,7 @@
 import React from 'react';
 import { css } from '../../../styled-system/css';
 
-const Panel = ({ children, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
+const Panel = ({ children, ...props }) => {
     return (
         <div 
             className={css({ 

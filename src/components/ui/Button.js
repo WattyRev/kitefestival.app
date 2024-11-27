@@ -17,7 +17,7 @@ export const buttonStyles = css({
     }
 })
 
-const Button = ({ className = '', children, ...props}: React.ButtonHTMLAttributes<HTMLButtonElement> ) => {
+const Button = ({ className = '', children, ...props}) => {
     return (
         <button
             className={`${className} ${buttonStyles}`}

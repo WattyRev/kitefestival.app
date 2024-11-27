@@ -19,16 +19,12 @@
   },
   "devDependencies": {
     "@pandacss/dev": "^0.46.0",
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.11",
     "husky": "^9.1.6",
-    "lint-staged": "^15.2.10",
-    "typescript": "^5"
+    "lint-staged": "^15.2.10"
   },
   "lint-staged": {
-    "src/**/*.{js,tsx,ts,tsx,mjs}": "eslint --cache --fix"
+    "src/**/*.{js,tsx,mjs}": "eslint --cache --fix"
   }
 }

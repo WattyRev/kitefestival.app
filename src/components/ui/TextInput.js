@@ -1,20 +1,20 @@
 import React from 'react';
 import { css } from '../../../styled-system/css';
 
-const Textarea = ({ ...props}: React.InputHTMLAttributes<HTMLTextAreaElement> ) => {
+const TextInput = ({ ...props}) => {
     return (
-        <textarea 
+        <input 
+            type="text" 
             className={css({ 
                 border: '1px solid black',
                 borderRadius: '3px',
                 background: 'rgba(255,255,255,.5)',
                 width: '100%',
                 padding: '2px',
-                height: '150px',
             })}
             {...props}
         />
     );
 };
 
-export default Textarea;
+export default TextInput;

@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 import getPasscodeByName from "../../passcodes/getPasscodeByName";
 import logUpdateByTableName from "../../logUpdate";
-import validatePasscode, { PasscodeLevel } from "../../passcodes/validatePasscode";
+import validatePasscode from "../../passcodes/validatePasscode";
 import patchActivity, { NoPatchableKeysError } from "./patchActivity";
 
 /**
@@ -18,7 +18,7 @@ import patchActivity, { NoPatchableKeysError } from "./patchActivity";
  *   message: string
  * }
  */
-export async function DELETE(req: NextRequest, { params }: { params: { activityId: string } }) {
+export async function DELETE(req, { params }) {
     const { activityId } = params;
     const { passcode } = await req.json();
     if (!passcode) {
@@ -49,9 +49,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { activityI
  *   message?: string
  * }
  */
-export async function PATCH(req: NextRequest, { params }: { params: { activityId: string } }) {
+export async function PATCH(req, { params }) {
     const { activity, passcode } = await req.json();
-    const validationResponse = await validatePasscode(passcode, [PasscodeLevel.EDITOR]);
+    const validationResponse = await validatePasscode(passcode, ['editor']);
     if (validationResponse !== true) {
         return validationResponse;
     }

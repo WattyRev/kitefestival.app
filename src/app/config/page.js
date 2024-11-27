@@ -1,18 +1,11 @@
 'use client'
 
-import Button from "@/components/ui/Button";
-import Panel from "@/components/ui/Panel";
-import H1 from "@/components/ui/H1";
-import H2 from "@/components/ui/H2";
-import TextInput from "@/components/ui/TextInput";
 import { useState } from "react";
-
-interface PasscodesPayload {
-  adminPasscode?: string,
-  editorPasscode?: string,
-  userPasscode?: string,
-  authentication: string,
-}
+import Button from "../../components/ui/Button";
+import Panel from "../../components/ui/Panel";
+import H1 from "../../components/ui/H1";
+import H2 from "../../components/ui/H2";
+import TextInput from "../../components/ui/TextInput";
 
 const usePasscode = () => {
   const [enabled, setEnabled] = useState(false);
@@ -22,7 +15,7 @@ const usePasscode = () => {
     enabled,
     passcode,
     toggle: () => setEnabled(!enabled),
-    setPasscode: (value: string) => { 
+    setPasscode: (value) => { 
       setPasscodeValue(value);
       if (value) {
         setEnabled(true);
@@ -57,8 +50,8 @@ export default function ConfigPage() {
     if (!useAdminPasscode && !useEditorPasscode && !useUserPasscode) {
       return;
     }
-    const authentication: string = prompt("Enter the current admin passcode.") || '';
-    const payload: PasscodesPayload = { authentication };
+    const authentication = prompt("Enter the current admin passcode.") || '';
+    const payload = { authentication };
     if (useAdminPasscode) {
       payload.adminPasscode = adminPasscode;
     }

@@ -1,13 +1,13 @@
 'use client'
 
 import { useContext } from 'react';
-import { AuthContext, AuthenticatonContext } from '@/components/global/Auth';
+import { AuthContext } from '../Auth';
 
 /**
  * Controls the Log In / Log Out buttons in the top nav
  */
 const AuthSelection = () => {
-    const { auth, setAuthentication, clearAuthentication }: AuthenticatonContext = useContext(AuthContext);
+    const { auth, setAuthentication, clearAuthentication } = useContext(AuthContext);
 
     // Prompt for passcode and log in with it
     async function logIn() {

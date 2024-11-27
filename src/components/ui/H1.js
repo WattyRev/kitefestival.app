@@ -1,7 +1,7 @@
 import React from 'react';
 import { css } from '../../../styled-system/css';
 
-const H1 = ({ children, ...props}: React.HTMLAttributes<HTMLHeadingElement> ) => {
+const H1 = ({ children, ...props} ) => {
     return (
         <h1
             className={css({ 
