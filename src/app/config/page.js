@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from "react";
-import Button from "../components/ui/Button";
-import Panel from "../components/ui/Panel";
-import H1 from "../components/ui/H1";
-import H2 from "../components/ui/H2";
-import TextInput from "../components/ui/TextInput";
+import Button from "../../components/ui/Button";
+import Panel from "../../components/ui/Panel";
+import H1 from "../../components/ui/H1";
+import H2 from "../../components/ui/H2";
+import TextInput from "../../components/ui/TextInput";
 
 const usePasscode = () => {
   const [enabled, setEnabled] = useState(false);
