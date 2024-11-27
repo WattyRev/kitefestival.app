@@ -25,7 +25,6 @@ const HomePageContainer = ({ activities:initialActivities }: { activities: Activ
       const activitiesResponse = await fetch('/api/activities')
       const activitiesJson = await activitiesResponse.json();
       const { activities } = activitiesJson;
-      console.log('fetchedActivities', activities);
       setActivities(activities);
       setIsLoading(false);
     }
@@ -35,21 +34,11 @@ const HomePageContainer = ({ activities:initialActivities }: { activities: Activ
       const changesJson = await changesResponse.json();
       const { changes }: { changes: Change[] } = changesJson;
       const newerChanges = changes.filter(change => new Date(change.updated).getTime() > lastUpdate);
-      console.log('newerChanges', {
-        newerChanges,
-        lastUpdate: new Date(lastUpdate)
-      })
       if (!newerChanges.length) {
         return;
       }
       lastUpdate = new Date().getTime();
       const refreshPromises = newerChanges.map(change => {
-        console.log({
-          lastUpdate,
-          lastUpdateISO: new Date(lastUpdate).toISOString(),
-          newerChange: new Date(change.updated).getTime(),
-          newerChangeOrig: change.updated
-        })
         if (change.tablename === 'activities') {
           return fetchActivities();
         }

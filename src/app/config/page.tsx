@@ -54,7 +54,6 @@ export default function ConfigPage() {
   } = usePasscode();
 
   const submitPasscodes = async function() {
-    console.log('submitPasscodes');
     if (!useAdminPasscode && !useEditorPasscode && !useUserPasscode) {
       return;
     }
