@@ -74,6 +74,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             scheduledActivities: activities.filter(activity => activity.scheduleIndex !== null), 
             unscheduledActivities: activities.filter(activity => activity.scheduleIndex === null)
         }});
+        setIsLoading(false);
     }
 
     const checkForUpdates = async () => {
