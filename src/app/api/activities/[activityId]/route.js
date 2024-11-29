@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
-import getPasscodeByName from "../../passcodes/getPasscodeByName";
 import logUpdateByTableName from "../../logUpdate";
-import validatePasscode from "../../passcodes/validatePasscode";
-import patchActivity, { NoPatchableKeysError } from "./patchActivity";
+import validatePasscode, { NoPasscodeError, InvalidPasscodeError } from "../../passcodes/validatePasscode";
+import patchActivity, { NoPatchableKeysError} from "./patchActivity";
 
 /**
  * Deletes an activity by ID.
@@ -21,12 +20,16 @@ import patchActivity, { NoPatchableKeysError } from "./patchActivity";
 export async function DELETE(req, { params }) {
     const { activityId } = params;
     const { passcode } = await req.json();
-    if (!passcode) {
-        return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
-    }
-    const editorPasscode = await getPasscodeByName('editor');
-    if (passcode !== editorPasscode) {
-        return NextResponse.json({ message: 'Provided passcode is invalid'}, { status: 403 });
+    try {
+        await validatePasscode(passcode, ['editor']);
+    } catch (error) {
+        if (error instanceof NoPasscodeError) {
+            return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
+        }
+        if (error instanceof InvalidPasscodeError) {
+            return NextResponse.json({ message: 'Provided passcode is invalid'}, { status: 403 });
+        }
+        throw error;
     }
     if (!activityId) {
         return NextResponse.json({ message: 'No activity ID provided'}, { status: 400 });
@@ -51,16 +54,23 @@ export async function DELETE(req, { params }) {
  */
 export async function PATCH(req, { params }) {
     const { activity, passcode } = await req.json();
-    const validationResponse = await validatePasscode(passcode, ['editor']);
-    if (validationResponse !== true) {
-        return validationResponse;
+    try {
+        await validatePasscode(passcode, ['editor']);
+    } catch (error) {
+        if (error instanceof NoPasscodeError) {
+            return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
+        }
+        if (error instanceof InvalidPasscodeError) {
+            return NextResponse.json({ message: 'Provided passcode is invalid'}, { status: 403 });
+        }
+        throw error;
     }
 
     try {
         await Promise.all([patchActivity(params.activityId, activity), logUpdateByTableName('activities')]);
         return NextResponse.json({ });
     } catch (error) {
-        if (error === NoPatchableKeysError) {
+        if (error instanceof NoPatchableKeysError) {
             return NextResponse.json({ message: `No patchable keys provided for activity ${params.activityId}`}, { status: 400 });
         }
         throw error;

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
+import { randomUUID } from "../crypto";
 import logUpdateByTableName from "../logUpdate";
-import validatePasscode from "../passcodes/validatePasscode";
+import validatePasscode, { NoPasscodeError, InvalidPasscodeError } from "../passcodes/validatePasscode";
 import patchActivity from "./[activityId]/patchActivity";
 
 export const revalidate = 0;
@@ -42,16 +43,23 @@ export async function GET() {
  */
 export async function POST(req) {
     const { title, description = '', passcode } = await req.json();
-    const validationResponse = await validatePasscode(passcode, ['editor']);
-    if (validationResponse !== true) {
-        return validationResponse;
+    try {
+        await validatePasscode(passcode, ['editor']);
+    } catch (error) {
+        if (error instanceof NoPasscodeError) {
+            return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
+        }
+        if (error instanceof InvalidPasscodeError) {
+            return NextResponse.json({ message: 'Provided passcode is invalid'}, { status: 403 });
+        }
+        throw error;
     }
 
     if (!title) {
         return NextResponse.json({ message: 'No title provided'}, { status: 400 });
     }
 
-    const id = crypto.randomUUID();
+    const id = randomUUID();
     const highestSortIndexResponse = await sql`SELECT (sortIndex) FROM activities ORDER BY sortIndex DESC LIMIT 1`;
     let sortIndex;
     if (!highestSortIndexResponse.rows.length) {
@@ -83,9 +91,16 @@ export async function POST(req) {
  */
 export async function PATCH(req) {
     const { activities, passcode } = await req.json();
-    const validationResponse = await validatePasscode(passcode, ['editor']);
-    if (validationResponse !== true) {
-        return validationResponse;
+    try {
+        await validatePasscode(passcode, ['editor']);
+    } catch (error) {
+        if (error instanceof NoPasscodeError) {
+            return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
+        }
+        if (error instanceof InvalidPasscodeError) {
+            return NextResponse.json({ message: 'Provided passcode is invalid'}, { status: 403 });
+        }
+        throw error;
     }
 
     await Promise.all(activities.map(async activity => {
