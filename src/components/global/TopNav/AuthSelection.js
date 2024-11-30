@@ -2,12 +2,14 @@
 
 import { useContext } from 'react';
 import { AuthContext } from '../Auth';
+import { useAlert } from '../../ui/Alert';
 
 /**
  * Controls the Log In / Log Out buttons in the top nav
  */
 const AuthSelection = () => {
     const { auth, setAuthentication, clearAuthentication } = useContext(AuthContext);
+    const { openAlert } = useAlert();
 
     // Prompt for passcode and log in with it
     async function logIn() {
@@ -19,7 +21,7 @@ const AuthSelection = () => {
         });
 
         if (!response.ok) {
-            alert('Invalid passcode');
+            openAlert('Invalid passcode', 'error');
             return;
         }
 

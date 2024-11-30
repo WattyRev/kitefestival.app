@@ -47,6 +47,8 @@ export const PromptProvider = ({ children }) => {
     )
 };
 
+const TEXT_INPUT_TYPES = ['text', 'password', 'email', 'number', 'tel'];
+
 export const Prompt = ({ prompt, promptType, onSubmit, onCancel }) => {
     const [ value, setValue ] = useState('');
     return (
@@ -77,9 +79,9 @@ export const Prompt = ({ prompt, promptType, onSubmit, onCancel }) => {
                 onSubmit={e => {e.preventDefault(); onSubmit(value);}}
             >
                 <p className={css({ textAlign: 'center', marginBottom: '16px' })}>{prompt}</p>
-                <Input type={promptType} value={value} onChange={e => setValue(e.target.value)} />
+                {TEXT_INPUT_TYPES.includes(promptType) && <Input type={promptType} value={value} onChange={e => setValue(e.target.value)} />}
                 <div className={css({ marginTop: '16px' })}>
-                    <Button type="submit">Submit</Button>
+                    <Button type="submit">{promptType === 'confirm' ? 'Confirm' : 'Submit'}</Button>
                     <Button className="secondary" type="button" onClick={onCancel}>Cancel</Button>
                 </div>
             </form>

@@ -5,18 +5,21 @@ import H2 from "./ui/H2"
 import Button from "./ui/Button"
 import { useContext, useState } from "react"
 import { AuthContext } from "./global/Auth"
+import { usePrompt } from "./ui/Prompt"
 
 const ActivityDisplay = ({
     activity,
     onDelete
 }) => {
     const { isEditor } = useContext(AuthContext);
+    const { openPrompt } = usePrompt();
 
     const [pending, setPending] = useState(false);
 
     async function deleteActivity() {
-        const confirmed = confirm(`Are you sure you want to delete "${activity.title}"?`);
-        if (!confirmed) {
+        try {
+            await openPrompt(`Are you sure you want to delete "${activity.title}"?`, 'confirm');
+        } catch {
             return;
         }
 

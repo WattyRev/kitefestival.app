@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useReducer, useState } from "react";
 import { AuthContext } from "./global/Auth";
+import { useAlert } from "./ui/Alert";
 
 export const ActivitiesContext = createContext({
     activities: [],
@@ -63,6 +64,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
         unscheduledActivities: initialActivities.filter(activity => activity.scheduleIndex === null),
     });
     const [isLoading, setIsLoading] = useState(false);
+    const { openAlert } = useAlert();
 
     const fetchActivities = async () => {
         setIsLoading(true);
@@ -117,7 +119,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 body: JSON.stringify({ title, description, passcode: auth?.passcode })
             })
             if (!response.ok) {
-                alert('Failed to create activity');
+                openAlert('Failed to create activity', 'error');
                 return;
             }
             const updatedActivityJson = await response.json();
@@ -132,7 +134,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 })
             });
             if (!response.ok) {
-                alert('Failed to delete activity');
+                openAlert('Failed to delete activity', 'error');
                 return;
             }
             dispatch({ type: 'delete', id });
