@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 import { GET, POST, PATCH } from "../route";
 import { randomUUID } from "../../crypto";
@@ -21,8 +20,10 @@ describe('activities/route', () => {
                 sortindex: 1,
                 scheduleindex: null
             }] });
-            await GET();
-            expect(NextResponse.json).toHaveBeenCalledWith({ activities: [{ id: '1', title: 'boogers', description: 'green things', sortIndex: 1, scheduleIndex: null }] });
+            const response = await GET();
+            expect(response).toEqual({ data: {
+                activities: [{ id: '1', title: 'boogers', description: 'green things', sortIndex: 1, scheduleIndex: null }]
+            }});
         });
     });
     describe('POST', () => {
@@ -38,8 +39,8 @@ describe('activities/route', () => {
                     description: 'green things'
                 })
             };
-            await POST(mockReq);
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'No passcode provided'}, { status: 400 });
+            const response = await POST(mockReq);
+            expect(response).toEqual({ data: {message: 'No passcode provided' }, status: 400 });
         });
         it('returns a 403 if the provided passcode does not match the editor passcode', async () => {
             validatePasscode.mockRejectedValue(new InvalidPasscodeError())
@@ -50,8 +51,8 @@ describe('activities/route', () => {
                     description: 'green things'
                 })
             };
-            await POST(mockReq);
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'Provided passcode is invalid'}, { status: 403 });
+            const response = await POST(mockReq);
+            expect(response).toEqual({ data: {message: 'Provided passcode is invalid' }, status: 403 });
         });
         it('returns a 400 if no title was provided', async () => {
             const mockReq = {
@@ -60,8 +61,8 @@ describe('activities/route', () => {
                     description: 'green things'
                 })
             };
-            await POST(mockReq);
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'No title provided'}, { status: 400 });
+            const response = await POST(mockReq);
+            expect(response).toEqual({ data: {message: 'No title provided' }, status: 400 });
         });
         it('inserts the activity and returns it', async () => {
             sql.mockResolvedValue({ rows: []});
@@ -113,8 +114,8 @@ describe('activities/route', () => {
                     activities: [{ foo: 'bar' }]
                 })
             };
-            await PATCH(mockReq);
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'No passcode provided'}, { status: 400 });
+            const response = await PATCH(mockReq);
+            expect(response).toEqual({ data: {message: 'No passcode provided'}, status: 400 });
         });
         it('should return a 403 if the provided passcode does not match the editor passcode', async () => {
             validatePasscode.mockRejectedValue(new InvalidPasscodeError());
@@ -124,8 +125,8 @@ describe('activities/route', () => {
                     activities: [{ foo: 'bar' }]
                 })
             };
-            await PATCH(mockReq);
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'Provided passcode is invalid'}, { status: 403 });
+            const response = await PATCH(mockReq);
+            expect(response).toEqual({ data: {message: 'Provided passcode is invalid'}, status: 403 });
         });
         it('should call patchActivity for each activity and log the update', async () => {
             const mockReq = {

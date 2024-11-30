@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 import getPasscodeByName from "../getPasscodeByName";
 import { PUT, POST } from "../route";
@@ -21,7 +20,7 @@ describe('passcodes/route', () => {
             const mockReq = {
                 json: jest.fn().mockResolvedValue(mockPayload)
             };
-            await PUT(mockReq);
+            const response = await PUT(mockReq);
             expect(sql).toHaveBeenCalledTimes(3);
             expect(sql).toHaveBeenCalledWith([
                 'UPDATE passcodes SET passcode = ',
@@ -32,21 +31,21 @@ describe('passcodes/route', () => {
             expect(sql).toHaveBeenCalledWith([
                 'UPDATE passcodes SET passcode = ',
                 ' WHERE name = \'user\'',], 'abcd');
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'Admin, Editor, User passcodes have been updated' });
+            expect(response).toEqual({ data: {message: 'Admin, Editor, User passcodes have been updated' }});
         });
         it('returns a 401 if no authentication is provided', async () => {
             const mockReq = {
                 json: jest.fn().mockResolvedValue({mockPayload, authentication: null})
             };
-            await PUT(mockReq);
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'No authentication provided'}, { status: 401 });
+            const response = await PUT(mockReq);
+            expect(response).toEqual({ data: {message: 'No authentication provided'}, status: 401 });
         });
         it('returns a 403 if the provided authentication does not match the admin passcode', async () => {
             const mockReq = {
                 json: jest.fn().mockResolvedValue({mockPayload, authentication: 'not-admin'})
             };
-            await PUT(mockReq);
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'Provided authentication is invalid'}, { status: 403 });
+            const response = await PUT(mockReq);
+            expect(response).toEqual({ data: {message: 'Provided authentication is invalid'}, status: 403 });
         });
         it('only updates the admin passcode if that is all that was provided', async () => {
             const mockReq = {
@@ -55,12 +54,12 @@ describe('passcodes/route', () => {
                     authentication: 'admin'
                 })
             };
-            await PUT(mockReq);
+            const response = await PUT(mockReq);
             expect(sql).toHaveBeenCalledWith([
                 'UPDATE passcodes SET passcode = ',
                 ' WHERE name = \'admin\'',], 'adminNew');
             expect(sql).toHaveBeenCalledTimes(1);
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'Admin passcode has been updated' });
+            expect(response).toEqual({ data: {message: 'Admin passcode has been updated'} });
         });
         it('only updates the editor passcode if that is all that was provided', async () => {
             const mockReq = {
@@ -69,12 +68,12 @@ describe('passcodes/route', () => {
                     authentication: 'admin'
                 })
             };
-            await PUT(mockReq);
+            const response = await PUT(mockReq);
             expect(sql).toHaveBeenCalledWith([
                 'UPDATE passcodes SET passcode = ',
                 ' WHERE name = \'editor\'',], 'boogers');
             expect(sql).toHaveBeenCalledTimes(1);
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'Editor passcode has been updated' });
+            expect(response).toEqual({ data: {message: 'Editor passcode has been updated'} });
         });
         it('only updates the user passcode if that is all that was provided', async () => {
             const mockReq = {
@@ -83,12 +82,12 @@ describe('passcodes/route', () => {
                     authentication: 'admin'
                 })
             };
-            await PUT(mockReq);
+            const response = await PUT(mockReq);
             expect(sql).toHaveBeenCalledWith([
                 'UPDATE passcodes SET passcode = ',
                 ' WHERE name = \'user\'',], 'abcd');
             expect(sql).toHaveBeenCalledTimes(1);
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'User passcode has been updated' });
+            expect(response).toEqual({ data: {message: 'User passcode has been updated'} });
         });
     });
     describe('POST', () => {
@@ -108,8 +107,8 @@ describe('passcodes/route', () => {
                     passcode: 'boogers'
                 })
             };
-            await POST(mockReq);
-            expect(NextResponse.json).toHaveBeenCalledWith({ userType: 'editor' });
+            const response = await POST(mockReq);
+            expect(response).toEqual({ data: {userType: 'editor'} });
         });
         it('returns user userType if user passcode is provided', async () => {
             const mockReq = {
@@ -117,15 +116,15 @@ describe('passcodes/route', () => {
                     passcode: 'abcd'
                 })
             };
-            await POST(mockReq);
-            expect(NextResponse.json).toHaveBeenCalledWith({ userType: 'user' });
+            const response = await POST(mockReq);
+            expect(response).toEqual({ data: {userType: 'user'} });
         });
         it('returns a 400 if no passcode was provided', async () => {
             const mockReq = {
                 json: jest.fn().mockResolvedValue({})
             };
-            await POST(mockReq);
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'No passcode provided' }, { status: 400 });
+            const response = await POST(mockReq);
+            expect(response).toEqual({ data: {message: 'No passcode provided' }, status: 400 });
         });
         it('returns a 401 if the passcode does not match a user type', async () => {
             const mockReq = {
@@ -133,8 +132,8 @@ describe('passcodes/route', () => {
                     passcode: 'nothing'
                 })
             };
-            await POST(mockReq);
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'Invalid passcode'}, { status: 401 });
+            const response = await POST(mockReq);
+            expect(response).toEqual({ data: {message: 'Invalid passcode'}, status: 401 });
         });
     });
 });

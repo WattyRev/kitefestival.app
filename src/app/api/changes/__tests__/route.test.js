@@ -1,5 +1,4 @@
 import { sql } from "@vercel/postgres";
-import { NextResponse } from "next/server";
 import { GET } from "../route";
 
 describe('changes/route', () => {
@@ -9,9 +8,9 @@ describe('changes/route', () => {
                 tablename: 'activities',
                 updated: '2023-01-01T00:00:00.000Z'
             }] });
-            await GET();
+            const response = await GET();
             expect(sql).toHaveBeenCalledWith(['SELECT * FROM changes']);
-            expect(NextResponse.json).toHaveBeenCalledWith({ changes: [{ tablename: 'activities', updated: '2023-01-01T00:00:00.000Z' }] });
+            expect(response).toEqual({ data: { changes: [{ tablename: 'activities', updated: '2023-01-01T00:00:00.000Z' }] } });
         });
     });
 });

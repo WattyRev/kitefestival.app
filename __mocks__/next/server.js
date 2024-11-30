@@ -1,3 +1,7 @@
+const mockJson = (data, status) => {
+    return { data, ...status};
+};
+
 export const NextResponse = {
-    json: jest.fn()
+    json: mockJson
 };

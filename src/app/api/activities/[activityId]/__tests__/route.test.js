@@ -1,11 +1,9 @@
-import { NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 import logUpdateByTableName from "../../../logUpdate";
 import validatePasscode, { NoPasscodeError, InvalidPasscodeError } from "../../../passcodes/validatePasscode";
 import patchActivity, { NoPatchableKeysError } from "../patchActivity";
 import { DELETE, PATCH } from "../route";
 
-jest.mock('next/server');
 jest.mock('../../../passcodes/validatePasscode');
 jest.mock('../../../logUpdate');
 jest.mock('../patchActivity');
@@ -20,23 +18,23 @@ describe('activities/[activityId]/route', () => {
             const mockReq = {
                 json: jest.fn().mockResolvedValue({})
             }
-            await DELETE(mockReq, { params: { activityId: '1' } });
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'No passcode provided'}, { status: 400 });
+            const response = await DELETE(mockReq, { params: { activityId: '1' } });
+            expect(response).toEqual({ data: {message: 'No passcode provided' }, status: 400 });
         });
         it('returns a 403 if the provided passcode does not match the editor passcode', async () => {
             validatePasscode.mockRejectedValue(new InvalidPasscodeError())
             const mockReq = {
                 json: jest.fn().mockResolvedValue({ passcode: 'boogers' })
             };
-            await DELETE(mockReq, { params: { activityId: '1' } });
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'Provided passcode is invalid'}, { status: 403 });
+            const response = await DELETE(mockReq, { params: { activityId: '1' } });
+            expect(response).toEqual({ data: {message: 'Provided passcode is invalid' }, status: 403 });
         });
         it('returns a 400 if no activity ID was provided', async () => {
             const mockReq = {
                 json: jest.fn().mockResolvedValue({ passcode: 'editorPasscode' })
             };
-            await DELETE(mockReq, { params: {} });
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'No activity ID provided'}, { status: 400 });
+            const response = await DELETE(mockReq, { params: {} });
+            expect(response).toEqual({ data: {message: 'No activity ID provided' }, status: 400 });
         });
         it('deletes the activity from the database', async () => {
             const mockReq = {
@@ -65,8 +63,8 @@ describe('activities/[activityId]/route', () => {
                     activity: { foo: 'bar' }
                 })
             };
-            await PATCH(mockReq, { params: { activityId: '1' } });
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'No passcode provided'}, { status: 400 });
+            const response = await PATCH(mockReq, { params: { activityId: '1' } });
+            expect(response).toEqual({ data: {message: 'No passcode provided' }, status: 400 });
         });
         it('returns a 403 if the provided passcode does not match the editor passcode', async () => {
             validatePasscode.mockRejectedValue(new InvalidPasscodeError());
@@ -76,8 +74,8 @@ describe('activities/[activityId]/route', () => {
                     activity: { foo: 'bar' }
                 })
             };
-            await PATCH(mockReq, { params: { activityId: '1' } });
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'Provided passcode is invalid'}, { status: 403 });
+            const response = await PATCH(mockReq, { params: { activityId: '1' } });
+            expect(response).toEqual({ data: {message: 'Provided passcode is invalid' }, status: 403 });
         });
         it('returns 400 if the activity did not provide any patchable keys', async () => {
             patchActivity.mockRejectedValue(new NoPatchableKeysError());
@@ -87,8 +85,8 @@ describe('activities/[activityId]/route', () => {
                     activity: { foo: 'bar' }
                 })
             };
-            await PATCH(mockReq, { params: { activityId: '1' } });
-            expect(NextResponse.json).toHaveBeenCalledWith({ message: 'No patchable keys provided for activity 1'}, { status: 400 });
+            const response = await PATCH(mockReq, { params: { activityId: '1' } });
+            expect(response).toEqual({ data: {message: 'No patchable keys provided for activity 1' }, status: 400 });
         });
         it('patches the activity and logs the  update', async () => {
             const mockReq = {
@@ -97,10 +95,10 @@ describe('activities/[activityId]/route', () => {
                     activity: { foo: 'bar' }
                 })
             };
-            await PATCH(mockReq, { params: { activityId: '1' } });
+            const response = await PATCH(mockReq, { params: { activityId: '1' } });
             expect(patchActivity).toHaveBeenCalledWith('1', { foo: 'bar' });
             expect(logUpdateByTableName).toHaveBeenCalledWith('activities');
-            expect(NextResponse.json).toHaveBeenCalledWith({ });
+            expect(response).toEqual({ data: {} });
         });
     });
 });

@@ -24,6 +24,7 @@ export async function DELETE(req, { params }) {
         await validatePasscode(passcode, ['editor']);
     } catch (error) {
         if (error instanceof NoPasscodeError) {
+            console.log('no passcode error', NextResponse.json);
             return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
         }
         if (error instanceof InvalidPasscodeError) {
