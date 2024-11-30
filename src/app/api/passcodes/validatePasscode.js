@@ -23,9 +23,7 @@ export default async function validatePasscode(passcode, levels) {
 
     const validPasscodes = await Promise.all(levels.map(level => getPasscodeByName(level)));
     if (!validPasscodes.includes(passcode)) {
-        throw {
-            name: 'InvalidPasscodeError',
-            message: 'Provided passcode is invalid'
-        };
+        throw new InvalidPasscodeError();
     }
+    return true;
 }
