@@ -1,11 +1,14 @@
 'use client'
 
 import { useState } from "react";
+import fetch from '../../util/fetch';
 import Button from "../../components/ui/Button";
 import Panel from "../../components/ui/Panel";
 import H1 from "../../components/ui/H1";
 import H2 from "../../components/ui/H2";
 import TextInput from "../../components/ui/TextInput";
+import { usePrompt } from "../../components/ui/Prompt";
+import { useAlert } from "../../components/ui/Alert";
 
 const usePasscode = () => {
   const [enabled, setEnabled] = useState(false);
@@ -27,6 +30,8 @@ const usePasscode = () => {
 }
 
 export default function ConfigPage() {
+  const { openPrompt } = usePrompt();
+  const { openAlert } = useAlert();
   const { 
      enabled: useAdminPasscode,
      passcode: adminPasscode,
@@ -50,7 +55,10 @@ export default function ConfigPage() {
     if (!useAdminPasscode && !useEditorPasscode && !useUserPasscode) {
       return;
     }
-    const authentication = prompt("Enter the current admin passcode.") || '';
+    const authentication = await openPrompt("Enter the current admin passcode.", 'password').catch(() => '');
+    if (!authentication) {
+      return;
+    }
     const payload = { authentication };
     if (useAdminPasscode) {
       payload.adminPasscode = adminPasscode;
@@ -65,8 +73,9 @@ export default function ConfigPage() {
       method: 'PUT',
       body: JSON.stringify(payload)
     });
+    const type = response.ok ? 'success' : 'error';
     const { message } = await response.json();
-    alert(message);
+    openAlert(message, type);
   }
 
   return (

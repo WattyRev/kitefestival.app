@@ -1,5 +1,9 @@
-import { createContext, useContext, useEffect, useReducer, useState } from "react";
-import { AuthContext } from "./global/Auth";
+import { createContext, useEffect, useReducer, useState } from "react";
+import fetch from '../util/fetch';
+import setInterval from '../util/setInterval';
+import clearInterval from '../util/clearInterval';
+import { useAuth } from "./global/Auth";
+import { useAlert } from "./ui/Alert";
 
 export const ActivitiesContext = createContext({
     activities: [],
@@ -56,13 +60,14 @@ const ActivitiesReducer = (state, action) => {
 }
 
 const ActivitiesContainer = ({ children, initialActivities }) => {
-    const { auth } = useContext(AuthContext);
+    const { auth } = useAuth();
     const [activitiesData, dispatch] = useReducer(ActivitiesReducer, {
         activities: initialActivities,
         scheduledActivities: initialActivities.filter(activity => activity.scheduleIndex !== null),
         unscheduledActivities: initialActivities.filter(activity => activity.scheduleIndex === null),
     });
     const [isLoading, setIsLoading] = useState(false);
+    const { openAlert } = useAlert();
 
     const fetchActivities = async () => {
         setIsLoading(true);
@@ -79,8 +84,14 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
 
     const checkForUpdates = async () => {
         const changesResponse = await fetch('/api/changes');
+        if (!changesResponse.ok) {
+            return;
+        }
         const changesJson = await changesResponse.json();
         const { changes } = changesJson;
+        if (!changes?.length) {
+            return;
+        }
         const newerChanges = changes.filter(change => new Date(change.updated).getTime() > lastUpdate);
         if (!newerChanges.length) {
             return;
@@ -117,7 +128,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 body: JSON.stringify({ title, description, passcode: auth?.passcode })
             })
             if (!response.ok) {
-                alert('Failed to create activity');
+                openAlert('Failed to create activity', 'error');
                 return;
             }
             const updatedActivityJson = await response.json();
@@ -132,7 +143,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 })
             });
             if (!response.ok) {
-                alert('Failed to delete activity');
+                openAlert('Failed to delete activity', 'error');
                 return;
             }
             dispatch({ type: 'delete', id });

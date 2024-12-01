@@ -1,17 +1,26 @@
 'use client'
 
-import { useContext } from 'react';
-import { AuthContext } from '../Auth';
+import { useAuth } from '../Auth';
+import { useAlert } from '../../ui/Alert';
+import { usePrompt } from '../../ui/Prompt';
+import fetch from '../../../util/fetch';
 
 /**
  * Controls the Log In / Log Out buttons in the top nav
  */
 const AuthSelection = () => {
-    const { auth, setAuthentication, clearAuthentication } = useContext(AuthContext);
+    const { auth, setAuthentication, clearAuthentication } = useAuth();
+    const { openAlert } = useAlert();
+    const { openPrompt } = usePrompt();
 
     // Prompt for passcode and log in with it
     async function logIn() {
-        const passcode = prompt("Enter the passcode.") || '';
+        let passcode;
+        try {
+            passcode = await openPrompt("Enter the passcode.", 'password');
+        } catch {
+            return;
+        }
 
         const response = await fetch('/api/passcodes', {
             method: 'POST',
@@ -19,7 +28,7 @@ const AuthSelection = () => {
         });
 
         if (!response.ok) {
-            alert('Invalid passcode');
+            openAlert('Invalid passcode', 'error');
             return;
         }
 
@@ -33,13 +42,13 @@ const AuthSelection = () => {
 
     if (!auth?.userType) {
         return (
-            <a onClick={logIn}>
+            <a data-testid="log-in" onClick={logIn}>
                 Log In
             </a>
         );
     }
     return (
-        <a onClick={logOut}>
+        <a data-testid="log-out" onClick={logOut}>
             Log Out
         </a>
     );

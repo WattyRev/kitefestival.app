@@ -14,6 +14,9 @@ export const buttonStyles = css({
     },
     '&.danger': {
         background: 'danger',
+    },
+    '&.secondary': {
+        background: 'secondary',
     }
 })
 

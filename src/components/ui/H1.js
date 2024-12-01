@@ -1,12 +1,12 @@
 import React from 'react';
 import { css } from '../../../styled-system/css';
 
-const H1 = ({ children, ...props} ) => {
+const H1 = ({ children, className, ...props} ) => {
     return (
         <h1
-            className={css({ 
+            className={`${className} ${css({ 
                 fontSize: '2rem',
-            })}
+            })}`}
             {...props}
         >{children}</h1>
     );

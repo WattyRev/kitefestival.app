@@ -24,7 +24,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                         <p>There&apos;s nothing happening right now</p>
 
                         <H1>Unscheduled Activities</H1>
-                        {!unscheduledActivities.length && <p>There are no activities</p>}
+                        {!unscheduledActivities.length && <p data-testid="empty-unscheduled">There are no activities</p>}
                         {unscheduledActivities.map(activity => (
                             <ActivityDisplay key={activity.id} activity={activity} onDelete={deleteActivity} />
                         ))}

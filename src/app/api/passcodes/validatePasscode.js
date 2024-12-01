@@ -1,14 +1,29 @@
-import { NextResponse } from "next/server";
 import getPasscodeByName from "./getPasscodeByName";
+
+export class NoPasscodeError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'NoPasscodeError';
+        this.message = 'No passcode provided';
+    }
+}
+
+export class InvalidPasscodeError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'InvalidPasscodeError';
+        this.message = 'Provided passcode is invalid';
+    }
+}
 
 export default async function validatePasscode(passcode, levels) {
     if (!passcode) {
-        return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
+        throw new NoPasscodeError();
     }
 
     const validPasscodes = await Promise.all(levels.map(level => getPasscodeByName(level)));
     if (!validPasscodes.includes(passcode)) {
-        return NextResponse.json({ message: 'Provided passcode is invalid'}, { status: 403 });
+        throw new InvalidPasscodeError();
     }
     return true;
 }

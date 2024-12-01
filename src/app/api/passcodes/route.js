@@ -25,15 +25,14 @@ export async function PUT(req) {
         userPasscode,
         authentication
     } = await req.json();
-    
     if (!authentication) {
-        NextResponse.json({ message: 'No authentication provided'}, { status: 401 });
+        return NextResponse.json({ message: 'No authentication provided'}, { status: 401 });
     }
 
     const currentPasscode = await getPasscodeByName('admin');
     
     if (authentication !== currentPasscode) {
-        NextResponse.json({ message: 'Provided authentication is invalid'}, { status: 403 });
+        return NextResponse.json({ message: 'Provided authentication is invalid'}, { status: 403 });
     }
 
     const promises = [];
