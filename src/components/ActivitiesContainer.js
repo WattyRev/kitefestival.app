@@ -1,5 +1,8 @@
-import { createContext, useContext, useEffect, useReducer, useState } from "react";
-import { AuthContext } from "./global/Auth";
+import { createContext, useEffect, useReducer, useState } from "react";
+import fetch from '../util/fetch';
+import setInterval from '../util/setInterval';
+import clearInterval from '../util/clearInterval';
+import { useAuth } from "./global/Auth";
 import { useAlert } from "./ui/Alert";
 
 export const ActivitiesContext = createContext({
@@ -57,7 +60,7 @@ const ActivitiesReducer = (state, action) => {
 }
 
 const ActivitiesContainer = ({ children, initialActivities }) => {
-    const { auth } = useContext(AuthContext);
+    const { auth } = useAuth();
     const [activitiesData, dispatch] = useReducer(ActivitiesReducer, {
         activities: initialActivities,
         scheduledActivities: initialActivities.filter(activity => activity.scheduleIndex !== null),
@@ -81,8 +84,14 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
 
     const checkForUpdates = async () => {
         const changesResponse = await fetch('/api/changes');
+        if (!changesResponse.ok) {
+            return;
+        }
         const changesJson = await changesResponse.json();
         const { changes } = changesJson;
+        if (!changes?.length) {
+            return;
+        }
         const newerChanges = changes.filter(change => new Date(change.updated).getTime() > lastUpdate);
         if (!newerChanges.length) {
             return;
