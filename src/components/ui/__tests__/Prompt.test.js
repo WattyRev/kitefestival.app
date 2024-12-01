@@ -179,12 +179,12 @@ describe('Prompt', () => {
             await userEvent.click(screen.getByText('Open Prompt'));
     
             expect(screen.queryAllByTestId('prompt-form')).toHaveLength(1);
-            // expect(screen.queryAllByTestId('prompt-input')).toHaveLength(0);
+            expect(screen.queryAllByTestId('prompt-input')).toHaveLength(0);
     
-            // await userEvent.click(screen.getByTestId('prompt-submit'));
+            await userEvent.click(screen.getByTestId('prompt-submit'));
     
-            // expect(screen.queryAllByTestId('prompt-form')).toHaveLength(0);
-            // expect(screen.getByTestId('status')).toHaveTextContent('resolved');
+            expect(screen.queryAllByTestId('prompt-form')).toHaveLength(0);
+            expect(screen.getByTestId('status')).toHaveTextContent('resolved');
         });
     });
 });
