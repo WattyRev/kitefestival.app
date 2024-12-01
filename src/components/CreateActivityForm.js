@@ -1,7 +1,7 @@
 'use client'
 
-import { useContext, useState } from "react";
-import { AuthContext } from "./global/Auth";
+import { useState } from "react";
+import { useAuth } from "./global/Auth";
 import Panel from "./ui/Panel";
 import TextInput from "./ui/TextInput";
 import Textarea from "./ui/Textarea";
@@ -9,7 +9,7 @@ import Button from "./ui/Button";
 import H1 from "./ui/H1";
 
 const CreateActivityForm = ({ onSubmit }) => {
-    const { isEditor } = useContext(AuthContext);
+    const { isEditor } = useAuth();
     const [ pending, setPending ] = useState(false);
     const [ title, setTitle ] = useState('');
     const [ description, setDescription ] = useState('');
@@ -26,15 +26,15 @@ const CreateActivityForm = ({ onSubmit }) => {
         setPending(false);
     }
     return (
-        <form onSubmit={e => {e.preventDefault(); submit()}}>
+        <form data-testid="create-activity-form" onSubmit={e => {e.preventDefault(); submit()}}>
             <H1>Create Activity</H1>
             <Panel>
                 <label>Title</label>
-                <TextInput required value={title} onChange={e => setTitle(e.target.value)} />
+                <TextInput data-testid="title" required value={title} onChange={e => setTitle(e.target.value)} />
                 <label>Description</label>
-                <Textarea required value={description} onChange={e => setDescription(e.target.value)} />
+                <Textarea data-testid="description" required value={description} onChange={e => setDescription(e.target.value)} />
             </Panel>
-            <Button type="submit" disabled={pending}>Save</Button>
+            <Button data-testid="save-activity" type="submit" disabled={pending}>Save</Button>
         </form>
     )
 }

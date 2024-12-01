@@ -3,15 +3,15 @@
 import Panel from "./ui/Panel"
 import H2 from "./ui/H2"
 import Button from "./ui/Button"
-import { useContext, useState } from "react"
-import { AuthContext } from "./global/Auth"
+import { useState } from "react"
+import { useAuth } from "./global/Auth"
 import { usePrompt } from "./ui/Prompt"
 
 const ActivityDisplay = ({
     activity,
     onDelete
 }) => {
-    const { isEditor } = useContext(AuthContext);
+    const { isEditor } = useAuth();
     const { openPrompt } = usePrompt();
 
     const [pending, setPending] = useState(false);
@@ -32,7 +32,7 @@ const ActivityDisplay = ({
         <Panel>
             <H2>{activity.title}</H2>
             <p>{activity.description}</p>
-            {isEditor() && <Button onClick={deleteActivity} disabled={pending} className="danger">Delete</Button>}
+            {isEditor() && <Button data-testid="delete-activity" onClick={deleteActivity} disabled={pending} className="danger">Delete</Button>}
         </Panel>
     )
 }
