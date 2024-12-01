@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState } from "react";
 import { css } from '../../../styled-system/css';
+import setTimeout from '../../util/setTimeout';
 
 export const AlertContext = createContext({});
 
@@ -49,7 +50,7 @@ export const AlertWrapper = ({ alerts, onClose }) => {
 };
 
 export const Alert = ({ message, className, onClose }) =>  (
-    <div className={`${className} ${css({ 
+    <div data-testid="alert-container" className={`${className} ${css({ 
         padding: '8px',
         marginTop: '8px',
         borderRadius: '4px',
@@ -62,7 +63,7 @@ export const Alert = ({ message, className, onClose }) =>  (
             background: 'danger',
         }
     })}`}>
-        <p className={css({ marginRight: '8px' })}>{message}</p>
-        <button className={css({ cursor: 'pointer', alignSelf: 'flex-start' })} onClick={onClose}>X</button>
+        <p data-testid="alert-message" className={css({ marginRight: '8px' })}>{message}</p>
+        <button data-testid="alert-close" className={css({ cursor: 'pointer', alignSelf: 'flex-start' })} onClick={onClose}>X</button>
     </div>
 );

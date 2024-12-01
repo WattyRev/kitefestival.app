@@ -12,6 +12,7 @@ const config = {
   testEnvironment: 'jsdom',
   resetMocks: true,
   clearMocks: true,
+  setupFilesAfterEnv: ["./src/setupTests.js"]
   // Add more setup options before each test is run
   // setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 }

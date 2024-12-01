@@ -3,7 +3,7 @@
 import { createContext, useContext, useState } from "react";
 import Button from "./Button";
 import { css } from '../../../styled-system/css';
-import Input from "./Input";
+import TextInput from "./TextInput";
 
 export const PromptContext = createContext({});
 
@@ -47,22 +47,26 @@ export const PromptProvider = ({ children }) => {
     )
 };
 
-const TEXT_INPUT_TYPES = ['text', 'password', 'email', 'number', 'tel'];
+export const TEXT_INPUT_TYPES = ['text', 'password', 'email', 'number', 'tel'];
 
 export const Prompt = ({ prompt, promptType, onSubmit, onCancel }) => {
     const [ value, setValue ] = useState('');
     return (
         <>
-            <div className={css({ 
-                position: 'fixed',
-                opacity: 0.5,
-                background: 'black',
-                width: '100vw',
-                height: '100vh',
-                top: 0,
-                left: 0,
-                cursor: 'pointer',
-            })} onClick={onCancel} />
+            <div 
+                className={css({ 
+                    position: 'fixed',
+                    opacity: 0.5,
+                    background: 'black',
+                    width: '100vw',
+                    height: '100vh',
+                    top: 0,
+                    left: 0,
+                    cursor: 'pointer',
+                })}
+                onClick={onCancel}
+                data-testid="prompt-overlay"
+            />
             <form 
                 className={css({
                     position: 'fixed',
@@ -77,12 +81,13 @@ export const Prompt = ({ prompt, promptType, onSubmit, onCancel }) => {
                     border: '1px solid black',
                 })}
                 onSubmit={e => {e.preventDefault(); onSubmit(value);}}
+                data-testid="prompt-form"
             >
-                <p className={css({ textAlign: 'center', marginBottom: '16px' })}>{prompt}</p>
-                {TEXT_INPUT_TYPES.includes(promptType) && <Input type={promptType} value={value} onChange={e => setValue(e.target.value)} />}
+                <p data-testid="prompt-message" className={css({ textAlign: 'center', marginBottom: '16px' })}>{prompt}</p>
+                {TEXT_INPUT_TYPES.includes(promptType) && <TextInput data-testid="prompt-input" type={promptType} value={value} onChange={e => setValue(e.target.value)} />}
                 <div className={css({ marginTop: '16px' })}>
-                    <Button type="submit">{promptType === 'confirm' ? 'Confirm' : 'Submit'}</Button>
-                    <Button className="secondary" type="button" onClick={onCancel}>Cancel</Button>
+                    <Button data-testid="prompt-submit" type="submit">{promptType === 'confirm' ? 'Confirm' : 'Submit'}</Button>
+                    <Button data-testid="prompt-cancel" className="secondary" type="button" onClick={onCancel}>Cancel</Button>
                 </div>
             </form>
         </>
