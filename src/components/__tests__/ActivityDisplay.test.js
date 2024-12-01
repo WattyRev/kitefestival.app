@@ -66,4 +66,44 @@ describe('ActivityDisplay', () => {
         resolveDelete();
         await waitFor(() => expect(screen.getByTestId('delete-activity')).not.toHaveAttribute('disabled'));
     });
+    it('allows an editor to schedule an activity', async () => {
+        useAuth.mockReturnValue({
+            isEditor: jest.fn().mockReturnValue(true)
+        })
+        let resolveSchedule;
+        const onSchedule = jest.fn().mockImplementation(() => {
+            return new Promise(resolve => {
+                resolveSchedule = resolve;
+            })
+        });
+        mockOpenPrompt.mockResolvedValue();
+        render(<ActivityDisplay activity={mockActivity} onSchedule={onSchedule} />);
+
+        await userEvent.click(screen.getByTestId('add-schedule'));
+
+        expect(onSchedule).toHaveBeenCalledWith(mockActivity.id);
+        expect(screen.getByTestId('add-schedule')).toHaveAttribute('disabled');
+        resolveSchedule();
+        await waitFor(() => expect(screen.getByTestId('add-schedule')).not.toHaveAttribute('disabled'));
+    });
+    it('allows an editor to unschedule an activity', async () => {
+        useAuth.mockReturnValue({
+            isEditor: jest.fn().mockReturnValue(true)
+        })
+        let resolveUnschedule;
+        const onUnschedule = jest.fn().mockImplementation(() => {
+            return new Promise(resolve => {
+                resolveUnschedule = resolve;
+            })
+        });
+        mockOpenPrompt.mockResolvedValue();
+        render(<ActivityDisplay activity={mockActivity} onUnschedule={onUnschedule} />);
+
+        await userEvent.click(screen.getByTestId('remove-schedule'));
+
+        expect(onUnschedule).toHaveBeenCalledWith(mockActivity.id);
+        expect(screen.getByTestId('remove-schedule')).toHaveAttribute('disabled');
+        resolveUnschedule();
+        await waitFor(() => expect(screen.getByTestId('remove-schedule')).not.toHaveAttribute('disabled'));
+    });
 })

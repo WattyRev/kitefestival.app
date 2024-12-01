@@ -10,23 +10,37 @@ const HomePageContainer = ({ activities:initialActivities }) => {
     return (
         <ActivitiesContainer initialActivities={initialActivities}>
             {({ 
-            //   activities,
-            //   scheduledActivities,
-              unscheduledActivities,
-              isLoading,
-              createActivity,
-              deleteActivity
+                scheduledActivities,
+                unscheduledActivities,
+                isLoading,
+                createActivity,
+                deleteActivity,
+                scheduleActivity,
+                unscheduleActivity,
             }) => (
                 <>
                     <LoadingBar isLoading={isLoading} />
                     <div className={css({ padding: '8px' })}>
                         <H1>Happening Now</H1>
-                        <p>There&apos;s nothing happening right now</p>
+                        {!scheduledActivities.length && <p data-testid="empty-schedule">There&apos;s nothing happening right now</p>}
+                        {scheduledActivities.map(activity => (
+                            <ActivityDisplay 
+                                key={activity.id} 
+                                activity={activity} 
+                                onDelete={deleteActivity} 
+                                onUnschedule={unscheduleActivity}
+                            />
+                        ))}
 
                         <H1>Unscheduled Activities</H1>
                         {!unscheduledActivities.length && <p data-testid="empty-unscheduled">There are no activities</p>}
                         {unscheduledActivities.map(activity => (
-                            <ActivityDisplay key={activity.id} activity={activity} onDelete={deleteActivity} />
+                            <ActivityDisplay 
+                                key={activity.id} 
+                                activity={activity} 
+                                onDelete={deleteActivity} 
+                                onSchedule={scheduleActivity}
+                            />
                         ))}
                         <CreateActivityForm onSubmit={createActivity} />
                     </div>

@@ -58,7 +58,7 @@ describe('ActivitiesContainer', () => {
             )}
         </ActivitiesContainer>);
 
-        expect(screen.getAllByTestId('activity')).toHaveLength(2);
+        expect(screen.queryAllByTestId('activity')).toHaveLength(2);
     });
     it('provides scheduledActivities', async () => {
         render(<ActivitiesContainer initialActivities={initialActivities} >
@@ -71,7 +71,7 @@ describe('ActivitiesContainer', () => {
             )}
         </ActivitiesContainer>);
 
-        expect(screen.getAllByTestId('activity')).toHaveLength(1);
+        expect(screen.queryAllByTestId('activity')).toHaveLength(1);
         expect(screen.getByTestId('activity')).toHaveTextContent('Activity 1');
     });
     it('provides unscheduledActivities', async () => {
@@ -85,7 +85,7 @@ describe('ActivitiesContainer', () => {
             )}
         </ActivitiesContainer>);
 
-        expect(screen.getAllByTestId('activity')).toHaveLength(1);
+        expect(screen.queryAllByTestId('activity')).toHaveLength(1);
         expect(screen.getByTestId('activity')).toHaveTextContent('Activity 2');
     });
     it('indicates when it is loading new activity data', async () => {
@@ -169,7 +169,7 @@ describe('ActivitiesContainer', () => {
                 )}
             </ActivitiesContainer>);
 
-            expect(screen.getAllByTestId('activity')).toHaveLength(2);
+            expect(screen.queryAllByTestId('activity')).toHaveLength(2);
 
             await userEvent.click(screen.getByTestId('create-activity'));
 
@@ -185,7 +185,7 @@ describe('ActivitiesContainer', () => {
                 })
             });
 
-            expect(screen.getAllByTestId('activity')).toHaveLength(3);
+            expect(screen.queryAllByTestId('activity')).toHaveLength(3);
         });
         it('alerts if activity creation fails', async () => {
             fetch.mockImplementation((url, options) => {
@@ -239,7 +239,7 @@ describe('ActivitiesContainer', () => {
                 )}
             </ActivitiesContainer>);
 
-            expect(screen.getAllByTestId('activity')).toHaveLength(2);
+            expect(screen.queryAllByTestId('activity')).toHaveLength(2);
 
             await userEvent.click(screen.getByTestId('delete-activity'));
 
@@ -250,7 +250,7 @@ describe('ActivitiesContainer', () => {
                 })
             });
 
-            expect(screen.getAllByTestId('activity')).toHaveLength(1);
+            expect(screen.queryAllByTestId('activity')).toHaveLength(1);
         });
         it('alerts if activity deletion fails', async () => {
             fetch.mockImplementation((url, options) => {
@@ -275,6 +275,170 @@ describe('ActivitiesContainer', () => {
             await userEvent.click(screen.getByTestId('delete-activity'));
 
             expect(mockOpenAlert).toHaveBeenCalledWith('Failed to delete activity', 'error');
+        });
+    });
+    describe('scheduling an activity', () => {
+        it('allows a user to schedule an activity', async () => {
+            fetch.mockImplementation((url, options) => {
+                if (url === '/api/activities/2' && options.method === 'PATCH') {
+                    return Promise.resolve({
+                        ok: true,
+                    })
+                }
+                return Promise.resolve({
+                    ok: true,
+                    json: jest.fn().mockResolvedValue({})
+                })
+            })
+            render(<ActivitiesContainer initialActivities={initialActivities}>
+                {
+                    ({ 
+                        scheduleActivity,
+                        scheduledActivities,
+                        unscheduledActivities
+                    }) => (
+                        <>
+                            {scheduledActivities.map(activity => (
+                                <div data-testid="scheduled" key={activity.id}>{activity.name}</div>
+                            ))}
+                            {unscheduledActivities.map(activity => (
+                                <div data-testid="unscheduled" key={activity.id}>{activity.name}</div>
+                            ))}
+                            <button data-testid="schedule-activity" onClick={() => scheduleActivity('2')}>Schedule Activity</button>
+                        </>
+                    )
+                }
+            </ActivitiesContainer>);
+
+            expect(screen.queryAllByTestId('scheduled')).toHaveLength(1);
+            expect(screen.queryAllByTestId('unscheduled')).toHaveLength(1);
+
+            await userEvent.click(screen.getByTestId('schedule-activity'));
+
+            expect(fetch).toHaveBeenCalledWith('/api/activities/2', {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    passcode: 'boogers-passcode',
+                    activity: {
+                        id: '2',
+                        scheduleIndex: 1,
+                        sortIndex: null
+                    }
+                })
+            });
+
+            expect(screen.queryAllByTestId('scheduled')).toHaveLength(2);
+            expect(screen.queryAllByTestId('unscheduled')).toHaveLength(0);
+        });
+        it('alerts if activity scheduling fails', async () => {
+            fetch.mockImplementation((url, options) => {
+                if (url === '/api/activities/2' && options.method === 'PATCH') {
+                    return Promise.resolve({
+                        ok: false,
+                    })
+                }
+                return Promise.resolve({
+                    ok: true,
+                    json: jest.fn().mockResolvedValue({})
+                })
+            })
+            render(<ActivitiesContainer initialActivities={initialActivities}>
+                {
+                    ({ 
+                        scheduleActivity,
+                    }) => (
+                        <>
+                            <button data-testid="schedule-activity" onClick={() => scheduleActivity('2')}>Schedule Activity</button>
+                        </>
+                    )
+                }
+            </ActivitiesContainer>);
+
+            await userEvent.click(screen.getByTestId('schedule-activity'));
+
+            expect(mockOpenAlert).toHaveBeenCalledWith('Failed to schedule activity', 'error');
+        });
+    });
+    describe('unscheduling an activity', () => {
+        it('allows a user to unschedule an activity', async () => {
+            fetch.mockImplementation((url, options) => {
+                if (url === '/api/activities/1' && options.method === 'PATCH') {
+                    return Promise.resolve({
+                        ok: true,
+                    })
+                }
+                return Promise.resolve({
+                    ok: true,
+                    json: jest.fn().mockResolvedValue({})
+                })
+            })
+            render(<ActivitiesContainer initialActivities={initialActivities}>
+                {
+                    ({ 
+                        unscheduleActivity,
+                        scheduledActivities,
+                        unscheduledActivities
+                    }) => (
+                        <>
+                            {scheduledActivities.map(activity => (
+                                <div data-testid="scheduled" key={activity.id}>{activity.name}</div>
+                            ))}
+                            {unscheduledActivities.map(activity => (
+                                <div data-testid="unscheduled" key={activity.id}>{activity.name}</div>
+                            ))}
+                            <button data-testid="unschedule-activity" onClick={() => unscheduleActivity('1')}>Schedule Activity</button>
+                        </>
+                    )
+                }
+            </ActivitiesContainer>);
+
+            expect(screen.queryAllByTestId('scheduled')).toHaveLength(1);
+            expect(screen.queryAllByTestId('unscheduled')).toHaveLength(1);
+
+            await userEvent.click(screen.getByTestId('unschedule-activity'));
+
+            expect(fetch).toHaveBeenCalledWith('/api/activities/1', {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    passcode: 'boogers-passcode',
+                    activity: {
+                        id: '1',
+                        sortIndex: 1,
+                        scheduleIndex: null,
+                    }
+                })
+            });
+
+            expect(screen.queryAllByTestId('scheduled')).toHaveLength(0);
+            expect(screen.queryAllByTestId('unscheduled')).toHaveLength(2);
+        });
+        it('alerts if activity unscheduling fails', async () => {
+            fetch.mockImplementation((url, options) => {
+                if (url === '/api/activities/1' && options.method === 'PATCH') {
+                    return Promise.resolve({
+                        ok: false,
+                    })
+                }
+                return Promise.resolve({
+                    ok: true,
+                    json: jest.fn().mockResolvedValue({})
+                })
+            })
+            render(<ActivitiesContainer initialActivities={initialActivities}>
+                {
+                    ({ 
+                        unscheduleActivity,
+                    }) => (
+                        <>
+                            <button data-testid="unschedule-activity" onClick={() => unscheduleActivity('1')}>Schedule Activity</button>
+                        </>
+                    )
+                }
+            </ActivitiesContainer>);
+
+            await userEvent.click(screen.getByTestId('unschedule-activity'));
+
+            expect(mockOpenAlert).toHaveBeenCalledWith('Failed to unschedule activity', 'error');
         });
     });
 });

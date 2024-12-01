@@ -10,6 +10,7 @@ describe('HomePage', () => {
     beforeEach(() => {
         ActivitiesContainer.mockImplementation(({ children }) => {
             return children({
+                scheduledActivities: [],
                 unscheduledActivities: [],
                 isLoading: false,
                 createActivity: jest.fn(),
@@ -30,6 +31,7 @@ describe('HomePage', () => {
     it('renders an ActivityDisplay for each unscheduledActivity', async () => {
         ActivitiesContainer.mockImplementation(({ children }) => {
             return children({
+                scheduledActivities: [],
                 unscheduledActivities: [{
                     id: 1,
                     name: 'Activity 1',
@@ -39,6 +41,30 @@ describe('HomePage', () => {
                     name: 'Activity 2',
                     description: 'Description 2'
                 }],
+                isLoading: false,
+                createActivity: jest.fn(),
+                deleteActivit: jest.fn(),
+            });
+        });
+
+        render(<HomePage />);
+
+        expect(screen.getAllByTestId('activity-display')).toHaveLength(2);
+    });
+
+    it('renders an ActivityDisplay for each unscheduledActivity', async () => {
+        ActivitiesContainer.mockImplementation(({ children }) => {
+            return children({
+                scheduledActivities: [{
+                    id: 1,
+                    name: 'Activity 1',
+                    description: 'Description 1'
+                }, {
+                    id: 2,
+                    name: 'Activity 2',
+                    description: 'Description 2'
+                }],
+                unscheduledActivities: [],
                 isLoading: false,
                 createActivity: jest.fn(),
                 deleteActivit: jest.fn(),

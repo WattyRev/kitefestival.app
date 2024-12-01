@@ -39,6 +39,28 @@ const ActivitiesReducer = (state, action) => {
             );
             return newState;
         }
+        case 'patch' : {
+            if (!action?.activity?.id) {
+                throw new Error('No id provided to patch activity from state');
+            }
+            const newState = state.activities.reduce(
+                (acc, activity) => {
+                    if (activity.id === action.activity.id) {
+                        Object.assign(activity, action.activity);
+                    }
+                    acc.activities.push(activity);
+                    if (activity.scheduleIndex !== null && activity.sortIndex === null) {
+                        acc.scheduledActivities.push(activity);
+                    }
+                    if (activity.sortIndex !== null && activity.scheduleIndex === null) {
+                        acc.unscheduledActivities.push(activity);
+                    }
+                    return acc;
+                }, 
+                {activities: [], unscheduledActivities: [], scheduledActivities: []}
+            );
+            return newState;
+        }
         case 'create' : {
             if (!action.activity) {
                 throw new Error('No activity provided to create');
@@ -147,6 +169,48 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 return;
             }
             dispatch({ type: 'delete', id });
+        },
+        scheduleActivity: async (id) => {
+            const highestScheduleIndex = activitiesData.scheduledActivities.sort((a, b) => b.scheduleIndex - a.scheduleIndex)[0]?.scheduleIndex;
+            const scheduleIndex = highestScheduleIndex + 1 || 0;
+            const activity = {
+                id,
+                scheduleIndex,
+                sortIndex: null
+            }
+            const response = await fetch(`/api/activities/${id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    passcode: auth?.passcode,
+                    activity
+                })
+            });
+            if (!response.ok) {
+                openAlert('Failed to schedule activity', 'error');
+                return;
+            }
+            dispatch({ type: 'patch', activity})
+        },
+        unscheduleActivity: async (id) => {
+            const highestSortIndex = activitiesData.unscheduledActivities.sort((a, b) => b.sortIndex - a.sortIndex)[0]?.sortIndex;
+            const sortIndex = highestSortIndex + 1 || 0;
+            const activity = {
+                id,
+                sortIndex,
+                scheduleIndex: null
+            }
+            const response = await fetch(`/api/activities/${id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    passcode: auth?.passcode,
+                    activity
+                })
+            });
+            if (!response.ok) {
+                openAlert('Failed to unschedule activity', 'error');
+                return;
+            }
+            dispatch({ type: 'patch', activity})
         }
     }
 
