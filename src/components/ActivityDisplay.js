@@ -12,6 +12,8 @@ const ActivityDisplay = ({
     onDelete,
     onSchedule,
     onUnschedule,
+    onMoveUp,
+    onMoveDown
 }) => {
     const { isEditor } = useAuth();
     const { openPrompt } = usePrompt();
@@ -42,6 +44,18 @@ const ActivityDisplay = ({
         setPending(false);
     }
 
+    async function moveUp() {
+        setPending(true);
+        await onMoveUp(activity.id);
+        setPending(false);
+    }
+
+    async function moveDown() {
+        setPending(true);
+        await onMoveDown(activity.id);
+        setPending(false);
+    }
+
     return (
         <Panel>
             <H2>{activity.title}</H2>
@@ -50,6 +64,8 @@ const ActivityDisplay = ({
                 <>
                     {onSchedule && <Button data-testid="add-schedule" onClick={addToSchedule} disabled={pending}>Add to Schedule</Button>}
                     {onUnschedule && <Button data-testid="remove-schedule" onClick={removeFromSchedule} disabled={pending}>Remove from Schedule</Button>}
+                    {onMoveUp && <Button data-testid="move-up" onClick={moveUp} disabled={pending}>Move Up</Button>}
+                    {onMoveDown && <Button data-testid="move-down" onClick={moveDown} disabled={pending}>Move Down</Button>}
                     <Button data-testid="delete-activity" onClick={deleteActivity} disabled={pending} className="danger">Delete</Button>
                 </>
             )}

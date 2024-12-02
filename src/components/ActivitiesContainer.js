@@ -15,51 +15,41 @@ export const ActivitiesDispatchContext = createContext(null);
 
 let lastUpdate = new Date().getTime() - 15000;
 
+function buildActivitiesState(activities) {
+    const newState = activities.reduce(
+        (acc, activity) => {
+            acc.activities.push(activity);
+            if (activity.scheduleIndex !== null && activity.sortIndex === null) {
+                acc.scheduledActivities.push(activity);
+            }
+            if (activity.sortIndex !== null && activity.scheduleIndex === null) {
+                acc.unscheduledActivities.push(activity);
+            }
+            return acc;
+        }, 
+        {activities: [], unscheduledActivities: [], scheduledActivities: []}
+    );
+    return newState;
+}
+
 const ActivitiesReducer = (state, action) => {
     switch (action.type) {
         case 'delete' : {
             if (!action.id) {
                 throw new Error('No id provided to delete activity from state');
             }
-            const newState = state.activities.reduce(
-                (acc, activity) => {
-                    if (activity.id === action.id) {
-                        return acc;
-                    }
-                    acc.activities.push(activity);
-                    if (activity.scheduleIndex !== null && activity.sortIndex === null) {
-                        acc.scheduledActivities.push(activity);
-                    }
-                    if (activity.sortIndex !== null && activity.scheduleIndex === null) {
-                        acc.unscheduledActivities.push(activity);
-                    }
-                    return acc;
-                }, 
-                {activities: [], unscheduledActivities: [], scheduledActivities: []}
-            );
-            return newState;
+            return buildActivitiesState(state.activities.filter(activity => activity.id !== action.id));
         }
         case 'patch' : {
             if (!action?.activity?.id) {
                 throw new Error('No id provided to patch activity from state');
             }
-            const newState = state.activities.reduce(
-                (acc, activity) => {
-                    if (activity.id === action.activity.id) {
-                        Object.assign(activity, action.activity);
-                    }
-                    acc.activities.push(activity);
-                    if (activity.scheduleIndex !== null && activity.sortIndex === null) {
-                        acc.scheduledActivities.push(activity);
-                    }
-                    if (activity.sortIndex !== null && activity.scheduleIndex === null) {
-                        acc.unscheduledActivities.push(activity);
-                    }
-                    return acc;
-                }, 
-                {activities: [], unscheduledActivities: [], scheduledActivities: []}
-            );
-            return newState;
+            return buildActivitiesState(state.activities.map(activity => {
+                if (activity.id === action.activity.id) {
+                    Object.assign(activity, action.activity);
+                }
+                return activity;
+            }))
         }
         case 'create' : {
             if (!action.activity) {
@@ -72,6 +62,9 @@ const ActivitiesReducer = (state, action) => {
             };
             return newState;
         }
+        case 'bulkUpdate': {
+            return buildActivitiesState(action.activities);
+        }
         case 'refresh': {
             return action.newState;
         }
@@ -79,6 +72,40 @@ const ActivitiesReducer = (state, action) => {
             throw new Error(`Unhandled activities action type: ${action.type}`);
         }
     }
+}
+
+function reindexActivities(activities) {
+    const aBeforeB = -1;
+    const bBeforeA = 1;
+    let changedActivities = [];
+    activities.sort((a, b) => {
+        if (a.scheduleIndex !== null && b.scheduleIndex === null) {
+            return aBeforeB
+        }
+        if (a.scheduleIndex === null && b.scheduleIndex !== null) {
+            return bBeforeA;
+        }
+        if (a.scheduleIndex !== null && b.scheduleIndex !== null) {
+            return a.scheduleIndex - b.scheduleIndex;
+        }
+        return a.sortIndex - b.sortIndex;
+    });
+    const newActivities = activities.map((activity, index) => {
+        if (activity.scheduleIndex !== null) {
+            if (activity.scheduleIndex !== index) {
+                changedActivities.push(activity);
+            }
+            activity.scheduleIndex = index;
+            return activity;
+        } 
+        if (activity.sortIndex !== index) {
+            changedActivities.push(activity);
+        }
+        activity.sortIndex = index;
+        return activity;
+    });
+
+    return { changedActivities, newActivities };
 }
 
 const ActivitiesContainer = ({ children, initialActivities }) => {
@@ -211,6 +238,84 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 return;
             }
             dispatch({ type: 'patch', activity})
+        },
+        moveActivityUp: async (id) => {
+            // Find the activity above the current activity
+            let overtakingActivity;
+            const activitiesClone = [...activitiesData.activities];
+            const currentActivity = activitiesClone.find((activity) => {
+                if (activity.id === id) {
+                    return true;
+                }
+                overtakingActivity = activity;
+            });
+            if (!overtakingActivity ||
+                (currentActivity.scheduleIndex === null && overtakingActivity.scheduleIndex !== null) ||
+                (currentActivity.sortIndex === null && overtakingActivity.sortIndex !== null)) {
+                console.error('Cannnot move activity up because it is already at the top of its list');
+                return;
+            }
+
+            // Set the current activity's index slightly lower than the higher ranking activity
+            if(currentActivity.scheduleIndex !== null) {
+                currentActivity.scheduleIndex = overtakingActivity.scheduleIndex - 0.1;
+            } else if (currentActivity.sortIndex !== null) {
+                currentActivity.sortIndex = overtakingActivity.sortIndex - 0.1;
+            }
+
+            // Reindex all activities
+            const { changedActivities, newActivities } = reindexActivities(activitiesClone);
+
+            // Patch changed activities
+            await fetch('/api/activities', { 
+                method: 'PATCH',
+                body: JSON.stringify({
+                    activities: changedActivities,
+                    passcode: auth?.passcode
+                })
+            })
+
+            // Dispatch state update
+            dispatch({ type: 'bulkUpdate', activities: newActivities });
+        },
+        moveActivityDown: async (id) => {
+            // Find the current activity and the activity below the current activity
+            let overtakingActivity;
+            const activitiesClone = [...activitiesData.activities];
+            const currentActivity = activitiesClone.find((activity, index) => {
+                if (activity.id === id) {
+                    overtakingActivity = activitiesClone[index + 1];
+                    return true;
+                }
+            });
+            if (!overtakingActivity ||
+                (currentActivity.scheduleIndex === null && overtakingActivity.scheduleIndex !== null) ||
+                (currentActivity.sortIndex === null && overtakingActivity.sortIndex !== null)) {
+                console.error('Cannnot move activity down because it is already at the bottom of its list');
+                return;
+            }
+
+            // Set the current activity's index slightly lower than the lower ranking activity
+            if(currentActivity.scheduleIndex !== null) {
+                currentActivity.scheduleIndex = overtakingActivity.scheduleIndex + 0.1;
+            } else if (currentActivity.sortIndex !== null) {
+                currentActivity.sortIndex = overtakingActivity.sortIndex + 0.1;
+            }
+
+            // Reindex all activities
+            const { changedActivities, newActivities } = reindexActivities(activitiesClone);
+
+            // Patch changed activities
+            await fetch('/api/activities', { 
+                method: 'PATCH',
+                body: JSON.stringify({
+                    activities: changedActivities,
+                    passcode: auth?.passcode
+                })
+            })
+
+            // Dispatch state update
+            dispatch({ type: 'bulkUpdate', activities: newActivities });
         }
     }
 

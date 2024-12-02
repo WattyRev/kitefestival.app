@@ -441,4 +441,232 @@ describe('ActivitiesContainer', () => {
             expect(mockOpenAlert).toHaveBeenCalledWith('Failed to unschedule activity', 'error');
         });
     });
+    describe('moving a scheduled activity', () => {
+        it('allows the user to move a scheduled activity up', async () => {
+            initialActivities = [
+                {
+                    id: '1',
+                    name: 'Activity 1',
+                    description: 'Description 1',
+                    sortIndex: null,
+                    scheduleIndex: 0
+                },
+                {
+                    id: '2',
+                    name: 'Activity 2',
+                    description: 'Description 2',
+                    sortIndex: null,
+                    scheduleIndex: 1
+                },
+                {
+                    id: '3',
+                    name: 'Activity 3',
+                    description: 'Description 3',
+                    sortIndex: null,
+                    scheduleIndex: 2
+                },
+                {
+                    id: '4',
+                    name: 'Activity 4',
+                    description: 'Description 4',
+                    sortIndex: 3,
+                    scheduleIndex: null
+                }
+            ];
+
+            render(<ActivitiesContainer initialActivities={initialActivities} >
+                {({ scheduledActivities, moveActivityUp }) => (
+                    <>
+                        {scheduledActivities.map(activity => (
+                            <div data-testid="activity" key={activity.id}>{activity.name}</div>
+                        ))}
+                        <button data-testid="move-activity-up" onClick={() => moveActivityUp('3')}>Move Activity Up</button>
+                    </>
+                )}
+            </ActivitiesContainer>);
+
+            let activities = screen.queryAllByTestId('activity');
+            expect(activities).toHaveLength(3);
+            expect(activities[0]).toHaveTextContent('Activity 1');
+            expect(activities[1]).toHaveTextContent('Activity 2');
+            expect(activities[2]).toHaveTextContent('Activity 3');
+
+            await userEvent.click(screen.getByTestId('move-activity-up'));
+
+            activities = screen.queryAllByTestId('activity');
+            expect(activities[0]).toHaveTextContent('Activity 1');
+            expect(activities[1]).toHaveTextContent('Activity 3');
+            expect(activities[2]).toHaveTextContent('Activity 2');
+        });
+        it('allows the user to move a scheduled activity down', async () => {
+            initialActivities = [
+                {
+                    id: '1',
+                    name: 'Activity 1',
+                    description: 'Description 1',
+                    sortIndex: null,
+                    scheduleIndex: 0
+                },
+                {
+                    id: '2',
+                    name: 'Activity 2',
+                    description: 'Description 2',
+                    sortIndex: null,
+                    scheduleIndex: 1
+                },
+                {
+                    id: '3',
+                    name: 'Activity 3',
+                    description: 'Description 3',
+                    sortIndex: null,
+                    scheduleIndex: 2
+                },
+                {
+                    id: '4',
+                    name: 'Activity 4',
+                    description: 'Description 4',
+                    sortIndex: 3,
+                    scheduleIndex: null
+                }
+            ];
+
+            render(<ActivitiesContainer initialActivities={initialActivities} >
+                {({ scheduledActivities, moveActivityDown }) => (
+                    <>
+                        {scheduledActivities.map(activity => (
+                            <div data-testid="activity" key={activity.id}>{activity.name}</div>
+                        ))}
+                        <button data-testid="move-activity-down" onClick={() => moveActivityDown('1')}>Move Activity Down</button>
+                    </>
+                )}
+            </ActivitiesContainer>);
+
+            let activities = screen.queryAllByTestId('activity');
+            expect(activities).toHaveLength(3);
+            expect(activities[0]).toHaveTextContent('Activity 1');
+            expect(activities[1]).toHaveTextContent('Activity 2');
+            expect(activities[2]).toHaveTextContent('Activity 3');
+
+            await userEvent.click(screen.getByTestId('move-activity-down'));
+
+            activities = screen.queryAllByTestId('activity');
+            expect(activities[0]).toHaveTextContent('Activity 2');
+            expect(activities[1]).toHaveTextContent('Activity 1');
+            expect(activities[2]).toHaveTextContent('Activity 3');
+        });
+    });
+    describe('moving an unscheduled activity', () => {
+        it('allows the user to move an unscheduled activity up', async () => {
+            initialActivities = [
+                {
+                    id: '1',
+                    name: 'Activity 1',
+                    description: 'Description 1',
+                    sortIndex: null,
+                    scheduleIndex: 0
+                },
+                {
+                    id: '2',
+                    name: 'Activity 2',
+                    description: 'Description 2',
+                    sortIndex: 1,
+                    scheduleIndex: null
+                },
+                {
+                    id: '3',
+                    name: 'Activity 3',
+                    description: 'Description 3',
+                    sortIndex: 2,
+                    scheduleIndex: null
+                },
+                {
+                    id: '4',
+                    name: 'Activity 4',
+                    description: 'Description 4',
+                    sortIndex: 3,
+                    scheduleIndex: null
+                }
+            ];
+
+            render(<ActivitiesContainer initialActivities={initialActivities} >
+                {({ unscheduledActivities, moveActivityUp }) => (
+                    <>
+                        {unscheduledActivities.map(activity => (
+                            <div data-testid="activity" key={activity.id}>{activity.name}</div>
+                        ))}
+                        <button data-testid="move-activity-up" onClick={() => moveActivityUp('4')}>Move Activity Up</button>
+                    </>
+                )}
+            </ActivitiesContainer>);
+
+            let activities = screen.queryAllByTestId('activity');
+            expect(activities).toHaveLength(3);
+            expect(activities[0]).toHaveTextContent('Activity 2');
+            expect(activities[1]).toHaveTextContent('Activity 3');
+            expect(activities[2]).toHaveTextContent('Activity 4');
+
+            await userEvent.click(screen.getByTestId('move-activity-up'));
+
+            activities = screen.queryAllByTestId('activity');
+            expect(activities[0]).toHaveTextContent('Activity 2');
+            expect(activities[1]).toHaveTextContent('Activity 4');
+            expect(activities[2]).toHaveTextContent('Activity 3');
+        });
+        it('allows the user to move an unscheduled activity down', async () => {
+            initialActivities = [
+                {
+                    id: '1',
+                    name: 'Activity 1',
+                    description: 'Description 1',
+                    sortIndex: null,
+                    scheduleIndex: 0
+                },
+                {
+                    id: '2',
+                    name: 'Activity 2',
+                    description: 'Description 2',
+                    sortIndex: 1,
+                    scheduleIndex: null
+                },
+                {
+                    id: '3',
+                    name: 'Activity 3',
+                    description: 'Description 3',
+                    sortIndex: 2,
+                    scheduleIndex: null
+                },
+                {
+                    id: '4',
+                    name: 'Activity 4',
+                    description: 'Description 4',
+                    sortIndex: 3,
+                    scheduleIndex: null
+                }
+            ];
+
+            render(<ActivitiesContainer initialActivities={initialActivities} >
+                {({ unscheduledActivities, moveActivityDown }) => (
+                    <>
+                        {unscheduledActivities.map(activity => (
+                            <div data-testid="activity" key={activity.id}>{activity.name}</div>
+                        ))}
+                        <button data-testid="move-activity-down" onClick={() => moveActivityDown('2')}>Move Activity Down</button>
+                    </>
+                )}
+            </ActivitiesContainer>);
+
+            let activities = screen.queryAllByTestId('activity');
+            expect(activities).toHaveLength(3);
+            expect(activities[0]).toHaveTextContent('Activity 2');
+            expect(activities[1]).toHaveTextContent('Activity 3');
+            expect(activities[2]).toHaveTextContent('Activity 4');
+
+            await userEvent.click(screen.getByTestId('move-activity-down'));
+
+            activities = screen.queryAllByTestId('activity');
+            expect(activities[0]).toHaveTextContent('Activity 3');
+            expect(activities[1]).toHaveTextContent('Activity 2');
+            expect(activities[2]).toHaveTextContent('Activity 4');
+        });
+    });
 });
