@@ -9,7 +9,11 @@ import { usePrompt } from "./ui/Prompt"
 
 const ActivityDisplay = ({
     activity,
-    onDelete
+    onDelete,
+    onSchedule,
+    onUnschedule,
+    onMoveUp,
+    onMoveDown
 }) => {
     const { isEditor } = useAuth();
     const { openPrompt } = usePrompt();
@@ -28,11 +32,43 @@ const ActivityDisplay = ({
         setPending(false);
     }
 
+    async function addToSchedule() {
+        setPending(true);
+        await onSchedule(activity.id);
+        setPending(false);
+    }
+
+    async function removeFromSchedule() {
+        setPending(true);
+        await onUnschedule(activity.id);
+        setPending(false);
+    }
+
+    async function moveUp() {
+        setPending(true);
+        await onMoveUp(activity.id);
+        setPending(false);
+    }
+
+    async function moveDown() {
+        setPending(true);
+        await onMoveDown(activity.id);
+        setPending(false);
+    }
+
     return (
         <Panel>
             <H2>{activity.title}</H2>
             <p>{activity.description}</p>
-            {isEditor() && <Button data-testid="delete-activity" onClick={deleteActivity} disabled={pending} className="danger">Delete</Button>}
+            {isEditor() && (
+                <>
+                    {onSchedule && <Button data-testid="add-schedule" onClick={addToSchedule} disabled={pending}>Add to Schedule</Button>}
+                    {onUnschedule && <Button data-testid="remove-schedule" onClick={removeFromSchedule} disabled={pending}>Remove from Schedule</Button>}
+                    {onMoveUp && <Button data-testid="move-up" onClick={moveUp} disabled={pending}>Move Up</Button>}
+                    {onMoveDown && <Button data-testid="move-down" onClick={moveDown} disabled={pending}>Move Down</Button>}
+                    <Button data-testid="delete-activity" onClick={deleteActivity} disabled={pending} className="danger">Delete</Button>
+                </>
+            )}
         </Panel>
     )
 }

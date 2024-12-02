@@ -18,7 +18,7 @@ export const revalidate = 0;
  * }
  */
 export async function GET() {
-    const activitiesResponse = await sql`SELECT * FROM activities ORDER BY sortIndex ASC`;
+    const activitiesResponse = await sql`SELECT * FROM activities ORDER BY scheduleIndex ASC,sortIndex ASC`;
     const activities = activitiesResponse.rows.map(activity => {
         const { id, title, description, sortindex, scheduleindex } = activity;
         return { id, title, description, sortIndex: sortindex, scheduleIndex: scheduleindex };
