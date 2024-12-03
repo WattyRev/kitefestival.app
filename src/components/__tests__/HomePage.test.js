@@ -26,7 +26,7 @@ describe('HomePage', () => {
         });
         ActivityDisplay.mockReturnValue(<div data-testid="activity-display" />);
         CreateActivityForm.mockReturnValue(<div data-testid="create-activity-form" />);
-        useAuth.mockReturnValue({ isPublic: false });
+        useAuth.mockReturnValue({ isPublic: jest.fn().mockReturnValue(false) });
     })
     it('renders', async () => {
         render(<HomePage />);
