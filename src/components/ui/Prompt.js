@@ -84,7 +84,7 @@ export const Prompt = ({ prompt, promptType, onSubmit, onCancel }) => {
                 data-testid="prompt-form"
             >
                 <p data-testid="prompt-message" className={css({ textAlign: 'center', marginBottom: '16px' })}>{prompt}</p>
-                {TEXT_INPUT_TYPES.includes(promptType) && <TextInput data-testid="prompt-input" type={promptType} value={value} onChange={e => setValue(e.target.value)} />}
+                {TEXT_INPUT_TYPES.includes(promptType) && <TextInput autoFocus data-testid="prompt-input" type={promptType} value={value} onChange={e => setValue(e.target.value)} />}
                 <div className={css({ marginTop: '16px' })}>
                     <Button data-testid="prompt-submit" type="submit">{promptType === 'confirm' ? 'Confirm' : 'Submit'}</Button>
                     <Button data-testid="prompt-cancel" className="secondary" type="button" onClick={onCancel}>Cancel</Button>

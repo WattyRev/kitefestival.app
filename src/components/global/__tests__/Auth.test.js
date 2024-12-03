@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 describe('Auth', () => {
     it('provides auth information based on local storage', async () => {
-        window.localStorage.setItem('authentication', JSON.stringify({ userType: 'editor', passcode: 'cool passcode' }));
+        window.localStorage.setItem('authentication', JSON.stringify({ userType: 'editor', passcode: 'cool passcode', setTime: new Date().getTime() }));
         const MockConsumer = () => {
             const { auth } = useAuth();
             return (
@@ -28,10 +28,11 @@ describe('Auth', () => {
 
         await userEvent.click(screen.getByTestId('set'));
 
-        expect(window.localStorage.getItem('authentication')).toBe(JSON.stringify({ userType: 'user', passcode: 'cooler passcode' }));
+        const storedAuth = JSON.parse(window.localStorage.getItem('authentication'));
+        expect(storedAuth).toEqual({ userType: 'user', passcode: 'cooler passcode', setTime: expect.any(Number) });
     });
     it('allows the user to clear the authentication from local storage', async () => {
-        window.localStorage.setItem('authentication', JSON.stringify({ userType: 'editor', passcode: 'cool passcode' }));
+        window.localStorage.setItem('authentication', JSON.stringify({ userType: 'editor', passcode: 'cool passcode', setTime: new Date().getTime() }));
         const MockConsumer = () => {
             const { clearAuthentication } = useAuth();
             return (
@@ -46,7 +47,7 @@ describe('Auth', () => {
         expect(window.localStorage.getItem('authentication')).toBe(null);
     });
     it('allows the user to check if the user is an editor', async () => {
-        window.localStorage.setItem('authentication', JSON.stringify({ userType: 'editor', passcode: 'cool passcode' }));
+        window.localStorage.setItem('authentication', JSON.stringify({ userType: 'editor', passcode: 'cool passcode', setTime: new Date().getTime() }));
 
         const MockConsumer = () => {
             const { isEditor, isUser, isPublic } = useAuth();
@@ -66,7 +67,7 @@ describe('Auth', () => {
         expect(screen.getByTestId('is-public')).toHaveTextContent('false');
     });
     it('allows the user to check if the user is a user', async () => {
-        window.localStorage.setItem('authentication', JSON.stringify({ userType: 'user', passcode: 'cool passcode' }));
+        window.localStorage.setItem('authentication', JSON.stringify({ userType: 'user', passcode: 'cool passcode', setTime: new Date().getTime() }));
 
         const MockConsumer = () => {
             const { isEditor, isUser, isPublic } = useAuth();
@@ -105,4 +106,18 @@ describe('Auth', () => {
         expect(screen.getByTestId('is-user')).toHaveTextContent('false');
         expect(screen.getByTestId('is-public')).toHaveTextContent('true');
     });
+    it('does not use auth from localStorage if it is expired', () => {
+        window.localStorage.setItem('authentication', JSON.stringify({ userType: 'editor', passcode: 'cool passcode', setTime: new Date().getTime() - 4 * 24 * 60 * 60 * 1000 }));
+
+        const MockConsumer = () => {
+            const { auth } = useAuth();
+            return (
+                <div data-testid="user-type">{auth?.userType || 'none'}</div>
+            )
+        };
+
+        render(<AuthProvider><MockConsumer /></AuthProvider>);
+
+        expect(screen.getByTestId('user-type')).toHaveTextContent('none');
+    })
 });

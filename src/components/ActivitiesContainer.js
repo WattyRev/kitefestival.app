@@ -15,8 +15,28 @@ export const ActivitiesDispatchContext = createContext(null);
 
 let lastUpdate = new Date().getTime() - 15000;
 
+function sortActivities(activities) {
+    const sortedActivities = [...activities];
+    const aBeforeB = -1;
+    const bBeforeA = 1;
+    sortedActivities.sort((a, b) => {
+        if (a.scheduleIndex !== null && b.scheduleIndex === null) {
+            return aBeforeB
+        }
+        if (a.scheduleIndex === null && b.scheduleIndex !== null) {
+            return bBeforeA;
+        }
+        if (a.scheduleIndex !== null && b.scheduleIndex !== null) {
+            return a.scheduleIndex - b.scheduleIndex;
+        }
+        return a.sortIndex - b.sortIndex;
+    });
+    return sortedActivities;
+}
+
 function buildActivitiesState(activities) {
-    const newState = activities.reduce(
+    const sortedActivities = sortActivities(activities);
+    const newState = sortedActivities.reduce(
         (acc, activity) => {
             acc.activities.push(activity);
             if (activity.scheduleIndex !== null && activity.sortIndex === null) {
@@ -75,33 +95,24 @@ const ActivitiesReducer = (state, action) => {
 }
 
 function reindexActivities(activities) {
-    const aBeforeB = -1;
-    const bBeforeA = 1;
     let changedActivities = [];
-    activities.sort((a, b) => {
-        if (a.scheduleIndex !== null && b.scheduleIndex === null) {
-            return aBeforeB
-        }
-        if (a.scheduleIndex === null && b.scheduleIndex !== null) {
-            return bBeforeA;
-        }
-        if (a.scheduleIndex !== null && b.scheduleIndex !== null) {
-            return a.scheduleIndex - b.scheduleIndex;
-        }
-        return a.sortIndex - b.sortIndex;
-    });
-    const newActivities = activities.map((activity, index) => {
+    const sortedActivities = sortActivities(activities);
+    let scheduleIndex = 0;
+    let sortIndex = 0;
+    const newActivities = sortedActivities.map((activity, index) => {
         if (activity.scheduleIndex !== null) {
             if (activity.scheduleIndex !== index) {
                 changedActivities.push(activity);
             }
-            activity.scheduleIndex = index;
+            activity.scheduleIndex = scheduleIndex;
+            scheduleIndex = scheduleIndex + 1;
             return activity;
         } 
         if (activity.sortIndex !== index) {
             changedActivities.push(activity);
         }
-        activity.sortIndex = index;
+        activity.sortIndex = sortIndex;
+        sortIndex = sortIndex + 1;
         return activity;
     });
 

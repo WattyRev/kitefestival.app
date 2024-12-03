@@ -11,16 +11,32 @@ export const AuthContext = createContext({
 
 export const useAuth = () => useContext(AuthContext);
 
+function getAuthDataFromLocalStorage() {
+    const localData = window.localStorage.getItem('authentication');
+    if (!localData) {
+        return {};
+    }
+    const parsedData = JSON.parse(localData);
+    const threeDays = 3 * 24 * 60 * 60 * 1000;
+    
+    // Ignore auth data if it is more than 3 days old
+    if (new Date().getTime() - (parsedData.setTime || 0) > threeDays) {
+        return {};
+    }
+    return parsedData;
+}
+
 export function AuthProvider({ children }) {
     const [ auth, setAuth ] = useState({});
     useEffect(() => {
-        const localData = window.localStorage.getItem('authentication');
-        const parsedData = localData ? JSON.parse(localData) : {};
-        setAuth(parsedData)
+        setAuth(getAuthDataFromLocalStorage())
     }, []);
     function setAuthentication(auth) {
         setAuth(auth);
-        window.localStorage.setItem('authentication', JSON.stringify(auth));
+        window.localStorage.setItem('authentication', JSON.stringify({
+            ...auth,
+            setTime: new Date().getTime()
+        }));
     }
     function clearAuthentication() {
         setAuth({});
