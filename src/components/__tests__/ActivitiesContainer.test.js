@@ -33,7 +33,21 @@ describe('ActivitiesContainer', () => {
                 id: '2',
                 name: 'Activity 2',
                 description: 'Description 2',
+                sortIndex: null,
+                scheduleIndex: 1
+            },
+            {
+                id: '3',
+                name: 'Activity 3',
+                description: 'Description 3',
                 sortIndex: 0,
+                scheduleIndex: null
+            },
+            {
+                id: '4',
+                name: 'Activity 4',
+                description: 'Description 4',
+                sortIndex: 1,
                 scheduleIndex: null
             }
         ];
@@ -58,7 +72,7 @@ describe('ActivitiesContainer', () => {
             )}
         </ActivitiesContainer>);
 
-        expect(screen.queryAllByTestId('activity')).toHaveLength(2);
+        expect(screen.queryAllByTestId('activity')).toHaveLength(4);
     });
     it('provides scheduledActivities', async () => {
         render(<ActivitiesContainer initialActivities={initialActivities} >
@@ -71,8 +85,8 @@ describe('ActivitiesContainer', () => {
             )}
         </ActivitiesContainer>);
 
-        expect(screen.queryAllByTestId('activity')).toHaveLength(1);
-        expect(screen.getByTestId('activity')).toHaveTextContent('Activity 1');
+        expect(screen.queryAllByTestId('activity')).toHaveLength(2);
+        expect(screen.getAllByTestId('activity')[0]).toHaveTextContent('Activity 1');
     });
     it('provides unscheduledActivities', async () => {
         render(<ActivitiesContainer initialActivities={initialActivities} >
@@ -85,8 +99,8 @@ describe('ActivitiesContainer', () => {
             )}
         </ActivitiesContainer>);
 
-        expect(screen.queryAllByTestId('activity')).toHaveLength(1);
-        expect(screen.getByTestId('activity')).toHaveTextContent('Activity 2');
+        expect(screen.queryAllByTestId('activity')).toHaveLength(2);
+        expect(screen.queryAllByTestId('activity')[0]).toHaveTextContent('Activity 3');
     });
     it('indicates when it is loading new activity data', async () => {
         let activitiesResolver;
@@ -140,7 +154,7 @@ describe('ActivitiesContainer', () => {
                         json: jest.fn().mockResolvedValue({
                             activities: [
                                 {
-                                    id: '3',
+                                    id: '5',
                                     name: title,
                                     description,
                                     sortIndex: 1,
@@ -162,14 +176,14 @@ describe('ActivitiesContainer', () => {
                             <div data-testid="activity" key={activity.id}>{activity.name}</div>
                         ))}
                         <button data-testid="create-activity" onClick={() => createActivity({
-                            title: 'Activity 3',
-                            description: 'Description 3'
+                            title: 'Activity 5',
+                            description: 'Description 5'
                         })}>Create Activity</button>
                     </>
                 )}
             </ActivitiesContainer>);
 
-            expect(screen.queryAllByTestId('activity')).toHaveLength(2);
+            expect(screen.queryAllByTestId('activity')).toHaveLength(4);
 
             await userEvent.click(screen.getByTestId('create-activity'));
 
@@ -179,13 +193,13 @@ describe('ActivitiesContainer', () => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    title: 'Activity 3',
-                    description: 'Description 3',
+                    title: 'Activity 5',
+                    description: 'Description 5',
                     passcode: 'boogers-passcode'
                 })
             });
 
-            expect(screen.queryAllByTestId('activity')).toHaveLength(3);
+            expect(screen.queryAllByTestId('activity')).toHaveLength(5);
         });
         it('alerts if activity creation fails', async () => {
             fetch.mockImplementation((url, options) => {
@@ -203,8 +217,8 @@ describe('ActivitiesContainer', () => {
                 {({ createActivity }) => (
                     <>
                         <button data-testid="create-activity" onClick={() => createActivity({
-                            title: 'Activity 3',
-                            description: 'Description 3'
+                            title: 'Activity 5',
+                            description: 'Description 5'
                         })}>Create Activity</button>
                     </>
                 )}
@@ -239,7 +253,7 @@ describe('ActivitiesContainer', () => {
                 )}
             </ActivitiesContainer>);
 
-            expect(screen.queryAllByTestId('activity')).toHaveLength(2);
+            expect(screen.queryAllByTestId('activity')).toHaveLength(4);
 
             await userEvent.click(screen.getByTestId('delete-activity'));
 
@@ -250,7 +264,7 @@ describe('ActivitiesContainer', () => {
                 })
             });
 
-            expect(screen.queryAllByTestId('activity')).toHaveLength(1);
+            expect(screen.queryAllByTestId('activity')).toHaveLength(3);
         });
         it('alerts if activity deletion fails', async () => {
             fetch.mockImplementation((url, options) => {
@@ -280,7 +294,7 @@ describe('ActivitiesContainer', () => {
     describe('scheduling an activity', () => {
         it('allows a user to schedule an activity', async () => {
             fetch.mockImplementation((url, options) => {
-                if (url === '/api/activities/2' && options.method === 'PATCH') {
+                if (url === '/api/activities/3' && options.method === 'PATCH') {
                     return Promise.resolve({
                         ok: true,
                     })
@@ -304,31 +318,32 @@ describe('ActivitiesContainer', () => {
                             {unscheduledActivities.map(activity => (
                                 <div data-testid="unscheduled" key={activity.id}>{activity.name}</div>
                             ))}
-                            <button data-testid="schedule-activity" onClick={() => scheduleActivity('2')}>Schedule Activity</button>
+                            <button data-testid="schedule-activity" onClick={() => scheduleActivity('3')}>Schedule Activity</button>
                         </>
                     )
                 }
             </ActivitiesContainer>);
 
-            expect(screen.queryAllByTestId('scheduled')).toHaveLength(1);
-            expect(screen.queryAllByTestId('unscheduled')).toHaveLength(1);
+            expect(screen.queryAllByTestId('scheduled')).toHaveLength(2);
+            expect(screen.queryAllByTestId('unscheduled')).toHaveLength(2);
 
             await userEvent.click(screen.getByTestId('schedule-activity'));
 
-            expect(fetch).toHaveBeenCalledWith('/api/activities/2', {
+            expect(fetch).toHaveBeenCalledWith('/api/activities/3', {
                 method: 'PATCH',
                 body: JSON.stringify({
                     passcode: 'boogers-passcode',
                     activity: {
-                        id: '2',
-                        scheduleIndex: 1,
+                        id: '3',
+                        scheduleIndex: 2,
                         sortIndex: null
                     }
                 })
             });
 
-            expect(screen.queryAllByTestId('scheduled')).toHaveLength(2);
-            expect(screen.queryAllByTestId('unscheduled')).toHaveLength(0);
+            expect(screen.queryAllByTestId('scheduled')).toHaveLength(3);
+            expect(screen.queryAllByTestId('scheduled')[2]).toHaveTextContent('Activity 3');
+            expect(screen.queryAllByTestId('unscheduled')).toHaveLength(1);
         });
         it('alerts if activity scheduling fails', async () => {
             fetch.mockImplementation((url, options) => {
@@ -392,8 +407,8 @@ describe('ActivitiesContainer', () => {
                 }
             </ActivitiesContainer>);
 
-            expect(screen.queryAllByTestId('scheduled')).toHaveLength(1);
-            expect(screen.queryAllByTestId('unscheduled')).toHaveLength(1);
+            expect(screen.queryAllByTestId('scheduled')).toHaveLength(2);
+            expect(screen.queryAllByTestId('unscheduled')).toHaveLength(2);
 
             await userEvent.click(screen.getByTestId('unschedule-activity'));
 
@@ -403,14 +418,15 @@ describe('ActivitiesContainer', () => {
                     passcode: 'boogers-passcode',
                     activity: {
                         id: '1',
-                        sortIndex: 1,
+                        sortIndex: 2,
                         scheduleIndex: null,
                     }
                 })
             });
 
-            expect(screen.queryAllByTestId('scheduled')).toHaveLength(0);
-            expect(screen.queryAllByTestId('unscheduled')).toHaveLength(2);
+            expect(screen.queryAllByTestId('scheduled')).toHaveLength(1);
+            expect(screen.queryAllByTestId('unscheduled')).toHaveLength(3);
+            expect(screen.queryAllByTestId('unscheduled')[2]).toHaveTextContent('Activity 1');
         });
         it('alerts if activity unscheduling fails', async () => {
             fetch.mockImplementation((url, options) => {

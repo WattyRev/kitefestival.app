@@ -1,10 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import ActivitiesContainer from "../ActivitiesContainer";
 import ActivityDisplay from "../ActivityDisplay";
+import CreateActivityForm from "../CreateActivityForm";
+import { useAuth } from "../global/Auth";
 import HomePage from '../HomePage';
 
 jest.mock('../ActivitiesContainer');
 jest.mock('../ActivityDisplay');
+jest.mock('../CreateActivityForm');
+jest.mock('../global/Auth');
+
 
 describe('HomePage', () => {
     beforeEach(() => {
@@ -20,10 +25,12 @@ describe('HomePage', () => {
             });
         });
         ActivityDisplay.mockReturnValue(<div data-testid="activity-display" />);
+        CreateActivityForm.mockReturnValue(<div data-testid="create-activity-form" />);
+        useAuth.mockReturnValue({ isPublic: false });
     })
     it('renders', async () => {
         render(<HomePage />);
-        expect(screen.getByText('Happening Now')).toBeInTheDocument();
+        expect(screen.getByTestId('home-page')).toBeInTheDocument();
     });
     it('renders an empty state when there are no unscheduledActivities', async () => {
         render(<HomePage />);

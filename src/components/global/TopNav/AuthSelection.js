@@ -1,5 +1,6 @@
 'use client'
 
+import { css } from '../../../../styled-system/css';
 import { useAuth } from '../Auth';
 import { useAlert } from '../../ui/Alert';
 import { usePrompt } from '../../ui/Prompt';
@@ -42,15 +43,15 @@ const AuthSelection = () => {
 
     if (!auth?.userType) {
         return (
-            <a data-testid="log-in" onClick={logIn}>
+            <button className={css({ cursor: 'pointer' })} data-testid="log-in" onClick={logIn}>
                 Log In
-            </a>
+            </button>
         );
     }
     return (
-        <a data-testid="log-out" onClick={logOut}>
+        <button className={css({ cursor: 'pointer' })} data-testid="log-out" onClick={logOut}>
             Log Out
-        </a>
+        </button>
     );
 }
 
