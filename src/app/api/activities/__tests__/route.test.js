@@ -1,4 +1,5 @@
 import { sql } from "@vercel/postgres";
+import { cookies } from "next/headers";
 import { GET, POST, PATCH } from "../route";
 import { randomUUID } from "../../crypto";
 import validatePasscode, { NoPasscodeError, InvalidPasscodeError } from "../../passcodes/validatePasscode";
@@ -9,8 +10,18 @@ jest.mock('../../passcodes/validatePasscode');
 jest.mock('../../crypto');
 jest.mock("../[activityId]/patchActivity");
 jest.mock("../../logUpdate");
+jest.mock('next/headers');
 
 describe('activities/route', () => {
+    let mockGetCookie;
+    beforeEach(() => {
+        mockGetCookie = jest.fn().mockReturnValue({
+            value: 'boogers'
+        })
+        cookies.mockReturnValue({
+            get: mockGetCookie
+        })
+    })
     describe('GET', () => {
         it('should return a list of activities', async () => {
             sql.mockResolvedValue({ rows: [{
@@ -32,6 +43,7 @@ describe('activities/route', () => {
             randomUUID.mockReturnValue('uuid');
         });
         it('returns a 400 if no passcode was provided', async () => {
+            mockGetCookie.mockReturnValue(undefined);
             validatePasscode.mockRejectedValue(new NoPasscodeError());
             const mockReq = {
                 json: jest.fn().mockResolvedValue({
@@ -40,24 +52,25 @@ describe('activities/route', () => {
                 })
             };
             const response = await POST(mockReq);
-            expect(response).toEqual({ data: {message: 'No passcode provided' }, status: 400 });
+            expect(validatePasscode).toHaveBeenCalledWith(undefined, ['editor']);
+            expect(response).toEqual({ data: {message: 'No passcode provided' }, status: 401 });
         });
         it('returns a 403 if the provided passcode does not match the editor passcode', async () => {
+            mockGetCookie.mockReturnValue({ value: 'boogers' });
             validatePasscode.mockRejectedValue(new InvalidPasscodeError())
             const mockReq = {
                 json: jest.fn().mockResolvedValue({ 
-                    passcode: 'boogers',
                     title: 'boogers',
                     description: 'green things'
                 })
             };
             const response = await POST(mockReq);
+            expect(validatePasscode).toHaveBeenCalledWith('boogers', ['editor']);
             expect(response).toEqual({ data: {message: 'Provided passcode is invalid' }, status: 403 });
         });
         it('returns a 400 if no title was provided', async () => {
             const mockReq = {
                 json: jest.fn().mockResolvedValue({ 
-                    passcode: 'editorPasscode',
                     description: 'green things'
                 })
             };
@@ -68,7 +81,6 @@ describe('activities/route', () => {
             sql.mockResolvedValue({ rows: []});
             const mockReq = {
                 json: jest.fn().mockResolvedValue({ 
-                    passcode: 'editorPasscode',
                     title: 'boogers',
                     description: 'green things'
                 })
@@ -87,7 +99,6 @@ describe('activities/route', () => {
             sql.mockResolvedValue({ rows: [{ sortindex: 5 }]});
             const mockReq = {
                 json: jest.fn().mockResolvedValue({ 
-                    passcode: 'editorPasscode',
                     title: 'boogers',
                     description: 'green things'
                 })
@@ -108,6 +119,7 @@ describe('activities/route', () => {
             patchActivity.mockResolvedValue();
         });
         it('should return a 400 if no passcode was provided', async () => {
+            mockGetCookie.mockReturnValue(undefined);
             validatePasscode.mockRejectedValue(new NoPasscodeError());
             const mockReq = {
                 json: jest.fn().mockResolvedValue({ 
@@ -115,23 +127,24 @@ describe('activities/route', () => {
                 })
             };
             const response = await PATCH(mockReq);
-            expect(response).toEqual({ data: {message: 'No passcode provided'}, status: 400 });
+            expect(validatePasscode).toHaveBeenCalledWith(undefined, ['editor']);
+            expect(response).toEqual({ data: {message: 'No passcode provided'}, status: 401 });
         });
         it('should return a 403 if the provided passcode does not match the editor passcode', async () => {
+            mockGetCookie.mockReturnValue({ value: 'boogers' });
             validatePasscode.mockRejectedValue(new InvalidPasscodeError());
             const mockReq = {
                 json: jest.fn().mockResolvedValue({ 
-                    passcode: 'boogers',
                     activities: [{ foo: 'bar' }]
                 })
             };
             const response = await PATCH(mockReq);
+            expect(validatePasscode).toHaveBeenCalledWith('boogers', ['editor']);
             expect(response).toEqual({ data: {message: 'Provided passcode is invalid'}, status: 403 });
         });
         it('should call patchActivity for each activity and log the update', async () => {
             const mockReq = {
                 json: jest.fn().mockResolvedValue({ 
-                    passcode: 'boogers',
                     activities: [
                         { description: 'nothing' },
                         { id: '1', description: 'test' },

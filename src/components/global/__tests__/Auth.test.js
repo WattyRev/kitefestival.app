@@ -3,24 +3,43 @@ import { AuthProvider, useAuth } from '../Auth';
 import userEvent from '@testing-library/user-event';
 
 describe('Auth', () => {
-    it('provides auth information based on local storage', async () => {
-        window.localStorage.setItem('authentication', JSON.stringify({ userType: 'editor', passcode: 'cool passcode', setTime: new Date().getTime() }));
+    it('provides auth information based cookies', async () => {
+        document.cookie = 'userType=editor;';
+        document.cookie = 'userId=a;';
+        document.cookie = `userName=${encodeURIComponent('cool guy')};`;
         const MockConsumer = () => {
             const { auth } = useAuth();
-            return (
+            return (<>
                 <div data-testid="user-type">{auth.userType}</div>
-            )
+                <div data-testid="user-id">{auth.userId}</div>
+                <div data-testid="user-name">{auth.userName}</div>
+            </>)
         };
 
         render(<AuthProvider><MockConsumer /></AuthProvider>);
 
         expect(screen.getByTestId('user-type')).toHaveTextContent('editor');
+        expect(screen.getByTestId('user-id')).toHaveTextContent('a');
+        expect(screen.getByTestId('user-name')).toHaveTextContent('cool guy');
     });
-    it('allows the user to set the authentication to local storage', async () => {
+    it('allows the user to update the authentication state based on cookies', async () => {
+        document.cookie = 'userType=editor;';
+        document.cookie = 'userId=a;';
+        document.cookie = `userName=${encodeURIComponent('cool guy')};`;
         const MockConsumer = () => {
-            const { setAuthentication } = useAuth();
+            const { auth, setAuthentication } = useAuth();
             return (
-                <button data-testid="set" onClick={() => setAuthentication({ userType: 'user', passcode: 'cooler passcode' })}>Set</button>
+                <>
+                    <button data-testid="set" onClick={() => {
+                        document.cookie = 'userType=user;';
+                        document.cookie = 'userId=b;';
+                        document.cookie = `userName=${encodeURIComponent('cooler guy')};`;
+                        setAuthentication()
+                    }}>Set</button>
+                    <div data-testid="user-type">{auth.userType}</div>
+                    <div data-testid="user-id">{auth.userId}</div>
+                    <div data-testid="user-name">{auth.userName}</div>
+                </>
             )
         };
 
@@ -28,26 +47,39 @@ describe('Auth', () => {
 
         await userEvent.click(screen.getByTestId('set'));
 
-        const storedAuth = JSON.parse(window.localStorage.getItem('authentication'));
-        expect(storedAuth).toEqual({ userType: 'user', passcode: 'cooler passcode', setTime: expect.any(Number) });
+        expect(screen.getByTestId('user-type')).toHaveTextContent('user');
+        expect(screen.getByTestId('user-id')).toHaveTextContent('b');
+        expect(screen.getByTestId('user-name')).toHaveTextContent('cooler guy');
     });
-    it('allows the user to clear the authentication from local storage', async () => {
-        window.localStorage.setItem('authentication', JSON.stringify({ userType: 'editor', passcode: 'cool passcode', setTime: new Date().getTime() }));
+    it('allows the user to clear the authentication', async () => {
+        document.cookie = 'userType=editor;';
+        document.cookie = 'userId=a;';
+        document.cookie = `userName=${encodeURIComponent('cool guy')};`;
+        document.cookie = `passcode=${encodeURIComponent('cool passcode')};`;
         const MockConsumer = () => {
             const { clearAuthentication } = useAuth();
-            return (
+            return (<>
                 <button data-testid="clear" onClick={clearAuthentication}>Clear</button>
-            )
+            </>)
         };
 
         render(<AuthProvider><MockConsumer /></AuthProvider>);
-
         await userEvent.click(screen.getByTestId('clear'));
 
-        expect(window.localStorage.getItem('authentication')).toBe(null);
+        // does not clear user id
+        expect(document.cookie).toContain('userId=a');
+
+        // does not clear user name
+        expect(document.cookie).toContain(`userName=${encodeURIComponent('cool guy')}`);
+
+        // clears user-type
+        expect(document.cookie).not.toContain('userType');
+
+        // removes password cookie
+        expect(document.cookie).not.toContain('passcode');
     });
     it('allows the user to check if the user is an editor', async () => {
-        window.localStorage.setItem('authentication', JSON.stringify({ userType: 'editor', passcode: 'cool passcode', setTime: new Date().getTime() }));
+        document.cookie = 'userType=editor;';
 
         const MockConsumer = () => {
             const { isEditor, isUser, isPublic } = useAuth();
@@ -67,7 +99,7 @@ describe('Auth', () => {
         expect(screen.getByTestId('is-public')).toHaveTextContent('false');
     });
     it('allows the user to check if the user is a user', async () => {
-        window.localStorage.setItem('authentication', JSON.stringify({ userType: 'user', passcode: 'cool passcode', setTime: new Date().getTime() }));
+        document.cookie = 'userType=user;';
 
         const MockConsumer = () => {
             const { isEditor, isUser, isPublic } = useAuth();
@@ -87,7 +119,7 @@ describe('Auth', () => {
         expect(screen.getByTestId('is-public')).toHaveTextContent('false');
     });
     it('allows the user to check if the user is a public user', async () => {
-        window.localStorage.removeItem('authentication');
+        document.cookie = 'userType=;expires=Thu, 01 Jan 1970 00:00:01 GMT';
 
         const MockConsumer = () => {
             const { isEditor, isUser, isPublic } = useAuth();
@@ -106,18 +138,4 @@ describe('Auth', () => {
         expect(screen.getByTestId('is-user')).toHaveTextContent('false');
         expect(screen.getByTestId('is-public')).toHaveTextContent('true');
     });
-    it('does not use auth from localStorage if it is expired', () => {
-        window.localStorage.setItem('authentication', JSON.stringify({ userType: 'editor', passcode: 'cool passcode', setTime: new Date().getTime() - 4 * 24 * 60 * 60 * 1000 }));
-
-        const MockConsumer = () => {
-            const { auth } = useAuth();
-            return (
-                <div data-testid="user-type">{auth?.userType || 'none'}</div>
-            )
-        };
-
-        render(<AuthProvider><MockConsumer /></AuthProvider>);
-
-        expect(screen.getByTestId('user-type')).toHaveTextContent('none');
-    })
 });

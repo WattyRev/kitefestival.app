@@ -2,7 +2,6 @@ import { createContext, useEffect, useReducer, useState } from "react";
 import fetch from '../util/fetch';
 import setInterval from '../util/setInterval';
 import clearInterval from '../util/clearInterval';
-import { useAuth } from "./global/Auth";
 import { useAlert } from "./ui/Alert";
 
 export const ActivitiesContext = createContext({
@@ -120,7 +119,6 @@ function reindexActivities(activities) {
 }
 
 const ActivitiesContainer = ({ children, initialActivities }) => {
-    const { auth } = useAuth();
     const [activitiesData, dispatch] = useReducer(ActivitiesReducer, {
         activities: initialActivities,
         scheduledActivities: initialActivities.filter(activity => activity.scheduleIndex !== null),
@@ -185,7 +183,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ title, description, passcode: auth?.passcode })
+                body: JSON.stringify({ title, description })
             })
             if (!response.ok) {
                 openAlert('Failed to create activity', 'error');
@@ -197,10 +195,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
         },
         deleteActivity: async (id) => {
             const response = await fetch(`/api/activities/${id}`, {
-                method: 'DELETE',
-                body: JSON.stringify({
-                    passcode: auth?.passcode
-                })
+                method: 'DELETE'
             });
             if (!response.ok) {
                 openAlert('Failed to delete activity', 'error');
@@ -219,7 +214,6 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             const response = await fetch(`/api/activities/${id}`, {
                 method: 'PATCH',
                 body: JSON.stringify({
-                    passcode: auth?.passcode,
                     activity
                 })
             });
@@ -240,7 +234,6 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             const response = await fetch(`/api/activities/${id}`, {
                 method: 'PATCH',
                 body: JSON.stringify({
-                    passcode: auth?.passcode,
                     activity
                 })
             });
@@ -281,8 +274,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             await fetch('/api/activities', { 
                 method: 'PATCH',
                 body: JSON.stringify({
-                    activities: changedActivities,
-                    passcode: auth?.passcode
+                    activities: changedActivities
                 })
             })
 
@@ -320,8 +312,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             await fetch('/api/activities', { 
                 method: 'PATCH',
                 body: JSON.stringify({
-                    activities: changedActivities,
-                    passcode: auth?.passcode
+                    activities: changedActivities
                 })
             })
 

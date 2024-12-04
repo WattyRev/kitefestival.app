@@ -194,8 +194,7 @@ describe('ActivitiesContainer', () => {
                 },
                 body: JSON.stringify({
                     title: 'Activity 5',
-                    description: 'Description 5',
-                    passcode: 'boogers-passcode'
+                    description: 'Description 5'
                 })
             });
 
@@ -258,10 +257,7 @@ describe('ActivitiesContainer', () => {
             await userEvent.click(screen.getByTestId('delete-activity'));
 
             expect(fetch).toHaveBeenCalledWith('/api/activities/2', {
-                method: 'DELETE',
-                body: JSON.stringify({
-                    passcode: 'boogers-passcode'
-                })
+                method: 'DELETE'
             });
 
             expect(screen.queryAllByTestId('activity')).toHaveLength(3);
@@ -332,7 +328,6 @@ describe('ActivitiesContainer', () => {
             expect(fetch).toHaveBeenCalledWith('/api/activities/3', {
                 method: 'PATCH',
                 body: JSON.stringify({
-                    passcode: 'boogers-passcode',
                     activity: {
                         id: '3',
                         scheduleIndex: 2,
@@ -415,7 +410,6 @@ describe('ActivitiesContainer', () => {
             expect(fetch).toHaveBeenCalledWith('/api/activities/1', {
                 method: 'PATCH',
                 body: JSON.stringify({
-                    passcode: 'boogers-passcode',
                     activity: {
                         id: '1',
                         sortIndex: 2,

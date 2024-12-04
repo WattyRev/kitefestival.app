@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { sql } from "@vercel/postgres";
 import getPasscodeByName from "./getPasscodeByName";
+import { cookies } from "next/headers";
+import { randomUUID } from "../crypto";
 
 /**
  * Change passcodes
@@ -60,6 +62,7 @@ export async function PUT(req) {
  * POST /api/passcodes
  * {
  *   passcode: string
+ *   name: string
  * }
  * 
  * Response:
@@ -68,19 +71,59 @@ export async function PUT(req) {
  * }
  */
 export async function POST(req) {
+    const identifyCookieExpiration = new Date(Date.now() + 1000 * 60 * 60 * 24 * 365)
+    const cookieStore = cookies();
+    if (!cookieStore.has('userId')) {
+        const userId = randomUUID();
+        cookieStore.set('userId', userId, {
+            expires: identifyCookieExpiration,
+            sameSite: 'strict',
+            secure: true
+        });
+    }
     const {
-        passcode
+        passcode,
+        name
     } = await req.json();
+
+    if (name) {
+        cookieStore.set('userName', name, {
+            expires: identifyCookieExpiration,
+            sameSite: 'strict',
+            secure: true
+        });
+    }
 
     if (!passcode) {
         return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
     }
+    const authCookieExpiration = new Date(Date.now() + 1000 * 60 * 60 * 24 * 3);
     const editorPasscode = await getPasscodeByName('editor');
     if (passcode === editorPasscode) {
+        cookieStore.set('passcode', passcode, {
+            expires: authCookieExpiration,
+            sameSite: 'strict',
+            secure: true
+        });
+        cookieStore.set('userType', 'editor', {
+            expires: authCookieExpiration,
+            sameSite: 'strict',
+            secure: true
+        });
         return NextResponse.json({ userType: 'editor' });
     }
     const userPasscode = await getPasscodeByName('user');
     if (passcode === userPasscode) {
+        cookieStore.set('passcode', passcode, {
+            expires: authCookieExpiration,
+            sameSite: 'strict',
+            secure: true
+        });
+        cookieStore.set('userType', 'user', {
+            expires: authCookieExpiration,
+            sameSite: 'strict',
+            secure: true
+        });
        return NextResponse.json({ userType: 'user' });
     }
 

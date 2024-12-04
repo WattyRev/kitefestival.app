@@ -11,36 +11,50 @@ export const AuthContext = createContext({
 
 export const useAuth = () => useContext(AuthContext);
 
-function getAuthDataFromLocalStorage() {
-    const localData = window.localStorage.getItem('authentication');
-    if (!localData) {
+const getCookies = () => {
+    if (!document.cookie) {
         return {};
     }
-    const parsedData = JSON.parse(localData);
-    const threeDays = 3 * 24 * 60 * 60 * 1000;
-    
-    // Ignore auth data if it is more than 3 days old
-    if (new Date().getTime() - (parsedData.setTime || 0) > threeDays) {
-        return {};
-    }
-    return parsedData;
+    const pairs = document.cookie.split(";");
+    const cookies = pairs.reduce((acc, pair) => {
+        const [key, value] = pair.split("=");
+        acc[key.trim()] = decodeURIComponent(value.trim());
+        return acc;
+    }, {});
+    return cookies;
 }
 
 export function AuthProvider({ children }) {
     const [ auth, setAuth ] = useState({});
-    useEffect(() => {
-        setAuth(getAuthDataFromLocalStorage())
-    }, []);
-    function setAuthentication(auth) {
-        setAuth(auth);
-        window.localStorage.setItem('authentication', JSON.stringify({
-            ...auth,
-            setTime: new Date().getTime()
-        }));
+    function setAuthentication() {
+        const cookies = getCookies();
+        const authData = {
+            userType: cookies.userType,
+            userId: cookies.userId,
+            userName: cookies.userName
+        }
+        setAuth(authData);
     }
+    useEffect(() => {
+        setAuthentication()
+    }, []);
     function clearAuthentication() {
-        setAuth({});
-        window.localStorage.removeItem('authentication');
+        function delete_cookie( name, path, domain ) {
+            function get_cookie(name){
+                return document.cookie.split(';').some(c => {
+                    return c.trim().startsWith(name + '=');
+                });
+            }
+            if( get_cookie( name ) ) {
+              document.cookie = name + "=" +
+                ((path) ? ";path="+path:"")+
+                ((domain)?";domain="+domain:"") +
+                ";expires=Thu, 01 Jan 1970 00:00:01 GMT";
+            }
+        }
+        delete_cookie('userType');
+        delete_cookie('passcode');
+        setAuthentication();
     }
     function isEditor() {
         return auth?.userType === 'editor';

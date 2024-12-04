@@ -1,10 +1,25 @@
 import { sql } from "@vercel/postgres";
+import { cookies } from "next/headers";
 import getPasscodeByName from "../getPasscodeByName";
 import { PUT, POST } from "../route";
+import { randomUUID } from "../../crypto";
 
 jest.mock('../getPasscodeByName');
+jest.mock('next/headers');
+jest.mock('../../crypto');
 
 describe('passcodes/route', () => {
+    let mockHasCookie;
+    let mockSetCookie;
+    beforeEach(() => {
+        mockHasCookie = jest.fn().mockReturnValue(true);
+        mockSetCookie = jest.fn();
+        cookies.mockReturnValue({
+            has: mockHasCookie,
+            set: mockSetCookie
+        });
+        randomUUID.mockReturnValue('uuid');
+    });
     describe('PUT', () => {
         let mockPayload;
         beforeEach(() => {
@@ -134,6 +149,86 @@ describe('passcodes/route', () => {
             };
             const response = await POST(mockReq);
             expect(response).toEqual({ data: {message: 'Invalid passcode'}, status: 401 });
+        });
+        it('sets a userId cookie if one does not exist', async () => {
+            mockHasCookie.mockReturnValue(false);
+            const mockReq = {
+                json: jest.fn().mockResolvedValue({
+                    passcode: 'boogers'
+                })
+            };
+            await POST(mockReq);
+            expect(mockSetCookie).toHaveBeenCalledWith('userId', 'uuid', {
+                "expires": expect.any(Date), 
+                "sameSite": "strict", 
+                "secure": true
+            });
+        });
+        it('sets a userName cookie if a name is provided', async () => {
+            const mockReq = {
+                json: jest.fn().mockResolvedValue({
+                    passcode: 'boogers',
+                    name: 'Stubby'
+                })
+            };
+            await POST(mockReq);
+            expect(mockSetCookie).toHaveBeenCalledWith('userName', 'Stubby', {
+                "expires": expect.any(Date), 
+                "sameSite": "strict", 
+                "secure": true
+            });
+        });
+        it('sets a passcode cookie if the passcode was valid', async () => {
+            const mockReq = {
+                json: jest.fn().mockResolvedValue({
+                    passcode: 'boogers'
+                })
+            };
+            await POST(mockReq);
+            expect(mockSetCookie).toHaveBeenCalledWith('passcode', 'boogers', {
+                "expires": expect.any(Date), 
+                "sameSite": "strict", 
+                "secure": true
+            });
+        });
+        it('does not set a passcode cookie if the passcode was not valid', async () => {
+            const mockReq = {
+                json: jest.fn().mockResolvedValue({
+                    passcode: 'nothing'
+                })
+            };
+            await POST(mockReq);
+            expect(mockSetCookie).not.toHaveBeenCalledWith('passcode', 'boogers', {
+                "expires": expect.any(Date), 
+                "sameSite": "strict", 
+                "secure": true
+            });
+        });
+        it('sets a userType to editor if the passcode validated as an editor', async () => {
+            const mockReq = {
+                json: jest.fn().mockResolvedValue({
+                    passcode: 'boogers'
+                })
+            };
+            await POST(mockReq);
+            expect(mockSetCookie).toHaveBeenCalledWith('userType', 'editor', {
+                "expires": expect.any(Date), 
+                "sameSite": "strict", 
+                "secure": true
+            });
+        });
+        it('sets a userType to user if the passcode validated as a user', async () => {
+            const mockReq = {
+                json: jest.fn().mockResolvedValue({
+                    passcode: 'abcd'
+                })
+            };
+            await POST(mockReq);
+            expect(mockSetCookie).toHaveBeenCalledWith('userType', 'user', {
+                "expires": expect.any(Date), 
+                "sameSite": "strict", 
+                "secure": true
+            });
         });
     });
 });
