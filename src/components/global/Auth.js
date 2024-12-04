@@ -54,6 +54,7 @@ export function AuthProvider({ children }) {
         }
         delete_cookie('userType');
         delete_cookie('passcode');
+        setAuthentication();
     }
     function isEditor() {
         return auth?.userType === 'editor';

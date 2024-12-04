@@ -6,10 +6,7 @@ import { useAlert } from '../../ui/Alert';
 import fetch from '../../../util/fetch';
 import { useState } from 'react';
 import Modal from '../../ui/Model';
-import H1 from '../../ui/H1';
-import Panel from '../../ui/Panel';
-import TextInput from '../../ui/TextInput';
-import Button from '../../ui/Button';
+import LogInForm from './LogInForm';
 
 /**
  * Controls the Log In / Log Out buttons in the top nav
@@ -17,13 +14,11 @@ import Button from '../../ui/Button';
 const AuthSelection = () => {
     const [ isModalOpen, setIsModalOpen ] = useState(false);
     const { auth, setAuthentication, clearAuthentication } = useAuth();
-    const [ name, setName ] = useState('');
-    const [ passcode, setPasscode ] = useState();
     const [ isPending, setIsPending ] = useState(false);
     const { openAlert } = useAlert();
 
     // Prompt for passcode and log in with it
-    async function logIn() {
+    async function logIn({name, passcode}) {
         setIsPending(true);
         const response = await fetch('/api/passcodes', {
             method: 'POST',
@@ -41,6 +36,7 @@ const AuthSelection = () => {
 
         const { userType } = await response.json();
         setIsPending(false);
+        setIsModalOpen(false);
         setAuthentication({ userType, passcode });
     }
 
@@ -62,43 +58,11 @@ const AuthSelection = () => {
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
                 >
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-                        logIn();
-                    }}>
-                        <H1>Log In</H1>
-                        <Panel>
-                            <label htmlFor="name">Name</label>
-                            <TextInput 
-                                data-testid="name-input"
-                                id="name" 
-                                placeholder="What should we call you?" 
-                                required 
-                                autoFocus
-                                value={name} 
-                                onChange={e => setName(e.target.value)}
-                            />
-                            <label htmlFor="passcode">Passcode</label>
-                            <TextInput 
-                                data-testid="passcode-input"
-                                id="passcode" 
-                                type="password" 
-                                required 
-                                value={passcode} 
-                                onChange={e => setPasscode(e.target.value)}
-                            />
-                        </Panel>
-                        <Button
-                            data-testid="submit-log-in"
-                            type="submit"
-                            disabled={isPending}
-                        >Log In</Button>
-                        <Button 
-                            type="button" 
-                            className="secondary" 
-                            onClick={() => setIsModalOpen(false)}
-                        >Cancel</Button>
-                    </form>
+                    <LogInForm 
+                        isPending={isPending}
+                        onSubmit={logIn}
+                        onCancel={() => setIsModalOpen(false)}
+                    />
                 </Modal>
             </>
         );
