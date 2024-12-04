@@ -3,23 +3,22 @@ import { sql } from "@vercel/postgres";
 import logUpdateByTableName from "../../logUpdate";
 import validatePasscode, { NoPasscodeError, InvalidPasscodeError } from "../../passcodes/validatePasscode";
 import patchActivity, { NoPatchableKeysError} from "./patchActivity";
+import { cookies } from "next/headers";
 
 /**
  * Deletes an activity by ID.
  *
  * DELETE /api/activities/:activityId
- * {
- *   passcode: string
- * }
  *
  * Response:
  * {
  *   message: string
  * }
  */
-export async function DELETE(req, { params }) {
+export async function DELETE(_, { params }) {
     const { activityId } = params;
-    const { passcode } = await req.json();
+    const cookieStore = cookies();
+    const passcode = cookieStore.get('passcode')?.value;
     try {
         await validatePasscode(passcode, ['editor']);
     } catch (error) {
@@ -44,7 +43,6 @@ export async function DELETE(req, { params }) {
  * PATCH /api/activities/:activityId
  * {
  *   activity: Partial<Activity>
- *   passcode: string
  * }
  *
  * Response:
@@ -53,7 +51,9 @@ export async function DELETE(req, { params }) {
  * }
  */
 export async function PATCH(req, { params }) {
-    const { activity, passcode } = await req.json();
+    const { activity } = await req.json();
+    const cookieStore = cookies();
+    const passcode = cookieStore.get('passcode')?.value;
     try {
         await validatePasscode(passcode, ['editor']);
     } catch (error) {

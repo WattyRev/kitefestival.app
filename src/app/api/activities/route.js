@@ -4,6 +4,7 @@ import { randomUUID } from "../crypto";
 import logUpdateByTableName from "../logUpdate";
 import validatePasscode, { NoPasscodeError, InvalidPasscodeError } from "../passcodes/validatePasscode";
 import patchActivity from "./[activityId]/patchActivity";
+import { cookies } from "next/headers";
 
 export const revalidate = 0;
 
@@ -33,7 +34,6 @@ export async function GET() {
  * {
  *   title: string
  *   description: string
- *   passcode: string
  * }
  * 
  * Response:
@@ -42,12 +42,14 @@ export async function GET() {
  * }
  */
 export async function POST(req) {
-    const { title, description = '', passcode } = await req.json();
+    const { title, description = '' } = await req.json();
+    const cookieStore = cookies();
+    const passcode = cookieStore.get('passcode')?.value;
     try {
         await validatePasscode(passcode, ['editor']);
     } catch (error) {
         if (error instanceof NoPasscodeError) {
-            return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
+            return NextResponse.json({ message: 'No passcode provided'}, { status: 401 });
         }
         if (error instanceof InvalidPasscodeError) {
             return NextResponse.json({ message: 'Provided passcode is invalid'}, { status: 403 });
@@ -83,19 +85,20 @@ export async function POST(req) {
  * PATCH /api/activities
  * {
  *   activities: Partial<Activity>[],
- *   passcode: string
  * }
  * 
  * Response:
  * {}
  */
 export async function PATCH(req) {
-    const { activities, passcode } = await req.json();
+    const { activities } = await req.json();
+    const cookieStore = cookies();
+    const passcode = cookieStore.get('passcode')?.value;
     try {
         await validatePasscode(passcode, ['editor']);
     } catch (error) {
         if (error instanceof NoPasscodeError) {
-            return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
+            return NextResponse.json({ message: 'No passcode provided'}, { status: 401 });
         }
         if (error instanceof InvalidPasscodeError) {
             return NextResponse.json({ message: 'Provided passcode is invalid'}, { status: 403 });

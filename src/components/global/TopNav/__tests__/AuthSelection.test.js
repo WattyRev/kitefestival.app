@@ -2,24 +2,17 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useAlert } from "../../../ui/Alert";
 import { useAuth } from "../../Auth";
-import { usePrompt } from "../../../ui/Prompt";
 import fetch from '../../../../util/fetch';
 import AuthSelection from "../AuthSelection";
 
 jest.mock("../../../ui/Alert");
-jest.mock("../../../ui/Prompt");
 jest.mock("../../Auth");
 jest.mock("../../../../util/fetch");
 
 describe('AuthSelection', () => {
-    let mockOpenPrompt;
     let mockSetAuthentication;
     let mockOpenAlert;
     beforeEach(() => {
-        mockOpenPrompt = jest.fn().mockResolvedValue('cool passcode');
-        usePrompt.mockReturnValue({
-            openPrompt: mockOpenPrompt
-        });
         fetch.mockResolvedValue({
             ok: true,
             json: jest.fn().mockResolvedValue({ userType: 'editor' })
@@ -41,7 +34,17 @@ describe('AuthSelection', () => {
             render(<AuthSelection />);
 
             await userEvent.click(screen.getByTestId('log-in'));
+            await userEvent.type(screen.getByTestId('name-input'), 'Cool guy');
+            await userEvent.type(screen.getByTestId('passcode-input'), 'cool passcode');
+            await userEvent.click(screen.getByTestId('submit-log-in'));
 
+            expect(fetch).toHaveBeenCalledWith('/api/passcodes', {
+                method: 'POST',
+                body: JSON.stringify({
+                    passcode: 'cool passcode',
+                    name: 'Cool guy'
+                })
+            });
             expect(mockSetAuthentication).toHaveBeenCalledWith({ userType: 'editor', passcode: 'cool passcode' });
         });
         it('shows an error alert if log in is unsuccessful', async () => {
@@ -52,6 +55,9 @@ describe('AuthSelection', () => {
             render(<AuthSelection />);
 
             await userEvent.click(screen.getByTestId('log-in'));
+            await userEvent.type(screen.getByTestId('name-input'), 'Cool guy');
+            await userEvent.type(screen.getByTestId('passcode-input'), 'cool passcode');
+            await userEvent.click(screen.getByTestId('submit-log-in'));
 
             expect(mockOpenAlert).toHaveBeenCalledWith('Invalid passcode', 'error');
             expect(mockSetAuthentication).not.toHaveBeenCalled();
