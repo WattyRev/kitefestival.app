@@ -86,7 +86,10 @@ export async function PATCH(req, { params }) {
         return NextResponse.json({ message: 'You are not authorized to edit this comment'}, { status: 403 });
     }
 
-    await sql`UPDATE comments SET message = ${comment.message}, edited = true, userName = ${userName} WHERE id = ${commentId}`;
+    await Promise.all([
+        sql`UPDATE comments SET message = ${comment.message}, edited = true, userName = ${userName} WHERE id = ${commentId}`,
+        logUpdateByTableName('comments')
+    ]);
 
     return NextResponse.json({});
 }
