@@ -1,30 +1,47 @@
 import { render, screen } from '@testing-library/react';
 import ActivitiesContainer from "../ActivitiesContainer";
+import ChangePollingContainer from '../ChangePollingContainer';
+import CommentsContainer from '../CommentsContainer';
 import ActivityDisplay from "../ActivityDisplay";
+import Comments from "../Comments";
 import CreateActivityForm from "../CreateActivityForm";
 import { useAuth } from "../global/Auth";
 import HomePage from '../HomePage';
 
 jest.mock('../ActivitiesContainer');
+jest.mock('../ChangePollingContainer');
+jest.mock('../CommentsContainer');
 jest.mock('../ActivityDisplay');
+jest.mock('../Comments');
 jest.mock('../CreateActivityForm');
 jest.mock('../global/Auth');
 
 
 describe('HomePage', () => {
     beforeEach(() => {
+        ChangePollingContainer.mockImplementation(({ children }) => <>{children}</>);
         ActivitiesContainer.mockImplementation(({ children }) => {
             return children({
                 scheduledActivities: [],
                 unscheduledActivities: [],
                 isLoading: false,
                 createActivity: jest.fn(),
-                deleteActivit: jest.fn(),
+                deleteActivity: jest.fn(),
                 moveActivityUp: jest.fn(),
                 moveActivityDown: jest.fn(),
             });
         });
-        ActivityDisplay.mockReturnValue(<div data-testid="activity-display" />);
+        CommentsContainer.mockImplementation(({ children }) => {
+            return children({
+                commentsByActivityId: {},
+                isLoading: false,
+                createComment: jest.fn(),
+                deleteComment: jest.fn(),
+                editComment: jest.fn(),
+            });
+        });
+        ActivityDisplay.mockImplementation(({ children }) => (<div data-testid="activity-display" >{children}</div>));
+        Comments.mockReturnValue(<div data-testid="comments" />);
         CreateActivityForm.mockReturnValue(<div data-testid="create-activity-form" />);
         useAuth.mockReturnValue({ isPublic: jest.fn().mockReturnValue(false) });
     })
@@ -59,9 +76,10 @@ describe('HomePage', () => {
         render(<HomePage />);
 
         expect(screen.getAllByTestId('activity-display')).toHaveLength(2);
+        expect(screen.getAllByTestId('comments')).toHaveLength(2);
     });
 
-    it('renders an ActivityDisplay for each unscheduledActivity', async () => {
+    it('renders an ActivityDisplay for each scheduledActivity', async () => {
         ActivitiesContainer.mockImplementation(({ children }) => {
             return children({
                 scheduledActivities: [{
@@ -83,7 +101,9 @@ describe('HomePage', () => {
         render(<HomePage />);
 
         expect(screen.getAllByTestId('activity-display')).toHaveLength(2);
+        expect(screen.getAllByTestId('comments')).toHaveLength(2);
     });
+    
     describe('move up', () => {
         beforeEach(() => {
             ActivitiesContainer.mockImplementation(({ children }) => {

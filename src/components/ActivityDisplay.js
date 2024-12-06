@@ -13,7 +13,8 @@ const ActivityDisplay = ({
     onSchedule,
     onUnschedule,
     onMoveUp,
-    onMoveDown
+    onMoveDown,
+    children,
 }) => {
     const { isEditor } = useAuth();
     const { openPrompt } = usePrompt();
@@ -69,6 +70,7 @@ const ActivityDisplay = ({
                     <Button data-testid="delete-activity" onClick={deleteActivity} disabled={pending} className="danger">Delete</Button>
                 </>
             )}
+            {children}
         </Panel>
     )
 }

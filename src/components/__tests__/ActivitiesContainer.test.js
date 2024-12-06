@@ -4,6 +4,7 @@ import fetch from '../../util/fetch';
 import setInterval from '../../util/setInterval';
 import { useAuth } from '../global/Auth';
 import { useAlert } from '../ui/Alert';
+import { useChangePolling } from "../ChangePollingContainer";
 import ActivitiesContainer from '../ActivitiesContainer';
 
 jest.mock('../../util/fetch');
@@ -11,11 +12,15 @@ jest.mock('../../util/setInterval');
 jest.mock('../../util/clearInterval');
 jest.mock('../global/Auth');
 jest.mock('../ui/Alert');
+jest.mock('../ChangePollingContainer');
 
 describe('ActivitiesContainer', () => {
     let initialActivities;
     let mockOpenAlert;
     beforeEach(() => {
+        useChangePolling.mockReturnValue({
+            changes: []
+        })
         fetch.mockResolvedValue({
             ok: true,
             json: jest.fn().mockResolvedValue({})
@@ -103,21 +108,14 @@ describe('ActivitiesContainer', () => {
         expect(screen.queryAllByTestId('activity')[0]).toHaveTextContent('Activity 3');
     });
     it('indicates when it is loading new activity data', async () => {
+        useChangePolling.mockReturnValue({
+            changes: [{
+                tablename: 'activities',
+                updated: new Date().toISOString()
+            }]
+        })
         let activitiesResolver;
         fetch.mockImplementation(url => {
-            if (url === '/api/changes') {
-                return Promise.resolve({
-                    ok: true,
-                    json: jest.fn().mockResolvedValue({
-                        changes: [
-                            {
-                                tablename: 'activities',
-                                updated: new Date().toISOString()
-                            }
-                        ]
-                    })
-                });
-            }
             if (url === '/api/activities') {
                 return new Promise(resolve => {
                     activitiesResolver = () => resolve({
@@ -142,7 +140,7 @@ describe('ActivitiesContainer', () => {
 
         activitiesResolver();
 
-        expect(screen.getByTestId('loading')).toHaveTextContent('not loading');
+        await waitFor(() => expect(screen.getByTestId('loading')).toHaveTextContent('not loading'));
     });
     describe('activity creation', () => {
         it('allows a user to create an activity', async () => {

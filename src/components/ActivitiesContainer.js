@@ -1,8 +1,7 @@
 import { createContext, useEffect, useReducer, useState } from "react";
 import fetch from '../util/fetch';
-import setInterval from '../util/setInterval';
-import clearInterval from '../util/clearInterval';
 import { useAlert } from "./ui/Alert";
+import { useChangePolling } from "./ChangePollingContainer";
 
 export const ActivitiesContext = createContext({
     activities: [],
@@ -126,6 +125,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
     });
     const [isLoading, setIsLoading] = useState(false);
     const { openAlert } = useAlert();
+    const { changes } = useChangePolling();
 
     const fetchActivities = async () => {
         setIsLoading(true);
@@ -141,36 +141,17 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
     }
 
     const checkForUpdates = async () => {
-        const changesResponse = await fetch('/api/changes');
-        if (!changesResponse.ok) {
-            return;
-        }
-        const changesJson = await changesResponse.json();
-        const { changes } = changesJson;
-        if (!changes?.length) {
-            return;
-        }
-        const newerChanges = changes.filter(change => new Date(change.updated).getTime() > lastUpdate);
+        const newerChanges = changes.filter(change => new Date(change.updated).getTime() > lastUpdate && change.tablename === 'activities');
         if (!newerChanges.length) {
             return;
         }
         lastUpdate = new Date().getTime();
-        const refreshPromises = newerChanges.map(change => {
-            if (change.tablename === 'activities') {
-                return fetchActivities();
-            }
-            return Promise.resolve();
-        });
-        return Promise.all(refreshPromises);
+        return fetchActivities();
     }
 
     useEffect(() => {
         checkForUpdates();
-        const interval = setInterval(() => {
-            checkForUpdates();
-        }, 5000);
-        return () => clearInterval(interval);
-      }, [])
+    }, [changes])
 
     const childData = {
         activities: activitiesData.activities,
