@@ -22,7 +22,7 @@ export async function GET() {
         throw error;
     }
 
-    const commentsResponse = await sql`SELECT * FROM comments`;
+    const commentsResponse = await sql`SELECT * FROM comments ORDER BY createtime ASC`;
     const comments = commentsResponse.rows.map(comment => {
         const { id, message, activityid, userid, username, createtime, edited } = comment;
         return { 
