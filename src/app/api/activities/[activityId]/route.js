@@ -33,7 +33,12 @@ export async function DELETE(_, { params }) {
     if (!activityId) {
         return NextResponse.json({ message: 'No activity ID provided'}, { status: 400 });
     }
-    await Promise.all([sql`DELETE FROM activities WHERE id = ${activityId}`, logUpdateByTableName('activities')]);
+    await Promise.all([
+        sql`DELETE FROM activities WHERE id = ${activityId}`,
+        sql`DELETE FROM comments WHERE activityId = ${activityId}`,
+        logUpdateByTableName('activities'),
+        logUpdateByTableName('comments')
+    ]);
     return NextResponse.json({ message: 'Activity deleted'});
 }
 
