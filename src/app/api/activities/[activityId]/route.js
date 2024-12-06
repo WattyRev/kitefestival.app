@@ -23,7 +23,7 @@ export async function DELETE(_, { params }) {
         await validatePasscode(passcode, ['editor']);
     } catch (error) {
         if (error instanceof NoPasscodeError) {
-            return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
+            return NextResponse.json({ message: 'No passcode provided'}, { status: 401 });
         }
         if (error instanceof InvalidPasscodeError) {
             return NextResponse.json({ message: 'Provided passcode is invalid'}, { status: 403 });
@@ -58,7 +58,7 @@ export async function PATCH(req, { params }) {
         await validatePasscode(passcode, ['editor']);
     } catch (error) {
         if (error instanceof NoPasscodeError) {
-            return NextResponse.json({ message: 'No passcode provided'}, { status: 400 });
+            return NextResponse.json({ message: 'No passcode provided'}, { status: 401 });
         }
         if (error instanceof InvalidPasscodeError) {
             return NextResponse.json({ message: 'Provided passcode is invalid'}, { status: 403 });

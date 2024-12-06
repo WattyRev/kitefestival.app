@@ -22,12 +22,12 @@ describe('activities/activityId/route', () => {
         })
     });
     describe('DELETE', () => {
-        it('returns a 400 if no passcode was provided', async () => {
+        it('returns a 401 if no passcode was provided', async () => {
             validatePasscode.mockRejectedValue(new NoPasscodeError());
             mockGetCookie.mockReturnValue(undefined);
             const response = await DELETE(null, { params: { activityId: '1' } });
             expect(validatePasscode).toHaveBeenCalledWith(undefined, ['editor']);
-            expect(response).toEqual({ data: {message: 'No passcode provided' }, status: 400 });
+            expect(response).toEqual({ data: {message: 'No passcode provided' }, status: 401 });
         });
         it('returns a 403 if the provided passcode does not match the editor passcode', async () => {
             validatePasscode.mockRejectedValue(new InvalidPasscodeError())
@@ -56,7 +56,7 @@ describe('activities/activityId/route', () => {
         beforeEach(() => {
             patchActivity.mockResolvedValue();
         })
-        it('returns a 400 if no passcode was provided', async () => {
+        it('returns a 401 if no passcode was provided', async () => {
             validatePasscode.mockRejectedValue(new NoPasscodeError());
             mockGetCookie.mockReturnValue(undefined);
             const mockReq = {
@@ -66,7 +66,7 @@ describe('activities/activityId/route', () => {
             };
             const response = await PATCH(mockReq, { params: { activityId: '1' } });
             expect(validatePasscode).toHaveBeenCalledWith(undefined, ['editor']);
-            expect(response).toEqual({ data: {message: 'No passcode provided' }, status: 400 });
+            expect(response).toEqual({ data: {message: 'No passcode provided' }, status: 401 });
         });
         it('returns a 403 if the provided passcode does not match the editor passcode', async () => {
             mockGetCookie.mockReturnValue({ value: 'boogers' });
