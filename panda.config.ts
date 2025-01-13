@@ -16,7 +16,7 @@ export default defineConfig({
     extend: {
       tokens: {
         colors: {
-          sectionBackground: { value: 'rgba(83, 174, 255, 0.29)' },
+          sectionBackground: { value: 'rgba(180, 219, 254, 0.29)' },
           success: { value: '#a1d78e' },
           danger: { value: '#ff6363' },
           secondary: { value: '#cdcdcd' }

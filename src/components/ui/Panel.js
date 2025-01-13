@@ -6,9 +6,8 @@ const Panel = ({ children, ...props }) => {
         <div 
             className={css({ 
                 background: 'sectionBackground',
-                padding: '8px',
-                margin: '8px',
-                borderRadius: '4px',
+                padding: '8px 16px',
+                margin: '8px 0',
             })}
             {...props}
         >

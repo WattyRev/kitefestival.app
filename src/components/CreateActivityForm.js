@@ -7,6 +7,7 @@ import TextInput from "./ui/TextInput";
 import Textarea from "./ui/Textarea";
 import Button from "./ui/Button";
 import H1 from "./ui/H1";
+import { css } from "../../styled-system/css";
 
 const CreateActivityForm = ({ onSubmit }) => {
     const { isEditor } = useAuth();
@@ -27,14 +28,14 @@ const CreateActivityForm = ({ onSubmit }) => {
     }
     return (
         <form data-testid="create-activity-form" onSubmit={e => {e.preventDefault(); submit()}}>
-            <H1>Create Activity</H1>
+            <H1 className={css({ paddingLeft: '16px', paddingTop: '32px'})}>Create Activity</H1>
             <Panel>
                 <label>Title</label>
                 <TextInput data-testid="title" required value={title} onChange={e => setTitle(e.target.value)} />
                 <label>Description</label>
                 <Textarea data-testid="description" required value={description} onChange={e => setDescription(e.target.value)} />
+                <Button data-testid="save-activity" type="submit" disabled={pending}>Save</Button>
             </Panel>
-            <Button data-testid="save-activity" type="submit" disabled={pending}>Save</Button>
         </form>
     )
 }

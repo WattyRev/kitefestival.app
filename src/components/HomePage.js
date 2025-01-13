@@ -9,6 +9,7 @@ import { useAuth } from "./global/Auth";
 import ChangePollingContainer from "./ChangePollingContainer";
 import CommentsContainer from "./CommentsContainer";
 import Comments from "./Comments";
+import H2 from "./ui/H2";
 
 const HomePageContainer = ({ activities:initialActivities }) => {
     const { isPublic } = useAuth();
@@ -36,11 +37,11 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                         }) => (
                             <>
                                 <LoadingBar isLoading={isLoadingActivities || isLoadingComments} />
-                                <div className={css({ padding: '8px' })} data-testid="home-page">
-                                    {!scheduledActivities.length && <p data-testid="empty-schedule">There&apos;s nothing happening right now</p>}
+                                <div data-testid="home-page">
+                                    {!scheduledActivities.length && <p className={css({ paddingLeft: '16px'})} data-testid="empty-schedule">There&apos;s nothing happening right now</p>}
                                     {scheduledActivities.map((activity, index) => (<div key={activity.id}>
-                                        {index === 0 && <H1>Happening Now</H1>}
-                                        {index === 1 && <H1>Upcoming</H1>}
+                                        {index === 0 && <H1 className={css({ paddingLeft: '16px'})}>Happening Now</H1>}
+                                        {index === 1 && <H2 className={css({ paddingLeft: '16px', paddingTop: "16px"})}>Upcoming</H2>}
                                         <ActivityDisplay 
                                             key={activity.id} 
                                             activity={activity} 
@@ -58,8 +59,8 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                         </ActivityDisplay>
                                     </div>))}
                                     {!isPublic() && (<>
-                                        <H1 data-testid="unscheduled">Unscheduled Activities</H1>
-                                        {!unscheduledActivities.length && <p data-testid="empty-unscheduled">There are no unscheduled activities</p>}
+                                        <H1 data-testid="unscheduled" className={css({ paddingLeft: '16px', paddingTop: '32px'})}>Unscheduled Activities</H1>
+                                        {!unscheduledActivities.length && <p data-testid="empty-unscheduled" className={css({ paddingLeft: '16px'})}>There are no unscheduled activities</p>}
                                         {unscheduledActivities.map((activity, index) => (
                                             <ActivityDisplay 
                                                 key={activity.id} 

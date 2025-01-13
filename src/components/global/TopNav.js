@@ -15,7 +15,7 @@ const TopNav = ({ ...props }) => {
             })}
             {...props}
         >
-            <a href="/">⌂ Home</a>
+            <a href="/" title="Home"><i className="fa-solid fa-house"></i></a>
             <AuthSelection />
         </nav>
     );

@@ -8,6 +8,7 @@ export const buttonStyles = css({
     cursor: 'pointer',
     margin: '4px',
     display: 'inline-block',
+    minWidth: '40px',
     _disabled: {
         cursor: 'progress',
         opacity: '0.5',

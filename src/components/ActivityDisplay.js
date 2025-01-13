@@ -6,6 +6,8 @@ import Button from "./ui/Button"
 import { useState } from "react"
 import { useAuth } from "./global/Auth"
 import { usePrompt } from "./ui/Prompt"
+import { css } from "../../styled-system/css"
+import Dropdown, { DropdownItem } from "./ui/Dropdown"
 
 const ActivityDisplay = ({
     activity,
@@ -59,15 +61,30 @@ const ActivityDisplay = ({
 
     return (
         <Panel>
-            <H2>{activity.title}</H2>
+            <div className={css({
+                display: 'flex',
+                justifyContent: 'space-between',
+            })}>
+                <H2>{activity.title}</H2>
+                {isEditor() && (
+                    <Dropdown
+                        dropdownContent={(() => (
+                            <DropdownItem data-testid="delete-activity" onClick={deleteActivity} disabled={pending}><i className="fa-solid fa-trash"/> Delete Item</DropdownItem>
+                        ))}
+                    >
+                        {({ open, close, isOpen }) => (
+                            <button data-testid="activity-dropdown" className={css({ cursor: 'pointer' })} onClick={isOpen ? close : open}><i className="fa-solid fa-ellipsis"></i></button>
+                        )}
+                    </Dropdown>
+                )}
+            </div>
             <p>{activity.description}</p>
             {isEditor() && (
                 <>
-                    {onSchedule && <Button data-testid="add-schedule" onClick={addToSchedule} disabled={pending}>Add to Schedule</Button>}
-                    {onUnschedule && <Button data-testid="remove-schedule" onClick={removeFromSchedule} disabled={pending}>Remove from Schedule</Button>}
-                    {onMoveUp && <Button data-testid="move-up" onClick={moveUp} disabled={pending}>Move Up</Button>}
-                    {onMoveDown && <Button data-testid="move-down" onClick={moveDown} disabled={pending}>Move Down</Button>}
-                    <Button data-testid="delete-activity" onClick={deleteActivity} disabled={pending} className="danger">Delete</Button>
+                    {onMoveUp && <Button data-testid="move-up" onClick={moveUp} disabled={pending} title="Move Up" className="secondary"><i className="fa-solid fa-arrow-up"/></Button>}
+                    {onMoveDown && <Button data-testid="move-down" onClick={moveDown} disabled={pending} title="Move Down" className="secondary"><i className="fa-solid fa-arrow-down"/></Button>}
+                    {onSchedule && <Button data-testid="add-schedule" onClick={addToSchedule} disabled={pending} title="Add to Schedule" className="secondary"><i className="fa-regular fa-calendar-plus" /></Button>}
+                    {onUnschedule && <Button data-testid="remove-schedule" onClick={removeFromSchedule} disabled={pending} className="secondary" title="Remove from Schedule"><i className="fa-regular fa-calendar-minus" /></Button>}
                 </>
             )}
             {children}
