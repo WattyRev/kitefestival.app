@@ -68,9 +68,12 @@ const AuthSelection = () => {
         );
     }
     return (
-        <button className={css({ cursor: 'pointer' })} data-testid="log-out" onClick={logOut}>
-            Log Out
-        </button>
+        <span>
+            {auth.userName}&nbsp;
+            <button className={css({ cursor: 'pointer' })} data-testid="log-out" onClick={logOut}>
+                <i className="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </span>
     );
 }
 

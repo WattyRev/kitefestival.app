@@ -1,10 +1,10 @@
 import TimeAgo from "../ui/TimeAgo"
-import Button from "../ui/Button";
 import { usePrompt } from "../ui/Prompt";
 import { useAuth } from "../global/Auth";
 import { useState } from "react";
 import { css } from "../../../styled-system/css";
 import CommentForm from "./CommentForm";
+import Dropdown, { DropdownItem } from "../ui/Dropdown";
 
 const Comment = ({ comment, onDelete, onEdit }) => {
     const { auth } = useAuth();
@@ -22,22 +22,26 @@ const Comment = ({ comment, onDelete, onEdit }) => {
         <div key={comment.id}>
             {!isEditing && (
                 <>
-                    <p><strong>{comment.userName}</strong> <TimeAgo className={css({ fontSize: 'sm'})} timestamp={comment.createTime} /></p>
+                    <div className={css({ display: 'flex', justifyContent: 'space-between' })}>
+                        <p><strong>{comment.userName}</strong> <TimeAgo className={css({ fontSize: 'sm'})} timestamp={comment.createTime} /></p>
+                        {(comment.userId === auth.userId || auth.userType === 'editor') && (
+                            <Dropdown
+                                dropdownContent={(() => (
+                                    <>
+                                        {comment.userId === auth.userId && (
+                                            <DropdownItem data-testid="edit-comment" onClick={() => setIsEditing(true)} disabled={isPending}><i className="fa-solid fa-pen"/> Edit Comment</DropdownItem>
+                                        )}
+                                        <DropdownItem data-testid="delete-comment" onClick={() => handleDelete(comment.id)} disabled={isPending}><i className="fa-solid fa-trash"/> Delete Comment</DropdownItem>
+                                    </>
+                                ))}
+                            >
+                                {({ open, close, isOpen }) => (
+                                    <button data-testid="comment-dropdown" className={css({ cursor: 'pointer' })} onClick={isOpen ? close : open}><i className="fa-solid fa-ellipsis"></i></button>
+                                )}
+                            </Dropdown>
+                        )}
+                    </div>
                     <p data-testid="comment-message">{comment.message}{comment.edited && <em className={css({ fontSize: 'sm'})}> (edited)</em>}</p>
-                    {comment.userId === auth.userId && (
-                        <Button 
-                            data-testid="edit-comment"
-                            onClick={() => setIsEditing(true)}
-                        >Edit</Button>
-                    )}
-                    {(comment.userId === auth.userId || auth.userType === 'editor') && (
-                        <Button 
-                            data-testid="delete-comment"
-                            onClick={() => handleDelete(comment.id)} 
-                            className="danger"
-                            disabled={isPending}
-                        >Delete</Button>
-                    )}
                 </>
             )}
             {isEditing && (

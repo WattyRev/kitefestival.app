@@ -37,13 +37,13 @@ describe('ActivityDisplay', () => {
         expect(screen.getByText('Cool Activity')).toBeInTheDocument();
         expect(screen.getByText('This is a cool activity')).toBeInTheDocument();
     });
-    it('does not display the delete button if the user is not an editor', async () => {
+    it('does not display the dropdown if the user is not an editor', async () => {
         useAuth.mockReturnValue({
             isEditor: jest.fn().mockReturnValue(false)
         })
         render(<ActivityDisplay activity={mockActivity} />);
 
-        expect(screen.queryByTestId('delete-activity')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('activity-dropdown')).not.toBeInTheDocument();
     });
     it('allows an editor to delete an activity', async () => {
         useAuth.mockReturnValue({
@@ -58,6 +58,7 @@ describe('ActivityDisplay', () => {
         mockOpenPrompt.mockResolvedValue();
         render(<ActivityDisplay activity={mockActivity} onDelete={onDelete} />);
 
+        await userEvent.click(screen.getByTestId('activity-dropdown'));
         await userEvent.click(screen.getByTestId('delete-activity'));
 
         expect(mockOpenPrompt).toHaveBeenCalledWith("Are you sure you want to delete \"Cool Activity\"?", 'confirm');

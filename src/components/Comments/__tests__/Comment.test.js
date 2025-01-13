@@ -36,19 +36,21 @@ describe('components/Comments/Comment', () => {
     });
     it('allows the comment creator to edit the comment', async () => {
         render(<Comment {...mockProps} />);
+        await userEvent.click(screen.getByTestId('comment-dropdown'));
         await userEvent.click(screen.getByTestId('edit-comment'));
         await userEvent.click(screen.getByTestId('commit-form'));
 
         expect(mockProps.onEdit).toHaveBeenCalledWith('abc-comment-id', { message: 'edited message'});
     });
-    it('does not show the edit button if the user did not create the comment', async () => {
+    it('does not show the dropdown if the user did not create the comment', async () => {
         mockProps.comment.userId = 'different-id';
         render(<Comment {...mockProps} />);
-        expect(screen.queryByTestId('edit-comment')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('comment-dropdown')).not.toBeInTheDocument();
     })
     it('allows the comment creator to delete the comment', async () => {
         render(<Comment {...mockProps} />);
 
+        await userEvent.click(screen.getByTestId('comment-dropdown'));
         await userEvent.click(screen.getByTestId('delete-comment'));
 
         expect(mockProps.onDelete).toHaveBeenCalledWith('abc-comment-id');
@@ -60,6 +62,7 @@ describe('components/Comments/Comment', () => {
         }});
         render(<Comment {...mockProps} />);
 
+        await userEvent.click(screen.getByTestId('comment-dropdown'));
         await userEvent.click(screen.getByTestId('delete-comment'));
 
         expect(mockProps.onDelete).toHaveBeenCalledWith('abc-comment-id');
@@ -72,6 +75,6 @@ describe('components/Comments/Comment', () => {
 
         render(<Comment {...mockProps} />);
 
-        expect(screen.queryByTestId('delete-comment')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('comment-dropdown')).not.toBeInTheDocument();
     })
 });

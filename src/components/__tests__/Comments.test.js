@@ -23,7 +23,7 @@ describe('components/Comments', () => {
     })
     it('should render a button to toggle comment display', async () => {
         render(<Comments {...mockProps} />)
-        expect(screen.getByTestId('toggle-comments')).toHaveTextContent('Comments (0)');
+        expect(screen.getByTestId('toggle-comments')).toHaveTextContent('(0)');
     });
     it('should render nothing if the user is a member of the public', async () => {
         useAuth.mockReturnValue({
