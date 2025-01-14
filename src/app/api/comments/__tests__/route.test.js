@@ -50,7 +50,7 @@ describe('api/comments/route', () => {
             ] });
 
             const response = await GET();
-            expect(sql).toHaveBeenCalledWith(['SELECT * FROM comments']);
+            expect(sql).toHaveBeenCalledWith(['SELECT * FROM comments ORDER BY createtime ASC']);
             expect(response).toEqual({ data: { comments: [
                 {
                     id: '1',
@@ -76,7 +76,7 @@ describe('api/comments/route', () => {
             cookieValues.passcode = null;
             validatePasscode.mockRejectedValue(new NoPasscodeError());
             const response = await GET();
-            expect(sql).not.toHaveBeenCalledWith(['SELECT * FROM comments']);
+            expect(sql).not.toHaveBeenCalledWith(['SELECT * FROM comments ORDER BY createtime ASC']);
             expect(validatePasscode).toHaveBeenCalledWith(null, ['editor', 'user']);
             expect(response).toEqual({ data: { message: 'No passcode provided'}, status: 401 });
         });
@@ -84,7 +84,7 @@ describe('api/comments/route', () => {
             cookieValues.passcode = 'invalid';
             validatePasscode.mockRejectedValue(new InvalidPasscodeError());
             const response = await GET();
-            expect(sql).not.toHaveBeenCalledWith(['SELECT * FROM comments']);
+            expect(sql).not.toHaveBeenCalledWith(['SELECT * FROM comments ORDER BY createtime ASC']);
             expect(validatePasscode).toHaveBeenCalledWith('invalid', ['editor', 'user']);
             expect(response).toEqual({ data: { message: 'Provided passcode is invalid'}, status: 403 });
         });
