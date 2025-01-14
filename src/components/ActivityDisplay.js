@@ -9,6 +9,8 @@ import { usePrompt } from "./ui/Prompt"
 import { css } from "../../styled-system/css"
 import Dropdown, { DropdownItem } from "./ui/Dropdown"
 import PlainButton from "./ui/PlainButton"
+import Modal from "./ui/Modal"
+import ActivityForm from "./ActivityForm"
 
 const ActivityDisplay = ({
     activity,
@@ -17,12 +19,14 @@ const ActivityDisplay = ({
     onUnschedule,
     onMoveUp,
     onMoveDown,
+    onEdit,
     children,
 }) => {
     const { isEditor } = useAuth();
     const { openPrompt } = usePrompt();
 
     const [pending, setPending] = useState(false);
+    const [ isEditing, setIsEditing ] = useState(false);
 
     async function deleteActivity() {
         try {
@@ -60,17 +64,29 @@ const ActivityDisplay = ({
         setPending(false);
     }
 
+    async function editActivity(updatedActivity) {
+        setPending(true);
+        await onEdit({ id: activity.id, ...updatedActivity});
+        setPending(false);
+        setIsEditing(false);
+    }
+
+
     return (
         <Panel>
             <div className={css({
                 display: 'flex',
                 justifyContent: 'space-between',
+                alignItems: 'flex-start'
             })}>
                 <H2>{activity.title}</H2>
                 {isEditor() && (
                     <Dropdown
                         dropdownContent={(() => (
-                            <DropdownItem data-testid="delete-activity" onClick={deleteActivity} disabled={pending}><i className="fa-solid fa-trash"/> Delete Item</DropdownItem>
+                            <>
+                                <DropdownItem data-testid="edit-activity" onClick={() => setIsEditing(true)} disabled={pending}><i className="fa-solid fa-pen"/> Edit Activity</DropdownItem>
+                                <DropdownItem data-testid="delete-activity" onClick={deleteActivity} disabled={pending}><i className="fa-solid fa-trash"/> Delete Activity</DropdownItem>
+                            </>
                         ))}
                     >
                         {({ open, close, isOpen }) => (
@@ -80,7 +96,7 @@ const ActivityDisplay = ({
                 )}
             </div>
             <p>{activity.description}</p>
-            <div className={css({ display: 'flex', justifyContent: 'space-between' })}>
+            <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' })}>
                 {isEditor() && (
                     <div>
                         {onMoveUp && <Button data-testid="move-up" onClick={moveUp} disabled={pending} title="Move Up" className="secondary"><i className="fa-solid fa-arrow-up"/></Button>}
@@ -91,6 +107,15 @@ const ActivityDisplay = ({
                 )}
                 <div>{children}</div>
             </div>
+            <Modal isOpen={isEditing} onClose={() => setIsEditing(false)}>
+                <ActivityForm
+                    title={activity.title}
+                    description={activity.description}
+                    onCancel={() => setIsEditing(false)}
+                    onSubmit={editActivity}
+                    autoFocus
+                />
+            </Modal>
         </Panel>
     )
 }

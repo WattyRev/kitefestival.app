@@ -184,6 +184,17 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             }
             dispatch({ type: 'delete', id });
         },
+        editActivity: async(activity) => {
+            const response = await fetch(`/api/activities/${activity.id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ activity })
+            });
+            if (!response.ok) {
+                openAlert('Failed to update activity', 'error');
+                return;
+            }
+            dispatch({ type: 'patch', activity})
+        },
         scheduleActivity: async (id) => {
             const highestScheduleIndex = activitiesData.scheduledActivities.sort((a, b) => b.scheduleIndex - a.scheduleIndex)[0]?.scheduleIndex;
             const scheduleIndex = highestScheduleIndex + 1 || 0;

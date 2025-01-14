@@ -4,7 +4,7 @@ import ChangePollingContainer from '../ChangePollingContainer';
 import CommentsContainer from '../CommentsContainer';
 import ActivityDisplay from "../ActivityDisplay";
 import Comments from "../Comments";
-import CreateActivityForm from "../CreateActivityForm";
+import ActivityForm from "../ActivityForm";
 import { useAuth } from "../global/Auth";
 import HomePage from '../HomePage';
 
@@ -13,7 +13,7 @@ jest.mock('../ChangePollingContainer');
 jest.mock('../CommentsContainer');
 jest.mock('../ActivityDisplay');
 jest.mock('../Comments');
-jest.mock('../CreateActivityForm');
+jest.mock('../ActivityForm');
 jest.mock('../global/Auth');
 
 
@@ -42,7 +42,7 @@ describe('HomePage', () => {
         });
         ActivityDisplay.mockImplementation(({ children }) => (<div data-testid="activity-display" >{children}</div>));
         Comments.mockReturnValue(<div data-testid="comments" />);
-        CreateActivityForm.mockReturnValue(<div data-testid="create-activity-form" />);
+        ActivityForm.mockReturnValue(<div data-testid="create-activity-form" />);
         useAuth.mockReturnValue({ isPublic: jest.fn().mockReturnValue(false) });
     })
     it('renders', async () => {

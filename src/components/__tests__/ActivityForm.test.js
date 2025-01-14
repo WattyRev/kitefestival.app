@@ -1,16 +1,16 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { useAuth } from '../global/Auth';
-import CreateActivityForm from '../CreateActivityForm';
+import ActivityForm from '../ActivityForm';
 import userEvent from '@testing-library/user-event';
 
 jest.mock('../global/Auth');
 
-describe('CreateActivityForm', () => {
+describe('ActivityForm', () => {
     it('does not render for non-editors', async () => {
         useAuth.mockReturnValue({
             isEditor: jest.fn().mockReturnValue(false)
         });
-        render(<CreateActivityForm />);
+        render(<ActivityForm />);
 
         expect(screen.queryByTestId('create-activity')).not.toBeInTheDocument();
     });
@@ -19,7 +19,7 @@ describe('CreateActivityForm', () => {
             isEditor: jest.fn().mockReturnValue(true)
         });
         const onSubmit = jest.fn().mockResolvedValue();
-        render(<CreateActivityForm onSubmit={onSubmit} />);
+        render(<ActivityForm onSubmit={onSubmit} />);
 
         await userEvent.type(screen.getByTestId('title'), 'Cool Activity');
         await userEvent.type(screen.getByTestId('description'), 'This is a cool activity');
@@ -37,7 +37,7 @@ describe('CreateActivityForm', () => {
                 resolveSubmit = resolve;
             })
         });
-        render(<CreateActivityForm onSubmit={onSubmit} />);
+        render(<ActivityForm onSubmit={onSubmit} />);
 
         await userEvent.type(screen.getByTestId('title'), 'Cool Activity');
         await userEvent.type(screen.getByTestId('description'), 'This is a cool activity');
@@ -52,7 +52,7 @@ describe('CreateActivityForm', () => {
             isEditor: jest.fn().mockReturnValue(true)
         });
         const onSubmit = jest.fn().mockResolvedValue()
-        render(<CreateActivityForm onSubmit={onSubmit} />);
+        render(<ActivityForm onSubmit={onSubmit} />);
 
         await userEvent.type(screen.getByTestId('title'), 'Cool Activity');
         await userEvent.type(screen.getByTestId('description'), 'This is a cool activity');

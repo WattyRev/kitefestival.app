@@ -67,6 +67,23 @@ describe('ActivityDisplay', () => {
         resolveDelete();
         await waitFor(() => expect(screen.getByTestId('delete-activity')).not.toHaveAttribute('disabled'));
     });
+    it('allows an editor to edit an activity', async () => {
+        useAuth.mockReturnValue({
+            isEditor: jest.fn().mockReturnValue(true)
+        })
+        const onEdit = jest.fn().mockImplementation(() => {
+            return Promise.resolve()
+        });
+        mockOpenPrompt.mockResolvedValue();
+        render(<ActivityDisplay activity={mockActivity} onEdit={onEdit} />);
+
+        await userEvent.click(screen.getByTestId('activity-dropdown'));
+        await userEvent.click(screen.getByTestId('edit-activity'));
+        await userEvent.type(screen.getByTestId('title'), ' edited');
+        await userEvent.click(screen.getByTestId('save-activity'));
+
+        expect(onEdit).toHaveBeenCalledWith({ id: mockActivity.id, title: 'Cool Activity edited', description: 'This is a cool activity' });
+    });
     it('allows an editor to schedule an activity', async () => {
         useAuth.mockReturnValue({
             isEditor: jest.fn().mockReturnValue(true)
