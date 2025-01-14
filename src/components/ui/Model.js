@@ -18,6 +18,7 @@ const Modal = ({ children, isOpen, onClose}) => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    zIndex: 150
                 })}
                 onClick={onClose}
             />
@@ -30,6 +31,12 @@ const Modal = ({ children, isOpen, onClose}) => {
                     background: 'white',
                     padding: '16px',
                     borderRadius: '4px',
+                    zIndex: 200,
+                    width: {
+                        base: '95%',
+                        sm: '80%',
+                        lg: '50%',
+                    }
                 })}
             >
                 {children}

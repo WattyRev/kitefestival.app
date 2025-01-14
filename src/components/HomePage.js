@@ -23,6 +23,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                     unscheduledActivities,
                     isLoading: isLoadingActivities,
                     createActivity,
+                    editActivity,
                     deleteActivity,
                     scheduleActivity,
                     unscheduleActivity,
@@ -49,6 +50,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                 key={activity.id} 
                                                 activity={activity} 
                                                 onDelete={deleteActivity} 
+                                                onEdit={editActivity}
                                                 onUnschedule={unscheduleActivity}
                                                 onMoveUp={index !== 0 ? moveActivityUp : undefined}
                                                 onMoveDown={index !== scheduledActivities.length - 1 ? moveActivityDown : undefined}
@@ -71,6 +73,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                     activity={activity} 
                                                     onDelete={deleteActivity} 
                                                     onSchedule={scheduleActivity}
+                                                    onEdit={editActivity}
                                                     onMoveUp={index !== 0 ? moveActivityUp : undefined}
                                                     onMoveDown={index !== unscheduledActivities.length - 1 ? moveActivityDown : undefined}
                                                 >

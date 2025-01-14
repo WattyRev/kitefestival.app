@@ -285,6 +285,85 @@ describe('ActivitiesContainer', () => {
             expect(mockOpenAlert).toHaveBeenCalledWith('Failed to delete activity', 'error');
         });
     });
+    describe('activity editing', () => {
+        it('allows a user to edit an activity', async () => {
+            fetch.mockImplementation((url, options) => {
+                if (url === '/api/activities/2' && options.method === 'PATCH') {
+                    return Promise.resolve({
+                        ok: true,
+                    })
+                }
+                return Promise.resolve({
+                    ok: true,
+                    json: jest.fn().mockResolvedValue({})
+                })
+            })
+            render(<ActivitiesContainer initialActivities={initialActivities} >
+                {({ editActivity, activities }) => (
+                    <>
+                        {activities.map(activity => (
+                            <div data-testid="activity" key={activity.id}>{activity.name}</div>
+                        ))}
+                        <button 
+                            data-testid="edit-activity" 
+                            onClick={() => 
+                                editActivity({
+                                    id: '2',
+                                    title: 'edited',
+                                    description: 'also edited',
+                                })
+                            }
+                        >Edit Activity</button>
+                    </>
+                )}
+            </ActivitiesContainer>);
+
+            await userEvent.click(screen.getByTestId('edit-activity'));
+
+            expect(fetch).toHaveBeenCalledWith('/api/activities/2', {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    activity: {
+                        id: '2',
+                        title: 'edited',
+                        description: 'also edited',
+                    }
+                })
+            });
+        });
+        it('alerts if activity deletion fails', async () => {
+            fetch.mockImplementation((url, options) => {
+                if (url === '/api/activities/2' && options.method === 'PATCH') {
+                    return Promise.resolve({
+                        ok: false,
+                    })
+                }
+                return Promise.resolve({
+                    ok: true,
+                    json: jest.fn().mockResolvedValue({})
+                })
+            })
+            render(<ActivitiesContainer initialActivities={initialActivities} >
+                {({ editActivity }) => (
+                    <>
+                        <button 
+                            data-testid="edit-activity"
+                            onClick={() => editActivity({
+                                    id: '2',
+                                    title: 'edited',
+                                    description: 'also edited',
+                                })
+                            }
+                        >Edit Activity</button>
+                    </>
+                )}
+            </ActivitiesContainer>);
+
+            await userEvent.click(screen.getByTestId('edit-activity'));
+
+            expect(mockOpenAlert).toHaveBeenCalledWith('Failed to update activity', 'error');
+        });
+    });
     describe('scheduling an activity', () => {
         it('allows a user to schedule an activity', async () => {
             fetch.mockImplementation((url, options) => {
