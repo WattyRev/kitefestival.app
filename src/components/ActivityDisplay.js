@@ -10,7 +10,7 @@ import { css } from "../../styled-system/css"
 import Dropdown, { DropdownItem } from "./ui/Dropdown"
 import PlainButton from "./ui/PlainButton"
 import Modal from "./ui/Modal"
-import CreateActivityForm from "./CreateActivityForm"
+import ActivityForm from "./ActivityForm"
 
 const ActivityDisplay = ({
     activity,
@@ -108,7 +108,7 @@ const ActivityDisplay = ({
                 <div>{children}</div>
             </div>
             <Modal isOpen={isEditing} onClose={() => setIsEditing(false)}>
-                <CreateActivityForm
+                <ActivityForm
                     title={activity.title}
                     description={activity.description}
                     onCancel={() => setIsEditing(false)}

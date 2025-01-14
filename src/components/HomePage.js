@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import H1 from "./ui/H1";
 import ActivityDisplay from "./ActivityDisplay";
 import ActivitiesContainer from "./ActivitiesContainer";
-import CreateActivityForm from "./CreateActivityForm";
+import ActivityForm from "./ActivityForm";
 import LoadingBar from "./ui/LoadingBar";
 import { css } from '../../styled-system/css';
 import { useAuth } from "./global/Auth";
@@ -86,7 +86,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                     />
                                                 </ActivityDisplay>
                                             ))}
-                                            <CreateActivityForm onSubmit={createActivity} />
+                                            <ActivityForm onSubmit={createActivity} />
                                         </>)}
                                     </div>
                                 </PaneProvider>
