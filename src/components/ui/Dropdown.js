@@ -41,10 +41,10 @@ const Dropdown = ({ children, dropdownContent, ...props }) => {
                     top: '100%', 
                     right: 0, 
                     background: 'white', 
-                    border: '1px solid secondary', 
+                    border: '1px solid var(--colors-secondary)', 
                     borderRadius: '4px',
                     padding: '8px',
-                    boxShadow: '0px 2px 2px -1px #111111',
+                    boxShadow: '0px 2px 2px -1px var(--colors-shadow',
                     zIndex: '100',
                 })}>
                     {dropdownContent(renderData)}

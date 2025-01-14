@@ -10,6 +10,7 @@ import ChangePollingContainer from "./ChangePollingContainer";
 import CommentsContainer from "./CommentsContainer";
 import Comments from "./Comments";
 import H2 from "./ui/H2";
+import { PaneProvider } from "./ui/Pane";
 
 const HomePageContainer = ({ activities:initialActivities }) => {
     const { isPublic } = useAuth();
@@ -35,7 +36,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                             deleteComment,
                             editComment
                         }) => (
-                            <>
+                            <PaneProvider>
                                 <LoadingBar isLoading={isLoadingActivities || isLoadingComments} />
                                 <div data-testid="home-page">
                                     {!scheduledActivities.length && <p className={css({ paddingLeft: '16px'})} data-testid="empty-schedule">There&apos;s nothing happening right now</p>}
@@ -51,6 +52,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                             onMoveDown={index !== scheduledActivities.length - 1 ? moveActivityDown : undefined}
                                         >
                                             <Comments 
+                                                activityTitle={activity.title}
                                                 comments={commentsByActivityId[activity.id]}
                                                 onCreate={message => createComment({ message, activityId: activity.id })}
                                                 onDelete={deleteComment}
@@ -71,6 +73,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                 onMoveDown={index !== unscheduledActivities.length - 1 ? moveActivityDown : undefined}
                                             >
                                                 <Comments 
+                                                    activityTitle={activity.title}
                                                     comments={commentsByActivityId[activity.id]}
                                                     onCreate={message => createComment({ message, activityId: activity.id })}
                                                     onDelete={deleteComment}
@@ -81,7 +84,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                         <CreateActivityForm onSubmit={createActivity} />
                                     </>)}
                                 </div>
-                            </>
+                            </PaneProvider>
                         )}
                     </CommentsContainer>
                 )}  

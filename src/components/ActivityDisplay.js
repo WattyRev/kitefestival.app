@@ -79,15 +79,17 @@ const ActivityDisplay = ({
                 )}
             </div>
             <p>{activity.description}</p>
-            {isEditor() && (
-                <>
-                    {onMoveUp && <Button data-testid="move-up" onClick={moveUp} disabled={pending} title="Move Up" className="secondary"><i className="fa-solid fa-arrow-up"/></Button>}
-                    {onMoveDown && <Button data-testid="move-down" onClick={moveDown} disabled={pending} title="Move Down" className="secondary"><i className="fa-solid fa-arrow-down"/></Button>}
-                    {onSchedule && <Button data-testid="add-schedule" onClick={addToSchedule} disabled={pending} title="Add to Schedule" className="secondary"><i className="fa-regular fa-calendar-plus" /></Button>}
-                    {onUnschedule && <Button data-testid="remove-schedule" onClick={removeFromSchedule} disabled={pending} className="secondary" title="Remove from Schedule"><i className="fa-regular fa-calendar-minus" /></Button>}
-                </>
-            )}
-            {children}
+            <div className={css({ display: 'flex', justifyContent: 'space-between' })}>
+                {isEditor() && (
+                    <div>
+                        {onMoveUp && <Button data-testid="move-up" onClick={moveUp} disabled={pending} title="Move Up" className="secondary"><i className="fa-solid fa-arrow-up"/></Button>}
+                        {onMoveDown && <Button data-testid="move-down" onClick={moveDown} disabled={pending} title="Move Down" className="secondary"><i className="fa-solid fa-arrow-down"/></Button>}
+                        {onSchedule && <Button data-testid="add-schedule" onClick={addToSchedule} disabled={pending} title="Add to Schedule" className="secondary"><i className="fa-regular fa-calendar-plus" /></Button>}
+                        {onUnschedule && <Button data-testid="remove-schedule" onClick={removeFromSchedule} disabled={pending} className="secondary" title="Remove from Schedule"><i className="fa-regular fa-calendar-minus" /></Button>}
+                    </div>
+                )}
+                <div>{children}</div>
+            </div>
         </Panel>
     )
 }
