@@ -3,6 +3,7 @@
 import { createContext, useContext, useState } from "react";
 import { css } from '../../../styled-system/css';
 import setTimeout from '../../util/setTimeout';
+import PlainButton from "./PlainButton";
 
 export const AlertContext = createContext({});
 
@@ -64,6 +65,6 @@ export const Alert = ({ message, className, onClose }) =>  (
         }
     })}`}>
         <p data-testid="alert-message" className={css({ marginRight: '8px' })}>{message}</p>
-        <button data-testid="alert-close" className={css({ cursor: 'pointer', alignSelf: 'flex-start' })} onClick={onClose}>X</button>
+        <PlainButton data-testid="alert-close" className={css({ cursor: 'pointer', alignSelf: 'flex-start' })} onClick={onClose}><i className="fa-solid fa-xmark" /></PlainButton>
     </div>
 );

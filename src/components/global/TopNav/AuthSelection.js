@@ -7,6 +7,7 @@ import fetch from '../../../util/fetch';
 import { useState } from 'react';
 import Modal from '../../ui/Model';
 import LogInForm from './LogInForm';
+import PlainButton from '../../ui/PlainButton';
 
 /**
  * Controls the Log In / Log Out buttons in the top nav
@@ -47,13 +48,13 @@ const AuthSelection = () => {
     if (!auth?.userType) {
         return (
             <>
-                <button 
+                <PlainButton 
                     className={css({ cursor: 'pointer' })}
                     data-testid="log-in"
                     onClick={() => setIsModalOpen(true)}
                 >
                     Log In
-                </button>
+                </PlainButton>
                 <Modal 
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
@@ -70,9 +71,9 @@ const AuthSelection = () => {
     return (
         <span>
             {auth.userName}&nbsp;
-            <button className={css({ cursor: 'pointer' })} data-testid="log-out" onClick={logOut}>
+            <PlainButton className={css({ cursor: 'pointer' })} data-testid="log-out" onClick={logOut}>
                 <i className="fa-solid fa-right-from-bracket"></i>
-            </button>
+            </PlainButton>
         </span>
     );
 }

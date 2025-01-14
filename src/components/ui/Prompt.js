@@ -79,6 +79,7 @@ export const Prompt = ({ prompt, promptType, onSubmit, onCancel }) => {
                     width: '80%',
                     maxWidth: '400px',
                     border: '1px solid black',
+                    zIndex: 200,
                 })}
                 onSubmit={e => {e.preventDefault(); onSubmit(value);}}
                 data-testid="prompt-form"

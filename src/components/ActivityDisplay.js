@@ -8,6 +8,7 @@ import { useAuth } from "./global/Auth"
 import { usePrompt } from "./ui/Prompt"
 import { css } from "../../styled-system/css"
 import Dropdown, { DropdownItem } from "./ui/Dropdown"
+import PlainButton from "./ui/PlainButton"
 
 const ActivityDisplay = ({
     activity,
@@ -73,7 +74,7 @@ const ActivityDisplay = ({
                         ))}
                     >
                         {({ open, close, isOpen }) => (
-                            <button data-testid="activity-dropdown" className={css({ cursor: 'pointer' })} onClick={isOpen ? close : open}><i className="fa-solid fa-ellipsis"></i></button>
+                            <PlainButton data-testid="activity-dropdown" className={css({ cursor: 'pointer' })} onClick={isOpen ? close : open}><i className="fa-solid fa-ellipsis"></i></PlainButton>
                         )}
                     </Dropdown>
                 )}

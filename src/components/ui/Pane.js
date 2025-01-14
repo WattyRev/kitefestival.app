@@ -2,6 +2,7 @@ import { createPortal } from 'react-dom';
 import { createContext, useState, useContext, useEffect } from 'react';
 import { css } from "../../../styled-system/css";
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import PlainButton from './PlainButton';
 
 const PaneContext = createContext({});
 
@@ -19,13 +20,13 @@ const PaneFrame = ({ children, onClose, ...props }) => {
         >
             <div className={css({ display: 'flex', justifyContent: 'space-between' })}>
                 <div />
-                <button 
+                <PlainButton 
                     data-testid="close-pane"
                     className={css({ cursor: 'pointer' })}
                     onClick={onClose}
                 >
                     <i className="fa-solid fa-xmark" />
-                </button>
+                </PlainButton>
             </div>
             {children}
         </div>

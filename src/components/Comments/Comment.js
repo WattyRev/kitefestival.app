@@ -5,6 +5,7 @@ import { useState } from "react";
 import { css } from "../../../styled-system/css";
 import CommentForm from "./CommentForm";
 import Dropdown, { DropdownItem } from "../ui/Dropdown";
+import PlainButton from "../ui/PlainButton";
 
 const Comment = ({ comment, onDelete, onEdit }) => {
     const { auth } = useAuth();
@@ -44,7 +45,7 @@ const Comment = ({ comment, onDelete, onEdit }) => {
                                 ))}
                             >
                                 {({ open, close, isOpen }) => (
-                                    <button data-testid="comment-dropdown" className={css({ cursor: 'pointer' })} onClick={isOpen ? close : open}><i className="fa-solid fa-ellipsis"></i></button>
+                                    <PlainButton data-testid="comment-dropdown" className={css({ cursor: 'pointer' })} onClick={isOpen ? close : open}><i className="fa-solid fa-ellipsis"></i></PlainButton>
                                 )}
                             </Dropdown>
                         )}
