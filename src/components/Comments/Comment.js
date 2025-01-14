@@ -19,7 +19,15 @@ const Comment = ({ comment, onDelete, onEdit }) => {
         setIsPending(false);
     }
     return (
-        <div key={comment.id}>
+        <div 
+            key={comment.id} 
+            className={`${comment.userId === auth.userId ? 'my-comment' : ''} ${css({ 
+                padding: '8px',
+                '&.my-comment': {
+                    background: 'sectionBackground',
+                }
+            })}`}
+        >
             {!isEditing && (
                 <>
                     <div className={css({ display: 'flex', justifyContent: 'space-between' })}>

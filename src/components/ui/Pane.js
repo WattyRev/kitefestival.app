@@ -10,7 +10,7 @@ const PaneFrame = ({ children, onClose, ...props }) => {
         <div
             {...props}
             className={css({
-                padding: '16px',
+                padding: '8px',
                 borderLeft: '1px solid var(--colors-secondary)',
                 height: '100%',
                 overflow: 'auto',
