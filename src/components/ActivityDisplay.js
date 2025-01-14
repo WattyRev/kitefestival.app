@@ -95,7 +95,7 @@ const ActivityDisplay = ({
                     </Dropdown>
                 )}
             </div>
-            <p>{activity.description}</p>
+            {activity.description.split('\n').map(line => <p key={line}>{line}&nbsp;</p>)}
             <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' })}>
                 {isEditor() && (
                     <div>
