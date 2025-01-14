@@ -1,4 +1,5 @@
 'use client'
+import { Suspense } from "react";
 import H1 from "./ui/H1";
 import ActivityDisplay from "./ActivityDisplay";
 import ActivitiesContainer from "./ActivitiesContainer";
@@ -36,41 +37,21 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                             deleteComment,
                             editComment
                         }) => (
-                            <PaneProvider>
-                                <LoadingBar isLoading={isLoadingActivities || isLoadingComments} />
-                                <div data-testid="home-page">
-                                    {!scheduledActivities.length && <p className={css({ paddingLeft: '16px'})} data-testid="empty-schedule">There&apos;s nothing happening right now</p>}
-                                    {scheduledActivities.map((activity, index) => (<div key={activity.id}>
-                                        {index === 0 && <H1 className={css({ paddingLeft: '16px'})}>Happening Now</H1>}
-                                        {index === 1 && <H2 className={css({ paddingLeft: '16px', paddingTop: "16px"})}>Upcoming</H2>}
-                                        <ActivityDisplay 
-                                            key={activity.id} 
-                                            activity={activity} 
-                                            onDelete={deleteActivity} 
-                                            onUnschedule={unscheduleActivity}
-                                            onMoveUp={index !== 0 ? moveActivityUp : undefined}
-                                            onMoveDown={index !== scheduledActivities.length - 1 ? moveActivityDown : undefined}
-                                        >
-                                            <Comments 
-                                                activity={activity}
-                                                comments={commentsByActivityId[activity.id]}
-                                                onCreate={message => createComment({ message, activityId: activity.id })}
-                                                onDelete={deleteComment}
-                                                onEdit={editComment}
-                                            />
-                                        </ActivityDisplay>
-                                    </div>))}
-                                    {!isPublic() && (<>
-                                        <H1 data-testid="unscheduled" className={css({ paddingLeft: '16px', paddingTop: '32px'})}>Unscheduled Activities</H1>
-                                        {!unscheduledActivities.length && <p data-testid="empty-unscheduled" className={css({ paddingLeft: '16px'})}>There are no unscheduled activities</p>}
-                                        {unscheduledActivities.map((activity, index) => (
+                            <Suspense>
+                                <PaneProvider>
+                                    <LoadingBar isLoading={isLoadingActivities || isLoadingComments} />
+                                    <div data-testid="home-page">
+                                        {!scheduledActivities.length && <p className={css({ paddingLeft: '16px'})} data-testid="empty-schedule">There&apos;s nothing happening right now</p>}
+                                        {scheduledActivities.map((activity, index) => (<div key={activity.id}>
+                                            {index === 0 && <H1 className={css({ paddingLeft: '16px'})}>Happening Now</H1>}
+                                            {index === 1 && <H2 className={css({ paddingLeft: '16px', paddingTop: "16px"})}>Upcoming</H2>}
                                             <ActivityDisplay 
                                                 key={activity.id} 
                                                 activity={activity} 
                                                 onDelete={deleteActivity} 
-                                                onSchedule={scheduleActivity}
+                                                onUnschedule={unscheduleActivity}
                                                 onMoveUp={index !== 0 ? moveActivityUp : undefined}
-                                                onMoveDown={index !== unscheduledActivities.length - 1 ? moveActivityDown : undefined}
+                                                onMoveDown={index !== scheduledActivities.length - 1 ? moveActivityDown : undefined}
                                             >
                                                 <Comments 
                                                     activity={activity}
@@ -80,11 +61,33 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                     onEdit={editComment}
                                                 />
                                             </ActivityDisplay>
-                                        ))}
-                                        <CreateActivityForm onSubmit={createActivity} />
-                                    </>)}
-                                </div>
-                            </PaneProvider>
+                                        </div>))}
+                                        {!isPublic() && (<>
+                                            <H1 data-testid="unscheduled" className={css({ paddingLeft: '16px', paddingTop: '32px'})}>Unscheduled Activities</H1>
+                                            {!unscheduledActivities.length && <p data-testid="empty-unscheduled" className={css({ paddingLeft: '16px'})}>There are no unscheduled activities</p>}
+                                            {unscheduledActivities.map((activity, index) => (
+                                                <ActivityDisplay 
+                                                    key={activity.id} 
+                                                    activity={activity} 
+                                                    onDelete={deleteActivity} 
+                                                    onSchedule={scheduleActivity}
+                                                    onMoveUp={index !== 0 ? moveActivityUp : undefined}
+                                                    onMoveDown={index !== unscheduledActivities.length - 1 ? moveActivityDown : undefined}
+                                                >
+                                                    <Comments 
+                                                        activity={activity}
+                                                        comments={commentsByActivityId[activity.id]}
+                                                        onCreate={message => createComment({ message, activityId: activity.id })}
+                                                        onDelete={deleteComment}
+                                                        onEdit={editComment}
+                                                    />
+                                                </ActivityDisplay>
+                                            ))}
+                                            <CreateActivityForm onSubmit={createActivity} />
+                                        </>)}
+                                    </div>
+                                </PaneProvider>
+                            </Suspense>
                         )}
                     </CommentsContainer>
                 )}  
