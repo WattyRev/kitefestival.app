@@ -18,6 +18,9 @@ export const buttonStyles = css({
     },
     '&.secondary': {
         background: 'secondary',
+        '&.active': {
+            background: 'secondaryDarker',
+        }
     }
 })
 

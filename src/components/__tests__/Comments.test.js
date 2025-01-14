@@ -1,16 +1,20 @@
+import { useState } from "react";
 import { render, screen } from "@testing-library/react";
 import { useAuth } from "../global/Auth";
 import Comment from "../Comments/Comment";
 import Comments from "../Comments";
 import userEvent from "@testing-library/user-event";
+import Pane from "../ui/Pane";
 
 jest.mock('../global/Auth');
 jest.mock('../Comments/Comment');
+jest.mock('../ui/Pane');
 
 describe('components/Comments', () => {
     let mockProps;
     beforeEach(() => {
         mockProps = {
+            activity: { id: 'abc-123' },
             comments: [],
             onCreate: jest.fn(),
             onDelete: jest.fn(),
@@ -20,6 +24,19 @@ describe('components/Comments', () => {
             isPublic: jest.fn().mockReturnValue(false)
         })
         Comment.mockReturnValue(<div data-testid="comment" />);
+        Pane.mockImplementation(({ trigger, children }) => {
+            const [isOpen, setIsOpen] = useState(false);
+            return (
+                <>
+                    {trigger({
+                        openPane: () => setIsOpen(true),
+                        closePane: () => setIsOpen(false),
+                        isOpen
+                    })}
+                    {isOpen && children}
+                </>
+            );
+        })
     })
     it('should render a button to toggle comment display', async () => {
         render(<Comments {...mockProps} />)

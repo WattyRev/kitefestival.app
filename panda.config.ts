@@ -19,7 +19,9 @@ export default defineConfig({
           sectionBackground: { value: 'rgba(180, 219, 254, 0.29)' },
           success: { value: '#a1d78e' },
           danger: { value: '#ff6363' },
-          secondary: { value: '#cdcdcd' }
+          secondary: { value: '#cdcdcd' },
+          secondaryDarker: { value: '#a5a5a5' },
+          shadow: { value: '#111111' }
         }
       },
       keyframes: {
