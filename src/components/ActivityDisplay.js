@@ -9,7 +9,7 @@ import { usePrompt } from "./ui/Prompt"
 import { css } from "../../styled-system/css"
 import Dropdown, { DropdownItem } from "./ui/Dropdown"
 import PlainButton from "./ui/PlainButton"
-import Modal from "./ui/Model"
+import Modal from "./ui/Modal"
 import CreateActivityForm from "./CreateActivityForm"
 
 const ActivityDisplay = ({

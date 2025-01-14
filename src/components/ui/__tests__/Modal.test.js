@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import Modal from "../Model";
+import Modal from "../Modal";
 import userEvent from "@testing-library/user-event";
 
 describe('Modal', () => {
