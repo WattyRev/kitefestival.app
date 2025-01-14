@@ -7,6 +7,7 @@ describe('Pane', () => {
         render(
             <PaneProvider>
                 <Pane
+                    paneId="test"
                     trigger={({ openPane }) => (
                         <button data-testid="open" onClick={openPane} />
                     )}
@@ -22,6 +23,7 @@ describe('Pane', () => {
         render(
             <PaneProvider>
                 <Pane
+                    paneId="test"
                     trigger={({ openPane }) => (
                         <button data-testid="open" onClick={openPane} />
                     )}
@@ -39,6 +41,7 @@ describe('Pane', () => {
         render(
             <PaneProvider>
                 <Pane
+                    paneId="test"
                     trigger={({ openPane, closePane }) => (
                         <>
                             <button data-testid="open" onClick={openPane} />
@@ -60,6 +63,7 @@ describe('Pane', () => {
         render(
             <PaneProvider>
                 <Pane
+                    paneId="test"
                     trigger={({ openPane }) => (
                         <button data-testid="open" onClick={openPane} />
                     )}
@@ -78,6 +82,7 @@ describe('Pane', () => {
         render(
             <PaneProvider>
                 <Pane
+                    paneId="test1"
                     trigger={({ openPane, isOpen }) => (
                         <>
                             <button data-testid="open1" onClick={openPane} />
@@ -88,6 +93,7 @@ describe('Pane', () => {
                     <p data-testid="content1">Content</p>
                 </Pane>
                 <Pane
+                    paneId="test2"
                     trigger={({ openPane, isOpen }) => (
                         <>
                             <button data-testid="open2" onClick={openPane} />

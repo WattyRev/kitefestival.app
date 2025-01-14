@@ -6,7 +6,7 @@ import { css } from "../../styled-system/css";
 import Pane from "./ui/Pane";
 import H1 from "./ui/H1";
 
-const Comments = ({ comments = [], onCreate, onDelete, onEdit, activityTitle }) => {
+const Comments = ({ comments = [], onCreate, onDelete, onEdit, activity }) => {
     const { isPublic } = useAuth();
     if (isPublic()) {
         return null;
@@ -14,6 +14,7 @@ const Comments = ({ comments = [], onCreate, onDelete, onEdit, activityTitle }) 
 
     return (
         <Pane
+            paneId={`comments-${activity.id}`}
             trigger={({ openPane, closePane, isOpen }) => (
                 <Button 
                     data-testid="toggle-comments"
@@ -26,7 +27,7 @@ const Comments = ({ comments = [], onCreate, onDelete, onEdit, activityTitle }) 
             )}
         >
             <div>
-                <H1><i className="fa-solid fa-comments"></i> {activityTitle}</H1>
+                <H1><i className="fa-solid fa-comments"></i> {activity.title}</H1>
                 {!comments.length && (
                     <p data-testid="no-comments"><em>No Comments</em></p>
                 )} 

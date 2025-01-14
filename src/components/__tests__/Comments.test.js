@@ -14,6 +14,7 @@ describe('components/Comments', () => {
     let mockProps;
     beforeEach(() => {
         mockProps = {
+            activity: { id: 'abc-123' },
             comments: [],
             onCreate: jest.fn(),
             onDelete: jest.fn(),

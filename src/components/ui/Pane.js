@@ -1,6 +1,7 @@
 import { createPortal } from 'react-dom';
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
 import { css } from "../../../styled-system/css";
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 const PaneContext = createContext({});
 
@@ -34,15 +35,35 @@ const PaneFrame = ({ children, onClose, ...props }) => {
 export const PaneProvider = ({ children }) => {
     const [ isOpen, setIsOpen ] = useState(false);
     const [ paneContentId, setPaneContentId] = useState(null);
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
     function openPane(paneContentId) {
         setPaneContentId(paneContentId);
         setIsOpen(true);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('pane', paneContentId);
+        router.push(`${pathname}?${params.toString()}`);
     }
 
     function closePane() {
         setIsOpen(false);
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete('pane');
+        router.push(`${pathname}?${params.toString()}`);
     }
+
+    useEffect(() => {
+        const contentId = searchParams.get('pane');
+        if (contentId) {
+            setPaneContentId(contentId);
+            setIsOpen(true);
+        } else {
+            setIsOpen(false);
+            setPaneContentId(null);
+        }
+    }, [searchParams])
 
     return <PaneContext.Provider value={{ openPane, closePane, isOpen, paneContentId }}>
         <div 
@@ -84,19 +105,18 @@ export const PaneProvider = ({ children }) => {
     </PaneContext.Provider>
 };
 
-const Pane = ({ children, trigger }) => {
-    const [ contentId, setContentId ] = useState(null);
+
+const Pane = ({ children, trigger, paneId }) => {
     const { openPane, closePane, paneContentId, isOpen } = useContext(PaneContext);
 
     function open() {
-        const id = `pane-${Date.now()}`;
-        setContentId(id);
-        openPane(id);
+        openPane(paneId);
     }
+
     return (
         <>
-            {trigger({ openPane: open, closePane, isOpen: isOpen && paneContentId === contentId })}
-            {isOpen && paneContentId === contentId && createPortal(children, document.getElementById('pane-overlay'))}
+            {trigger({ openPane: open, closePane, isOpen: isOpen && paneContentId === paneId })}
+            {isOpen && paneContentId === paneId && createPortal(children, document.getElementById('pane-overlay'))}
         </>
     )
 }

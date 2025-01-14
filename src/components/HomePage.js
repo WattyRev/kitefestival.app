@@ -52,7 +52,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                             onMoveDown={index !== scheduledActivities.length - 1 ? moveActivityDown : undefined}
                                         >
                                             <Comments 
-                                                activityTitle={activity.title}
+                                                activity={activity}
                                                 comments={commentsByActivityId[activity.id]}
                                                 onCreate={message => createComment({ message, activityId: activity.id })}
                                                 onDelete={deleteComment}
@@ -73,7 +73,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                 onMoveDown={index !== unscheduledActivities.length - 1 ? moveActivityDown : undefined}
                                             >
                                                 <Comments 
-                                                    activityTitle={activity.title}
+                                                    activity={activity}
                                                     comments={commentsByActivityId[activity.id]}
                                                     onCreate={message => createComment({ message, activityId: activity.id })}
                                                     onDelete={deleteComment}
