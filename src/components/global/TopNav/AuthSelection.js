@@ -8,6 +8,7 @@ import { useState } from 'react';
 import Modal from '../../ui/Modal';
 import LogInForm from './LogInForm';
 import PlainButton from '../../ui/PlainButton';
+import { usePrompt } from '../../ui/Prompt';
 
 /**
  * Controls the Log In / Log Out buttons in the top nav
@@ -17,6 +18,7 @@ const AuthSelection = () => {
     const { auth, setAuthentication, clearAuthentication } = useAuth();
     const [ isPending, setIsPending ] = useState(false);
     const { openAlert } = useAlert();
+    const { openPrompt } = usePrompt();
 
     // Prompt for passcode and log in with it
     async function logIn({name, passcode}) {
@@ -41,7 +43,12 @@ const AuthSelection = () => {
         setAuthentication({ userType, passcode });
     }
 
-    function logOut() {
+    async function logOut() {
+        try {
+            await openPrompt('Are you sure you want to log out?', 'confirm');
+        } catch {
+            return;
+        }
         clearAuthentication();
     }
 

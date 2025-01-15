@@ -4,10 +4,12 @@ import { useAlert } from "../../../ui/Alert";
 import { useAuth } from "../../Auth";
 import fetch from '../../../../util/fetch';
 import AuthSelection from "../AuthSelection";
+import { usePrompt } from "../../../ui/Prompt";
 
 jest.mock("../../../ui/Alert");
 jest.mock("../../Auth");
 jest.mock("../../../../util/fetch");
+jest.mock("../../../ui/Prompt");
 
 describe('AuthSelection', () => {
     let mockSetAuthentication;
@@ -27,6 +29,9 @@ describe('AuthSelection', () => {
         mockOpenAlert = jest.fn();
         useAlert.mockReturnValue({
             openAlert: mockOpenAlert
+        });
+        usePrompt.mockReturnValue({
+            openPrompt: jest.fn().mockResolvedValue()
         });
     });
     describe('when logged out', () => {
@@ -78,6 +83,24 @@ describe('AuthSelection', () => {
 
             await userEvent.click(screen.getByTestId('log-out'));
             expect(mockClearAuth).toHaveBeenCalled();
+        });
+        it('does not log the user out if they decline to confirm', async () => {
+            usePrompt.mockReturnValue({
+                openPrompt: jest.fn().mockRejectedValue()
+            })
+            let mockClearAuth = jest.fn();
+            useAuth.mockReturnValue({
+                setAuthentication: mockSetAuthentication,
+                auth: {
+                    userType: 'editor',
+                },
+                clearAuthentication: mockClearAuth
+            });
+
+            render(<AuthSelection />);
+
+            await userEvent.click(screen.getByTestId('log-out'));
+            expect(mockClearAuth).not.toHaveBeenCalled();
         });
     });
 });
