@@ -31,12 +31,37 @@ describe('ActivityDisplay', () => {
             isEditor: jest.fn().mockReturnValue(false)
         })
     });
-    it('renders activity details', async () => {
+    it('renders activity title', async () => {
         render(<ActivityDisplay activity={mockActivity} />);
 
         expect(screen.getByText('Cool Activity')).toBeInTheDocument();
+    });
+    it('does not render activity description by default', async () => {
+        render(<ActivityDisplay activity={mockActivity} />);
+
+        expect(screen.queryByText('This is a cool activity')).not.toBeInTheDocument();
+    });
+    it('renders activity description after clicking to show more', async () => {
+        render(<ActivityDisplay activity={mockActivity} />);
+
+        await userEvent.click(screen.getByTestId('show-more'));
         expect(screen.getByText('This is a cool activity')).toBeInTheDocument();
     });
+    it('does not render activity description after clicking to show less', async () => {
+        render(<ActivityDisplay activity={mockActivity} />);
+
+        await userEvent.click(screen.getByTestId('show-more'));
+        expect(screen.getByText('This is a cool activity')).toBeInTheDocument();
+        await userEvent.click(screen.getByTestId('show-less'));
+        expect(screen.queryByText('This is a cool activity')).not.toBeInTheDocument();
+    });
+
+    it('shows activity description if allowHideDescription is false', async () => {
+        render(<ActivityDisplay activity={mockActivity} allowHideDescription={false} />);
+
+        expect(screen.getByText('This is a cool activity')).toBeInTheDocument();
+    })
+    
     it('does not display the dropdown if the user is not an editor', async () => {
         useAuth.mockReturnValue({
             isEditor: jest.fn().mockReturnValue(false)
@@ -97,6 +122,7 @@ describe('ActivityDisplay', () => {
         mockOpenPrompt.mockResolvedValue();
         render(<ActivityDisplay activity={mockActivity} onSchedule={onSchedule} />);
 
+        await userEvent.click(screen.getByTestId('activity-dropdown'));
         await userEvent.click(screen.getByTestId('add-schedule'));
 
         expect(onSchedule).toHaveBeenCalledWith(mockActivity.id);
@@ -116,6 +142,7 @@ describe('ActivityDisplay', () => {
         });
         render(<ActivityDisplay activity={mockActivity} onUnschedule={onUnschedule} />);
 
+        await userEvent.click(screen.getByTestId('activity-dropdown'));
         await userEvent.click(screen.getByTestId('remove-schedule'));
 
         expect(onUnschedule).toHaveBeenCalledWith(mockActivity.id);
@@ -135,6 +162,7 @@ describe('ActivityDisplay', () => {
         });
         render(<ActivityDisplay activity={mockActivity} onMoveUp={onMoveUp} />);
 
+        await userEvent.click(screen.getByTestId('activity-dropdown'));
         await userEvent.click(screen.getByTestId('move-up'));
 
         expect(onMoveUp).toHaveBeenCalledWith(mockActivity.id);
@@ -154,6 +182,7 @@ describe('ActivityDisplay', () => {
         });
         render(<ActivityDisplay activity={mockActivity} onMoveDown={onMoveDown} />);
 
+        await userEvent.click(screen.getByTestId('activity-dropdown'));
         await userEvent.click(screen.getByTestId('move-down'));
 
         expect(onMoveDown).toHaveBeenCalledWith(mockActivity.id);

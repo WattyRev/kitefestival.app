@@ -43,7 +43,7 @@ describe('HomePage', () => {
         ActivityDisplay.mockImplementation(({ children }) => (<div data-testid="activity-display" >{children}</div>));
         Comments.mockReturnValue(<div data-testid="comments" />);
         ActivityForm.mockReturnValue(<div data-testid="create-activity-form" />);
-        useAuth.mockReturnValue({ isPublic: jest.fn().mockReturnValue(false) });
+        useAuth.mockReturnValue({ isPublic: jest.fn().mockReturnValue(false), isEditor: jest.fn().mockReturnValue(true) });
     })
     it('renders', async () => {
         render(<HomePage />);

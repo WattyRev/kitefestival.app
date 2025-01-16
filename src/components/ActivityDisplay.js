@@ -141,8 +141,8 @@ const ActivityDisplay = ({
                             })}
                         >
                             <div>
-                                {(isDescriptionVisible && allowHideDescription) && <LinkButton onClick={() => setIsDescriptionVisible(false)}>Show less</LinkButton>}
-                                {(!isDescriptionVisible && allowHideDescription) && <LinkButton onClick={() => setIsDescriptionVisible(true)}>Show more</LinkButton>}
+                                {(isDescriptionVisible && allowHideDescription) && <LinkButton data-testid="show-less" onClick={() => setIsDescriptionVisible(false)}>Show less</LinkButton>}
+                                {(!isDescriptionVisible && allowHideDescription) && <LinkButton data-testid="show-more" onClick={() => setIsDescriptionVisible(true)}>Show more</LinkButton>}
                             </div>
                             <div>{children}</div>
                         </div>
