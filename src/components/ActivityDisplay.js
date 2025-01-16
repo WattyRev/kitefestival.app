@@ -89,19 +89,21 @@ const ActivityDisplay = ({
                 <div className={css({
                     display: 'flex',
                 })}>
-                    <div
-                        ref={drag}
-                        className={css({
-                            padding: '0 8px 0 0',
-                            display: 'flex',
-                            alignItems: 'center',
-                            borderRight: '1px solid var(--colors-secondary)',
-                            marginRight: '8px',
-                            cursor: 'grab',
-                        })}
-                    >
-                        <i className="fa-solid fa-grip-lines"></i>
-                    </div>
+                    {isEditor() && (
+                        <div
+                            ref={drag}
+                            className={css({
+                                padding: '0 8px 0 0',
+                                display: 'flex',
+                                alignItems: 'center',
+                                borderRight: '1px solid var(--colors-secondary)',
+                                marginRight: '8px',
+                                cursor: 'grab',
+                            })}
+                        >
+                            <i className="fa-solid fa-grip-lines"></i>
+                        </div>
+                    )}
                     <div className={css({ flexGrow: 1 })}>
                         <div className={css({
                             display: 'flex',
@@ -139,8 +141,8 @@ const ActivityDisplay = ({
                             })}
                         >
                             <div>
-                                {(isDescriptionVisible && allowHideDescription) && <LinkButton onClick={() => setIsDescriptionVisible(false)}><i className="fa-solid fa-angle-up"></i> Show less</LinkButton>}
-                                {(!isDescriptionVisible && allowHideDescription) && <LinkButton onClick={() => setIsDescriptionVisible(true)}><i className="fa-solid fa-angle-down"></i> Show more</LinkButton>}
+                                {(isDescriptionVisible && allowHideDescription) && <LinkButton onClick={() => setIsDescriptionVisible(false)}>Show less</LinkButton>}
+                                {(!isDescriptionVisible && allowHideDescription) && <LinkButton onClick={() => setIsDescriptionVisible(true)}>Show more</LinkButton>}
                             </div>
                             <div>{children}</div>
                         </div>
