@@ -195,6 +195,32 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             }
             dispatch({ type: 'patch', activity})
         },
+        moveActivity: async (id, bucketName, index) => {
+            const activitiesClone = [...activitiesData.activities];
+            // Set activity's new position
+            const currentActivity = activitiesClone.find(activity => activity.id === id);
+            if (bucketName === 'schedule') {
+                currentActivity.sortIndex = null;
+                currentActivity.scheduleIndex = index - 0.5;
+            } else if (bucketName === 'unschedule') {
+                currentActivity.sortIndex = index - 0.5;
+                currentActivity.scheduleIndex = null;
+            }
+
+            // Reindex all activities
+            const { changedActivities, newActivities } = reindexActivities(activitiesClone);
+
+            // Patch changed activities
+            await fetch('/api/activities', { 
+                method: 'PATCH',
+                body: JSON.stringify({
+                    activities: changedActivities
+                })
+            })
+
+            // Dispatch state update
+            dispatch({ type: 'bulkUpdate', activities: newActivities });
+        },
         scheduleActivity: async (id) => {
             const highestScheduleIndex = activitiesData.scheduledActivities.sort((a, b) => b.scheduleIndex - a.scheduleIndex)[0]?.scheduleIndex;
             const scheduleIndex = highestScheduleIndex + 1 || 0;
