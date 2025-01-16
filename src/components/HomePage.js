@@ -14,7 +14,6 @@ import H2 from "./ui/H2";
 import { PaneProvider } from "./ui/Pane";
 import { DndProvider } from "react-dnd";
 import { TouchBackend } from "react-dnd-touch-backend";
-import { HTML5Backend } from "react-dnd-html5-backend";
 import ActivityDrop from "./ActivityDrop";
 
 const HomePageContainer = ({ activities:initialActivities }) => {
@@ -65,6 +64,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                         onUnschedule={unscheduleActivity}
                                                         onMoveUp={index !== 0 ? moveActivityUp : undefined}
                                                         onMoveDown={index !== scheduledActivities.length - 1 ? moveActivityDown : undefined}
+                                                        allowHideDescription={index !== 0}
                                                     >
                                                         <Comments 
                                                             activity={activity}

@@ -21,7 +21,8 @@ export default defineConfig({
           danger: { value: '#ff6363' },
           secondary: { value: '#cdcdcd' },
           secondaryDarker: { value: '#a5a5a5' },
-          shadow: { value: '#111111' }
+          shadow: { value: '#111111' },
+          link: { value: '#3a3ada' }
         }
       },
       keyframes: {
