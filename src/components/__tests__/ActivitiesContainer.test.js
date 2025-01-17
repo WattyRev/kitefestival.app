@@ -367,7 +367,7 @@ describe('ActivitiesContainer', () => {
     describe('scheduling an activity', () => {
         it('allows a user to schedule an activity', async () => {
             fetch.mockImplementation((url, options) => {
-                if (url === '/api/activities/3' && options.method === 'PATCH') {
+                if (url === '/api/activities' && options.method === 'PATCH') {
                     return Promise.resolve({
                         ok: true,
                     })
@@ -380,7 +380,7 @@ describe('ActivitiesContainer', () => {
             render(<ActivitiesContainer initialActivities={initialActivities}>
                 {
                     ({ 
-                        scheduleActivity,
+                        moveActivity,
                         scheduledActivities,
                         unscheduledActivities
                     }) => (
@@ -391,7 +391,7 @@ describe('ActivitiesContainer', () => {
                             {unscheduledActivities.map(activity => (
                                 <div data-testid="unscheduled" key={activity.id}>{activity.name}</div>
                             ))}
-                            <button data-testid="schedule-activity" onClick={() => scheduleActivity('3')}>Schedule Activity</button>
+                            <button data-testid="schedule-activity" onClick={() => moveActivity('3', 'schedule', 3)}>Schedule Activity</button>
                         </>
                     )
                 }
@@ -402,14 +402,25 @@ describe('ActivitiesContainer', () => {
 
             await userEvent.click(screen.getByTestId('schedule-activity'));
 
-            expect(fetch).toHaveBeenCalledWith('/api/activities/3', {
+            expect(fetch).toHaveBeenCalledWith('/api/activities', {
                 method: 'PATCH',
                 body: JSON.stringify({
-                    activity: {
-                        id: '3',
-                        scheduleIndex: 2,
-                        sortIndex: null
-                    }
+                    "activities":[
+                        {
+                            "id":"3",
+                            "name":"Activity 3",
+                            "description":"Description 3",
+                            "sortIndex":null,
+                            "scheduleIndex":2
+                        },
+                        {
+                            "id":"4",
+                            "name":"Activity 4",
+                            "description":"Description 4",
+                            "sortIndex":0,
+                            "scheduleIndex":null
+                        }
+                    ]
                 })
             });
 
@@ -419,7 +430,7 @@ describe('ActivitiesContainer', () => {
         });
         it('alerts if activity scheduling fails', async () => {
             fetch.mockImplementation((url, options) => {
-                if (url === '/api/activities/2' && options.method === 'PATCH') {
+                if (url === '/api/activities' && options.method === 'PATCH') {
                     return Promise.resolve({
                         ok: false,
                     })
@@ -432,10 +443,10 @@ describe('ActivitiesContainer', () => {
             render(<ActivitiesContainer initialActivities={initialActivities}>
                 {
                     ({ 
-                        scheduleActivity,
+                        moveActivity,
                     }) => (
                         <>
-                            <button data-testid="schedule-activity" onClick={() => scheduleActivity('2')}>Schedule Activity</button>
+                            <button data-testid="schedule-activity" onClick={() => moveActivity('2', 'schedule', 3)}>Schedule Activity</button>
                         </>
                     )
                 }
@@ -443,13 +454,13 @@ describe('ActivitiesContainer', () => {
 
             await userEvent.click(screen.getByTestId('schedule-activity'));
 
-            expect(mockOpenAlert).toHaveBeenCalledWith('Failed to schedule activity', 'error');
+            expect(mockOpenAlert).toHaveBeenCalledWith('Failed to move activities', 'error');
         });
     });
     describe('unscheduling an activity', () => {
         it('allows a user to unschedule an activity', async () => {
             fetch.mockImplementation((url, options) => {
-                if (url === '/api/activities/1' && options.method === 'PATCH') {
+                if (url === '/api/activities' && options.method === 'PATCH') {
                     return Promise.resolve({
                         ok: true,
                     })
@@ -462,7 +473,7 @@ describe('ActivitiesContainer', () => {
             render(<ActivitiesContainer initialActivities={initialActivities}>
                 {
                     ({ 
-                        unscheduleActivity,
+                        moveActivity,
                         scheduledActivities,
                         unscheduledActivities
                     }) => (
@@ -473,7 +484,7 @@ describe('ActivitiesContainer', () => {
                             {unscheduledActivities.map(activity => (
                                 <div data-testid="unscheduled" key={activity.id}>{activity.name}</div>
                             ))}
-                            <button data-testid="unschedule-activity" onClick={() => unscheduleActivity('1')}>Schedule Activity</button>
+                            <button data-testid="unschedule-activity" onClick={() => moveActivity('1', 'unschedule', 0)}>Unschedule Activity</button>
                         </>
                     )
                 }
@@ -484,28 +495,54 @@ describe('ActivitiesContainer', () => {
 
             await userEvent.click(screen.getByTestId('unschedule-activity'));
 
-            expect(fetch).toHaveBeenCalledWith('/api/activities/1', {
+            expect(fetch).toHaveBeenCalledWith('/api/activities', {
                 method: 'PATCH',
                 body: JSON.stringify({
-                    activity: {
-                        id: '1',
-                        sortIndex: 2,
-                        scheduleIndex: null,
-                    }
+                    activities: [
+                        {
+                            "id": "2",
+                            "name":"Activity 2",
+                            "description":"Description 2",
+                            "sortIndex":null,
+                            "scheduleIndex":0
+                        },
+                        {
+                            "id":"1",
+                            "name":"Activity 1",
+                            "description":"Description 1",
+                            "sortIndex":0,
+                            "scheduleIndex":null
+                        },
+                        {
+                            "id":"3",
+                            "name":"Activity 3",
+                            "description":"Description 3",
+                            "sortIndex":1,
+                            "scheduleIndex":null
+                        },
+                        {
+                            "id":"4",
+                            "name":"Activity 4",
+                            "description":"Description 4",
+                            "sortIndex":2,
+                            "scheduleIndex":null
+                        }
+                    ]
                 })
             });
 
             expect(screen.queryAllByTestId('scheduled')).toHaveLength(1);
             expect(screen.queryAllByTestId('unscheduled')).toHaveLength(3);
-            expect(screen.queryAllByTestId('unscheduled')[2]).toHaveTextContent('Activity 1');
+            expect(screen.queryAllByTestId('unscheduled')[0]).toHaveTextContent('Activity 1');
         });
         it('alerts if activity unscheduling fails', async () => {
             fetch.mockImplementation((url, options) => {
-                if (url === '/api/activities/1' && options.method === 'PATCH') {
+                if (url === '/api/activities' && options.method === 'PATCH') {
                     return Promise.resolve({
                         ok: false,
                     })
                 }
+                console.log('unexpected fetch', url, options);
                 return Promise.resolve({
                     ok: true,
                     json: jest.fn().mockResolvedValue({})
@@ -514,10 +551,10 @@ describe('ActivitiesContainer', () => {
             render(<ActivitiesContainer initialActivities={initialActivities}>
                 {
                     ({ 
-                        unscheduleActivity,
+                        moveActivity,
                     }) => (
                         <>
-                            <button data-testid="unschedule-activity" onClick={() => unscheduleActivity('1')}>Schedule Activity</button>
+                            <button data-testid="unschedule-activity" onClick={() => moveActivity('1', 'unschedule', 0)}>Unschedule Activity</button>
                         </>
                     )
                 }
@@ -525,7 +562,7 @@ describe('ActivitiesContainer', () => {
 
             await userEvent.click(screen.getByTestId('unschedule-activity'));
 
-            expect(mockOpenAlert).toHaveBeenCalledWith('Failed to unschedule activity', 'error');
+            expect(mockOpenAlert).toHaveBeenCalledWith('Failed to move activities', 'error');
         });
     });
     describe('moving a scheduled activity', () => {
@@ -562,12 +599,12 @@ describe('ActivitiesContainer', () => {
             ];
 
             render(<ActivitiesContainer initialActivities={initialActivities} >
-                {({ scheduledActivities, moveActivityUp }) => (
+                {({ scheduledActivities, moveActivity }) => (
                     <>
                         {scheduledActivities.map(activity => (
                             <div data-testid="activity" key={activity.id}>{activity.name}</div>
                         ))}
-                        <button data-testid="move-activity-up" onClick={() => moveActivityUp('3')}>Move Activity Up</button>
+                        <button data-testid="move-activity-up" onClick={() => moveActivity('3', 'schedule', 1)}>Move Activity Up</button>
                     </>
                 )}
             </ActivitiesContainer>);
@@ -618,12 +655,12 @@ describe('ActivitiesContainer', () => {
             ];
 
             render(<ActivitiesContainer initialActivities={initialActivities} >
-                {({ scheduledActivities, moveActivityDown }) => (
+                {({ scheduledActivities, moveActivity }) => (
                     <>
                         {scheduledActivities.map(activity => (
                             <div data-testid="activity" key={activity.id}>{activity.name}</div>
                         ))}
-                        <button data-testid="move-activity-down" onClick={() => moveActivityDown('1')}>Move Activity Down</button>
+                        <button data-testid="move-activity-down" onClick={() => moveActivity('1', 'schedule', 2)}>Move Activity Down</button>
                     </>
                 )}
             </ActivitiesContainer>);
@@ -676,12 +713,12 @@ describe('ActivitiesContainer', () => {
             ];
 
             render(<ActivitiesContainer initialActivities={initialActivities} >
-                {({ unscheduledActivities, moveActivityUp }) => (
+                {({ unscheduledActivities, moveActivity }) => (
                     <>
                         {unscheduledActivities.map(activity => (
                             <div data-testid="activity" key={activity.id}>{activity.name}</div>
                         ))}
-                        <button data-testid="move-activity-up" onClick={() => moveActivityUp('4')}>Move Activity Up</button>
+                        <button data-testid="move-activity-up" onClick={() => moveActivity('4', 'unschedule', 2)}>Move Activity Up</button>
                     </>
                 )}
             </ActivitiesContainer>);
@@ -732,12 +769,12 @@ describe('ActivitiesContainer', () => {
             ];
 
             render(<ActivitiesContainer initialActivities={initialActivities} >
-                {({ unscheduledActivities, moveActivityDown }) => (
+                {({ unscheduledActivities, moveActivity }) => (
                     <>
                         {unscheduledActivities.map(activity => (
                             <div data-testid="activity" key={activity.id}>{activity.name}</div>
                         ))}
-                        <button data-testid="move-activity-down" onClick={() => moveActivityDown('2')}>Move Activity Down</button>
+                        <button data-testid="move-activity-down" onClick={() => moveActivity('2', 'unschedule', 3)}>Move Activity Down</button>
                     </>
                 )}
             </ActivitiesContainer>);

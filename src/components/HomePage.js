@@ -28,10 +28,6 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                     createActivity,
                     editActivity,
                     deleteActivity,
-                    scheduleActivity,
-                    unscheduleActivity,
-                    moveActivityUp,
-                    moveActivityDown,
                     moveActivity,
                 }) => (
                     <CommentsContainer>
@@ -66,9 +62,9 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                         activity={activity} 
                                                         onDelete={deleteActivity} 
                                                         onEdit={editActivity}
-                                                        onUnschedule={unscheduleActivity}
-                                                        onMoveUp={index !== 0 ? moveActivityUp : undefined}
-                                                        onMoveDown={index !== scheduledActivities.length - 1 ? moveActivityDown : undefined}
+                                                        onUnschedule={id => moveActivity(id, 'unschedule', 0)}
+                                                        onMoveUp={index !== 0 ? id => moveActivity(id, 'schedule', activity.scheduleIndex - 1) : undefined}
+                                                        onMoveDown={index !== scheduledActivities.length - 1 ? id => moveActivity(id, 'schedule', activity.scheduleIndex + 2) : undefined}
                                                         allowHideDescription={index !== 0}
                                                     >
                                                         <Comments 
@@ -103,10 +99,10 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                         <ActivityDisplay 
                                                             activity={activity} 
                                                             onDelete={deleteActivity} 
-                                                            onSchedule={scheduleActivity}
+                                                            onSchedule={id => moveActivity(id, 'schedule', scheduledActivities.length || 0)}
                                                             onEdit={editActivity}
-                                                            onMoveUp={index !== 0 ? moveActivityUp : undefined}
-                                                            onMoveDown={index !== unscheduledActivities.length - 1 ? moveActivityDown : undefined}
+                                                            onMoveUp={index !== 0 ? id => moveActivity(id, 'unschedule', activity.sortIndex - 1) : undefined}
+                                                            onMoveDown={index !== unscheduledActivities.length - 1 ? id => moveActivity(id, 'unschedule', activity.sortIndex + 2) : undefined}
                                                         >
                                                             <Comments 
                                                                 activity={activity}
