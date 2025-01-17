@@ -22,6 +22,8 @@ const ActivityDisplay = ({
     onUnschedule,
     onMoveUp,
     onMoveDown,
+    onMoveTop,
+    onMoveBottom,
     onEdit,
     children,
     allowHideDescription = true
@@ -45,27 +47,9 @@ const ActivityDisplay = ({
         setPending(false);
     }
 
-    async function addToSchedule() {
+    async function dispatch(callbackfn, args) {
         setPending(true);
-        await onSchedule(activity.id);
-        setPending(false);
-    }
-
-    async function removeFromSchedule() {
-        setPending(true);
-        await onUnschedule(activity.id);
-        setPending(false);
-    }
-
-    async function moveUp() {
-        setPending(true);
-        await onMoveUp(activity.id);
-        setPending(false);
-    }
-
-    async function moveDown() {
-        setPending(true);
-        await onMoveDown(activity.id);
+        await callbackfn(...args);
         setPending(false);
     }
 
@@ -117,12 +101,68 @@ const ActivityDisplay = ({
                                 <Dropdown
                                     dropdownContent={(() => (
                                         <>
-                                            <DropdownItem data-testid="edit-activity" onClick={() => setIsEditing(true)} disabled={pending}><i className="fa-solid fa-pen"/> Edit Activity</DropdownItem>
-                                            {onMoveUp && <DropdownItem data-testid="move-up" onClick={moveUp} disabled={pending} title="Move Up"><i className="fa-solid fa-arrow-up"/> Move Up</DropdownItem>}
-                                            {onMoveDown && <DropdownItem data-testid="move-down" onClick={moveDown} disabled={pending} title="Move Down"><i className="fa-solid fa-arrow-down"/> Move Down</DropdownItem>}
-                                            {onSchedule && <DropdownItem data-testid="add-schedule" onClick={addToSchedule} disabled={pending} title="Add to Schedule"><i className="fa-regular fa-calendar-plus" /> Add to Schedule</DropdownItem>}
-                                            {onUnschedule && <DropdownItem data-testid="remove-schedule" onClick={removeFromSchedule} disabled={pending} title="Remove from Schedule"><i className="fa-regular fa-calendar-minus" /> Remove from Schedule</DropdownItem>}
-                                            <DropdownItem data-testid="delete-activity" onClick={deleteActivity} disabled={pending}><i className="fa-solid fa-trash"/> Delete Activity</DropdownItem>
+                                            <DropdownItem 
+                                                data-testid="edit-activity"
+                                                onClick={() => setIsEditing(true)}
+                                                disabled={pending}
+                                            >
+                                                <i className="fa-solid fa-pen"/> Edit Activity
+                                            </DropdownItem>
+                                            {onMoveTop && <DropdownItem 
+                                                data-testid="move-top" 
+                                                onClick={() => dispatch(onMoveTop, [activity.id])} 
+                                                disabled={pending} 
+                                                title="Move to Top"
+                                            >
+                                                <i className="fa-solid fa-arrows-up-to-line"/> Move to Top
+                                            </DropdownItem>}
+                                            {onMoveUp && <DropdownItem 
+                                                data-testid="move-up" 
+                                                onClick={() => dispatch(onMoveUp, [activity.id])} 
+                                                disabled={pending} 
+                                                title="Move Up"
+                                            >
+                                                <i className="fa-solid fa-arrow-up"/> Move Up
+                                            </DropdownItem>}
+                                            {onMoveDown && <DropdownItem 
+                                                data-testid="move-down" 
+                                                onClick={() => dispatch(onMoveDown, [activity.id])}  
+                                                disabled={pending} 
+                                                title="Move Down"
+                                            >
+                                                <i className="fa-solid fa-arrow-down"/> Move Down
+                                            </DropdownItem>}
+                                            {onMoveBottom && <DropdownItem 
+                                                data-testid="move-bottom" 
+                                                onClick={() => dispatch(onMoveBottom, [activity.id])}  
+                                                disabled={pending} 
+                                                title="Move to Bottom"
+                                            >
+                                                <i className="fa-solid fa-arrows-down-to-line"/> Move to Bottom
+                                            </DropdownItem>}
+                                            {onSchedule && <DropdownItem 
+                                                data-testid="add-schedule"
+                                                onClick={() => dispatch(onSchedule, [activity.id])}
+                                                disabled={pending} 
+                                                title="Add to Schedule"
+                                            >
+                                                <i className="fa-regular fa-calendar-plus" /> Add to Schedule
+                                            </DropdownItem>}
+                                            {onUnschedule && <DropdownItem 
+                                                data-testid="remove-schedule"
+                                                onClick={() => dispatch(onUnschedule, [activity.id])}
+                                                disabled={pending} 
+                                                title="Remove from Schedule"
+                                            >
+                                                <i className="fa-regular fa-calendar-minus" /> Remove from Schedule
+                                            </DropdownItem>}
+                                            <DropdownItem 
+                                                data-testid="delete-activity" 
+                                                onClick={deleteActivity} 
+                                                disabled={pending}
+                                            >
+                                                <i className="fa-solid fa-trash"/> Delete Activity
+                                            </DropdownItem>
                                         </>
                                     ))}
                                 >
