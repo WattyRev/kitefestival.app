@@ -20,9 +20,10 @@ import { restrictToVerticalAxis, restrictToWindowEdges } from "@dnd-kit/modifier
 const HomePageContainer = ({ activities:initialActivities }) => {
     const { isPublic, isEditor } = useAuth();
     const [ activelyDraggedId, setActivelyDraggedId ] = useState(null);
+    const activationConstraint = { delay: 250, tolerance: 5};
     const sensors = useSensors(
-        useSensor(TouchSensor),
-        useSensor(MouseSensor),
+        useSensor(TouchSensor, {activationConstraint}),
+        useSensor(MouseSensor, {activationConstraint}),
     );
     return (
         <ChangePollingContainer>
@@ -53,9 +54,15 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                             sensors={sensors}
                                             collisionDetection={closestCenter}
                                             onDragStart={event => {
+                                                if (!isEditor()) {
+                                                    return;
+                                                }
                                                 setActivelyDraggedId(event.active.id);
                                             }}
                                             onDragEnd={event => {
+                                                if (!isEditor()) {
+                                                    return;
+                                                }
                                                 setActivelyDraggedId(null);
                                                 const { active, over } = event;
                                                 const activityId = active.id;

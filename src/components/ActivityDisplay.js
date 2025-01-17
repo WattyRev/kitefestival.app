@@ -64,32 +64,18 @@ const ActivityDisplay = ({
         id: activity.id,
     });
 
-    const style = transform ? {
+    const style = transform && isEditor() ? {
         opacity: isDragging ? 0.5 : 1,
+        boxShadow: isDragging ? '2px 2px 2px 2px rgba(0, 0, 0, 0.5)' : undefined,
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
       } : undefined;
 
     return (
-        <div ref={setNodeRef} style={style} {...attributes}>
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners} >
             <Panel >
                 <div className={css({
                     display: 'flex',
                 })}>
-                    {isEditor() && (
-                        <div
-                            {...listeners} 
-                            className={css({
-                                padding: '0 16px 0 8px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                borderRight: '1px solid var(--colors-secondary)',
-                                marginRight: '8px',
-                                cursor: 'grab',
-                            })}
-                        >
-                            <i className="fa-solid fa-grip-lines"></i>
-                        </div>
-                    )}
                     <div className={css({ flexGrow: 1 })}>
                         <div className={css({
                             display: 'flex',
