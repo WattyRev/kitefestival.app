@@ -16,12 +16,13 @@ export default defineConfig({
     extend: {
       tokens: {
         colors: {
-          sectionBackground: { value: 'rgba(180, 219, 254, 0.29)' },
+          sectionBackground: { value: '#edf4fa' },
           success: { value: '#a1d78e' },
           danger: { value: '#ff6363' },
           secondary: { value: '#cdcdcd' },
           secondaryDarker: { value: '#a5a5a5' },
-          shadow: { value: '#111111' }
+          shadow: { value: '#111111' },
+          link: { value: '#3a3ada' }
         }
       },
       keyframes: {

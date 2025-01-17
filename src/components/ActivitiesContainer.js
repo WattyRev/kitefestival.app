@@ -195,118 +195,33 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             }
             dispatch({ type: 'patch', activity})
         },
-        scheduleActivity: async (id) => {
-            const highestScheduleIndex = activitiesData.scheduledActivities.sort((a, b) => b.scheduleIndex - a.scheduleIndex)[0]?.scheduleIndex;
-            const scheduleIndex = highestScheduleIndex + 1 || 0;
-            const activity = {
-                id,
-                scheduleIndex,
-                sortIndex: null
-            }
-            const response = await fetch(`/api/activities/${id}`, {
-                method: 'PATCH',
-                body: JSON.stringify({
-                    activity
-                })
-            });
-            if (!response.ok) {
-                openAlert('Failed to schedule activity', 'error');
-                return;
-            }
-            dispatch({ type: 'patch', activity})
-        },
-        unscheduleActivity: async (id) => {
-            const highestSortIndex = activitiesData.unscheduledActivities.sort((a, b) => b.sortIndex - a.sortIndex)[0]?.sortIndex;
-            const sortIndex = highestSortIndex + 1 || 0;
-            const activity = {
-                id,
-                sortIndex,
-                scheduleIndex: null
-            }
-            const response = await fetch(`/api/activities/${id}`, {
-                method: 'PATCH',
-                body: JSON.stringify({
-                    activity
-                })
-            });
-            if (!response.ok) {
-                openAlert('Failed to unschedule activity', 'error');
-                return;
-            }
-            dispatch({ type: 'patch', activity})
-        },
-        moveActivityUp: async (id) => {
-            // Find the activity above the current activity
-            let overtakingActivity;
+        moveActivity: async (id, bucketName, index) => {
             const activitiesClone = [...activitiesData.activities];
-            const currentActivity = activitiesClone.find((activity) => {
-                if (activity.id === id) {
-                    return true;
-                }
-                overtakingActivity = activity;
-            });
-            if (!overtakingActivity ||
-                (currentActivity.scheduleIndex === null && overtakingActivity.scheduleIndex !== null) ||
-                (currentActivity.sortIndex === null && overtakingActivity.sortIndex !== null)) {
-                console.error('Cannnot move activity up because it is already at the top of its list');
-                return;
-            }
-
-            // Set the current activity's index slightly lower than the higher ranking activity
-            if(currentActivity.scheduleIndex !== null) {
-                currentActivity.scheduleIndex = overtakingActivity.scheduleIndex - 0.1;
-            } else if (currentActivity.sortIndex !== null) {
-                currentActivity.sortIndex = overtakingActivity.sortIndex - 0.1;
+            // Set activity's new position
+            const currentActivity = activitiesClone.find(activity => activity.id === id);
+            if (bucketName === 'schedule') {
+                currentActivity.sortIndex = null;
+                currentActivity.scheduleIndex = index - 0.5;
+            } else if (bucketName === 'unschedule') {
+                currentActivity.sortIndex = index - 0.5;
+                currentActivity.scheduleIndex = null;
             }
 
             // Reindex all activities
             const { changedActivities, newActivities } = reindexActivities(activitiesClone);
 
             // Patch changed activities
-            await fetch('/api/activities', { 
+            const response = await fetch('/api/activities', { 
                 method: 'PATCH',
                 body: JSON.stringify({
                     activities: changedActivities
                 })
-            })
-
-            // Dispatch state update
-            dispatch({ type: 'bulkUpdate', activities: newActivities });
-        },
-        moveActivityDown: async (id) => {
-            // Find the current activity and the activity below the current activity
-            let overtakingActivity;
-            const activitiesClone = [...activitiesData.activities];
-            const currentActivity = activitiesClone.find((activity, index) => {
-                if (activity.id === id) {
-                    overtakingActivity = activitiesClone[index + 1];
-                    return true;
-                }
             });
-            if (!overtakingActivity ||
-                (currentActivity.scheduleIndex === null && overtakingActivity.scheduleIndex !== null) ||
-                (currentActivity.sortIndex === null && overtakingActivity.sortIndex !== null)) {
-                console.error('Cannnot move activity down because it is already at the bottom of its list');
+
+            if (!response.ok) {
+                openAlert('Failed to move activities', 'error');
                 return;
             }
-
-            // Set the current activity's index slightly lower than the lower ranking activity
-            if(currentActivity.scheduleIndex !== null) {
-                currentActivity.scheduleIndex = overtakingActivity.scheduleIndex + 0.1;
-            } else if (currentActivity.sortIndex !== null) {
-                currentActivity.sortIndex = overtakingActivity.sortIndex + 0.1;
-            }
-
-            // Reindex all activities
-            const { changedActivities, newActivities } = reindexActivities(activitiesClone);
-
-            // Patch changed activities
-            await fetch('/api/activities', { 
-                method: 'PATCH',
-                body: JSON.stringify({
-                    activities: changedActivities
-                })
-            })
 
             // Dispatch state update
             dispatch({ type: 'bulkUpdate', activities: newActivities });
