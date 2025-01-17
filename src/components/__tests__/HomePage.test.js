@@ -24,6 +24,7 @@ describe('HomePage', () => {
             return children({
                 scheduledActivities: [],
                 unscheduledActivities: [],
+                activities: [],
                 isLoading: false,
                 createActivity: jest.fn(),
                 deleteActivity: jest.fn(),
@@ -56,17 +57,20 @@ describe('HomePage', () => {
     });
     it('renders an ActivityDisplay for each unscheduledActivity', async () => {
         ActivitiesContainer.mockImplementation(({ children }) => {
+            const scheduledActivities = [];
+            const unscheduledActivities = [{
+                id: 1,
+                name: 'Activity 1',
+                description: 'Description 1'
+            }, {
+                id: 2,
+                name: 'Activity 2',
+                description: 'Description 2'
+            }];
             return children({
-                scheduledActivities: [],
-                unscheduledActivities: [{
-                    id: 1,
-                    name: 'Activity 1',
-                    description: 'Description 1'
-                }, {
-                    id: 2,
-                    name: 'Activity 2',
-                    description: 'Description 2'
-                }],
+                scheduledActivities,
+                unscheduledActivities,
+                activities: [...scheduledActivities, ...unscheduledActivities],
                 isLoading: false,
                 createActivity: jest.fn(),
                 deleteActivit: jest.fn(),
@@ -81,17 +85,20 @@ describe('HomePage', () => {
 
     it('renders an ActivityDisplay for each scheduledActivity', async () => {
         ActivitiesContainer.mockImplementation(({ children }) => {
+            const scheduledActivities = [{
+                id: 1,
+                name: 'Activity 1',
+                description: 'Description 1'
+            }, {
+                id: 2,
+                name: 'Activity 2',
+                description: 'Description 2'
+            }];
+            const unscheduledActivities = [];
             return children({
-                scheduledActivities: [{
-                    id: 1,
-                    name: 'Activity 1',
-                    description: 'Description 1'
-                }, {
-                    id: 2,
-                    name: 'Activity 2',
-                    description: 'Description 2'
-                }],
-                unscheduledActivities: [],
+                scheduledActivities,
+                unscheduledActivities,
+                activities: [...scheduledActivities, ...unscheduledActivities],
                 isLoading: false,
                 createActivity: jest.fn(),
                 deleteActivit: jest.fn(),

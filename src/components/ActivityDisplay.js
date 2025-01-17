@@ -10,8 +10,10 @@ import Dropdown, { DropdownItem } from "./ui/Dropdown"
 import PlainButton from "./ui/PlainButton"
 import Modal from "./ui/Modal"
 import ActivityForm from "./ActivityForm"
-import { useDrag } from "react-dnd"
 import LinkButton from "./ui/LinkButton"
+import { useDraggable } from "@dnd-kit/core"
+
+
 
 const ActivityDisplay = ({
     activity,
@@ -74,24 +76,23 @@ const ActivityDisplay = ({
         setIsEditing(false);
     }
 
-    const [{ opacity }, drag, preview] = useDrag(() => ({
-        type: 'activity',
-        item: { id: activity.id },
-        collect: monitor => ({
-            opacity: monitor.isDragging() ? 0.5 : 1
-        })
-    }));
+    const {attributes, listeners, setNodeRef, transform} = useDraggable({
+        id: activity.id,
+    });
 
+    const style = transform ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+      } : undefined;
 
     return (
-        <div ref={preview}>
-            <Panel style={{ opacity }}>
+        <div ref={setNodeRef} style={style}{...attributes}>
+            <Panel >
                 <div className={css({
                     display: 'flex',
                 })}>
                     {isEditor() && (
                         <div
-                            ref={drag}
+                            {...listeners} 
                             className={css({
                                 padding: '0 8px 0 0',
                                 display: 'flex',

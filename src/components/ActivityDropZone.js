@@ -1,7 +1,7 @@
 import { useDroppable } from "@dnd-kit/core";
 import { css } from "../../styled-system/css";
 
-const ActivityDrop = ({ id, bucket, index }) => {
+const ActivityDropZone = ({ id, bucket, index, text }) => {
     const { isOver, setNodeRef } = useDroppable({
         id,
         data: { bucket, index },
@@ -11,13 +11,18 @@ const ActivityDrop = ({ id, bucket, index }) => {
         ref={setNodeRef}
         className={`${isOver ? 'isOver' : ''} ${css({
             transition: 'border 0.2s ease-in-out',
-            border: '0px dashed #cdcdcd',
+            border: '2px dashed #cdcdcd',
+            padding: '8px',
+            margin: '8px',
+            textAlign: 'center',
 
             '&.isOver': {
                 border: '2px dashed #0537fc',
             }
         })}`}
-    />
+    >
+        <p>{text}</p>
+    </div>
 }
 
-export default ActivityDrop;
+export default ActivityDropZone;
