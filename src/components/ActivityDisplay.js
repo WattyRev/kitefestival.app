@@ -76,16 +76,17 @@ const ActivityDisplay = ({
         setIsEditing(false);
     }
 
-    const {attributes, listeners, setNodeRef, transform} = useDraggable({
+    const {attributes, listeners, setNodeRef, transform, isDragging} = useDraggable({
         id: activity.id,
     });
 
     const style = transform ? {
+        opacity: isDragging ? 0.5 : 1,
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
       } : undefined;
 
     return (
-        <div ref={setNodeRef} style={style}{...attributes}>
+        <div ref={setNodeRef} style={style} {...attributes}>
             <Panel >
                 <div className={css({
                     display: 'flex',
@@ -94,7 +95,7 @@ const ActivityDisplay = ({
                         <div
                             {...listeners} 
                             className={css({
-                                padding: '0 8px 0 0',
+                                padding: '0 16px 0 8px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 borderRight: '1px solid var(--colors-secondary)',

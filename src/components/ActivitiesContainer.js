@@ -211,17 +211,17 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             const { changedActivities, newActivities } = reindexActivities(activitiesClone);
 
             // Patch changed activities
-            const response = await fetch('/api/activities', { 
+            fetch('/api/activities', { 
                 method: 'PATCH',
                 body: JSON.stringify({
                     activities: changedActivities
                 })
+            }).then(response => {
+                if (!response.ok) {
+                    openAlert('Failed to move activities', 'error');
+                    return;
+                }
             });
-
-            if (!response.ok) {
-                openAlert('Failed to move activities', 'error');
-                return;
-            }
 
             // Dispatch state update
             dispatch({ type: 'bulkUpdate', activities: newActivities });

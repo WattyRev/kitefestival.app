@@ -15,7 +15,7 @@ import { PaneProvider } from "./ui/Pane";
 import { closestCenter, DndContext, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import ActivityDrop from "./ActivityDrop";
 import ActivityDropZone from "./ActivityDropZone";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { restrictToVerticalAxis, restrictToWindowEdges } from "@dnd-kit/modifiers";
 
 const HomePageContainer = ({ activities:initialActivities }) => {
     const { isPublic, isEditor } = useAuth();
@@ -62,11 +62,11 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                 const {bucket, index} = over.data.current;
                                                 moveActivity(activityId, bucket, index);
                                             }}
-                                            modifiers={[restrictToVerticalAxis]}
+                                            modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
                                         >
                                             {!scheduledActivities.length && (<>
                                                 <p className={css({ paddingLeft: '16px'})} data-testid="empty-schedule">There&apos;s nothing happening right now</p>
-                                                {isEditor() && activities.length && <ActivityDropZone bucket="schedule" index={0} id="schedule-0" text="Drag activities here to schedule them" />}
+                                                {isEditor() && activities.length && <ActivityDropZone bucket="schedule" index={0} id="schedule-empty" text="Drag activities here to schedule them" />}
                                             </>)}
                                             {scheduledActivities.map((activity, index) => (
                                                 <div key={activity.id}>
@@ -75,7 +75,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                     {isEditor () && activelyDraggedId !== scheduledActivities[index - 1]?.id && <ActivityDrop 
                                                         bucket="schedule"
                                                         index={activity.scheduleIndex}
-                                                        id={`schedule-${activity.scheduleIndex}`}
+                                                        id={`schedule-${activity.id}-top`}
                                                     />}
                                                     <ActivityDisplay 
                                                         key={activity.id} 
@@ -98,7 +98,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                     {index === scheduledActivities.length - 1 && activity.id !== activelyDraggedId &&  isEditor() && <ActivityDrop 
                                                         bucket="schedule"
                                                         index={activity.scheduleIndex + 1}
-                                                        id={`schedule-${activity.scheduleIndex + 1}`}
+                                                        id={`schedule-${activity.id}-bottom`}
                                                     />}
                                                 </div>
                                             ))}
@@ -109,7 +109,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                     {isEditor() && activities.length && <ActivityDropZone 
                                                         bucket="unschedule"
                                                         index={0}
-                                                        id={"unschedule-0"}
+                                                        id={"unschedule-empty"}
                                                         text="Drag activities here to unschedule them"
                                                     />}
                                                 </>)}
@@ -118,7 +118,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                         {isEditor() && activelyDraggedId !== unscheduledActivities[index - 1]?.id && <ActivityDrop 
                                                             bucket="unschedule"
                                                             index={activity.sortIndex}
-                                                            id={`unschedule-${activity.sortIndex}`}
+                                                            id={`unschedule-${activity.id}-top`}
                                                         />}
                                                         <ActivityDisplay 
                                                             activity={activity} 
@@ -136,10 +136,10 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                                 onEdit={editComment}
                                                             />
                                                         </ActivityDisplay>
-                                                        {index === unscheduledActivities.length - 1 && activity.id !== activelyDraggedId && isEditor() && <ActivityDrop 
+                                                        {index === unscheduledActivities.length - 1 && isEditor() && activelyDraggedId !== activity.id && <ActivityDrop 
                                                             bucket="unschedule"
                                                             index={activity.sortIndex + 1}
-                                                            id={`unschedule-${activity.sortIndex + 1}`}
+                                                            id={`unschedule-${activity.id}-bottom`}
                                                         />}
                                                     </div>
                                                 ))}
