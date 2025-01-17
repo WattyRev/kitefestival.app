@@ -10,7 +10,7 @@ const ActivityDrop = ({ id, bucket, index }) => {
     return <div 
         ref={setNodeRef}
         className={`${isOver ? 'isOver' : ''} ${css({
-            transition: 'border 0.2s ease-in-out',
+            transition: 'all 0.2s ease-in-out',
             border: '0px dashed #cdcdcd',
 
             '&.isOver': {
