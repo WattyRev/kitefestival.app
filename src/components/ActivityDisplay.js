@@ -22,6 +22,8 @@ const ActivityDisplay = ({
     onUnschedule,
     onMoveUp,
     onMoveDown,
+    onMoveTop,
+    onMoveBottom,
     onEdit,
     children,
     allowHideDescription = true
@@ -45,27 +47,9 @@ const ActivityDisplay = ({
         setPending(false);
     }
 
-    async function addToSchedule() {
+    async function dispatch(callbackfn, args) {
         setPending(true);
-        await onSchedule(activity.id);
-        setPending(false);
-    }
-
-    async function removeFromSchedule() {
-        setPending(true);
-        await onUnschedule(activity.id);
-        setPending(false);
-    }
-
-    async function moveUp() {
-        setPending(true);
-        await onMoveUp(activity.id);
-        setPending(false);
-    }
-
-    async function moveDown() {
-        setPending(true);
-        await onMoveDown(activity.id);
+        await callbackfn(...args);
         setPending(false);
     }
 
@@ -80,32 +64,43 @@ const ActivityDisplay = ({
         id: activity.id,
     });
 
-    const style = transform ? {
+    const style = transform && isEditor() ? {
         opacity: isDragging ? 0.5 : 1,
+        boxShadow: isDragging ? '2px 2px 2px 2px rgba(0, 0, 0, 0.5)' : undefined,
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
       } : undefined;
 
+
+
+    const truncatedDescriptionLength = 100;
+
+    function isDescriptionTruncatable() {
+        const minimumCharacterCutoff = 3;
+        const lines = activity.description.split('\n');
+        if (lines.length > 2) {
+            return true;
+        }
+        return allowHideDescription && activity.description.length > truncatedDescriptionLength - minimumCharacterCutoff;
+    }
+
+    function getDescription() {
+        if (isDescriptionVisible || !allowHideDescription) {
+            return activity.description;
+        }
+        let description = activity.description.trim().split('\n').slice(0, 2).join('\n');
+        if (isDescriptionTruncatable()) {
+            description = description.substring(0, truncatedDescriptionLength) + '...';
+        }
+
+        return description;
+    }
+
     return (
-        <div ref={setNodeRef} style={style} {...attributes}>
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners} >
             <Panel >
                 <div className={css({
                     display: 'flex',
                 })}>
-                    {isEditor() && (
-                        <div
-                            {...listeners} 
-                            className={css({
-                                padding: '0 16px 0 8px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                borderRight: '1px solid var(--colors-secondary)',
-                                marginRight: '8px',
-                                cursor: 'grab',
-                            })}
-                        >
-                            <i className="fa-solid fa-grip-lines"></i>
-                        </div>
-                    )}
                     <div className={css({ flexGrow: 1 })}>
                         <div className={css({
                             display: 'flex',
@@ -117,12 +112,68 @@ const ActivityDisplay = ({
                                 <Dropdown
                                     dropdownContent={(() => (
                                         <>
-                                            <DropdownItem data-testid="edit-activity" onClick={() => setIsEditing(true)} disabled={pending}><i className="fa-solid fa-pen"/> Edit Activity</DropdownItem>
-                                            {onMoveUp && <DropdownItem data-testid="move-up" onClick={moveUp} disabled={pending} title="Move Up"><i className="fa-solid fa-arrow-up"/> Move Up</DropdownItem>}
-                                            {onMoveDown && <DropdownItem data-testid="move-down" onClick={moveDown} disabled={pending} title="Move Down"><i className="fa-solid fa-arrow-down"/> Move Down</DropdownItem>}
-                                            {onSchedule && <DropdownItem data-testid="add-schedule" onClick={addToSchedule} disabled={pending} title="Add to Schedule"><i className="fa-regular fa-calendar-plus" /> Add to Schedule</DropdownItem>}
-                                            {onUnschedule && <DropdownItem data-testid="remove-schedule" onClick={removeFromSchedule} disabled={pending} title="Remove from Schedule"><i className="fa-regular fa-calendar-minus" /> Remove from Schedule</DropdownItem>}
-                                            <DropdownItem data-testid="delete-activity" onClick={deleteActivity} disabled={pending}><i className="fa-solid fa-trash"/> Delete Activity</DropdownItem>
+                                            <DropdownItem 
+                                                data-testid="edit-activity"
+                                                onClick={() => setIsEditing(true)}
+                                                disabled={pending}
+                                            >
+                                                <i className="fa-solid fa-pen"/> Edit Activity
+                                            </DropdownItem>
+                                            {onMoveTop && <DropdownItem 
+                                                data-testid="move-top" 
+                                                onClick={() => dispatch(onMoveTop, [activity.id])} 
+                                                disabled={pending} 
+                                                title="Move to Top"
+                                            >
+                                                <i className="fa-solid fa-arrows-up-to-line"/> Move to Top
+                                            </DropdownItem>}
+                                            {onMoveUp && <DropdownItem 
+                                                data-testid="move-up" 
+                                                onClick={() => dispatch(onMoveUp, [activity.id])} 
+                                                disabled={pending} 
+                                                title="Move Up"
+                                            >
+                                                <i className="fa-solid fa-arrow-up"/> Move Up
+                                            </DropdownItem>}
+                                            {onMoveDown && <DropdownItem 
+                                                data-testid="move-down" 
+                                                onClick={() => dispatch(onMoveDown, [activity.id])}  
+                                                disabled={pending} 
+                                                title="Move Down"
+                                            >
+                                                <i className="fa-solid fa-arrow-down"/> Move Down
+                                            </DropdownItem>}
+                                            {onMoveBottom && <DropdownItem 
+                                                data-testid="move-bottom" 
+                                                onClick={() => dispatch(onMoveBottom, [activity.id])}  
+                                                disabled={pending} 
+                                                title="Move to Bottom"
+                                            >
+                                                <i className="fa-solid fa-arrows-down-to-line"/> Move to Bottom
+                                            </DropdownItem>}
+                                            {onSchedule && <DropdownItem 
+                                                data-testid="add-schedule"
+                                                onClick={() => dispatch(onSchedule, [activity.id])}
+                                                disabled={pending} 
+                                                title="Add to Schedule"
+                                            >
+                                                <i className="fa-regular fa-calendar-plus" /> Add to Schedule
+                                            </DropdownItem>}
+                                            {onUnschedule && <DropdownItem 
+                                                data-testid="remove-schedule"
+                                                onClick={() => dispatch(onUnschedule, [activity.id])}
+                                                disabled={pending} 
+                                                title="Remove from Schedule"
+                                            >
+                                                <i className="fa-regular fa-calendar-minus" /> Remove from Schedule
+                                            </DropdownItem>}
+                                            <DropdownItem 
+                                                data-testid="delete-activity" 
+                                                onClick={deleteActivity} 
+                                                disabled={pending}
+                                            >
+                                                <i className="fa-solid fa-trash"/> Delete Activity
+                                            </DropdownItem>
                                         </>
                                     ))}
                                 >
@@ -132,8 +183,10 @@ const ActivityDisplay = ({
                                 </Dropdown>
                             )}
                         </div>
+
+                        {getDescription().split('\n').map((line, index) => <p key={`${line}${index}`}>{line}&nbsp;</p>)}
                         
-                        {(isDescriptionVisible || !allowHideDescription) && activity.description.split('\n').map((line, index) => <p key={`${line}${index}`}>{line}&nbsp;</p>)}
+                        
                         <div 
                             className={css({ 
                                 display: 'flex',
@@ -143,8 +196,8 @@ const ActivityDisplay = ({
                             })}
                         >
                             <div>
-                                {(isDescriptionVisible && allowHideDescription) && <LinkButton data-testid="show-less" onClick={() => setIsDescriptionVisible(false)}>Show less</LinkButton>}
-                                {(!isDescriptionVisible && allowHideDescription) && <LinkButton data-testid="show-more" onClick={() => setIsDescriptionVisible(true)}>Show more</LinkButton>}
+                                {(isDescriptionTruncatable() && isDescriptionVisible && allowHideDescription) && <LinkButton data-testid="show-less" onClick={() => setIsDescriptionVisible(false)}>Show less</LinkButton>}
+                                {(isDescriptionTruncatable() && !isDescriptionVisible && allowHideDescription) && <LinkButton data-testid="show-more" onClick={() => setIsDescriptionVisible(true)}>Show more</LinkButton>}
                             </div>
                             <div>{children}</div>
                         </div>

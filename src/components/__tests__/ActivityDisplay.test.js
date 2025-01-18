@@ -36,30 +36,62 @@ describe('ActivityDisplay', () => {
 
         expect(screen.getByText('Cool Activity')).toBeInTheDocument();
     });
-    it('does not render activity description by default', async () => {
+    it('renders the activity description', async () => {
         render(<ActivityDisplay activity={mockActivity} />);
 
-        expect(screen.queryByText('This is a cool activity')).not.toBeInTheDocument();
-    });
-    it('renders activity description after clicking to show more', async () => {
-        render(<ActivityDisplay activity={mockActivity} />);
-
-        await userEvent.click(screen.getByTestId('show-more'));
         expect(screen.getByText('This is a cool activity')).toBeInTheDocument();
-    });
-    it('does not render activity description after clicking to show less', async () => {
+        expect(screen.queryByTestId('show-more')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('show-less')).not.toBeInTheDocument();
+    })
+    it('it shortens the activity description if it is longer than 97 characters', async () => {
+        mockActivity.description = 'This is a cool activity with a long description that is more than 98 characters long and is really long.';
         render(<ActivityDisplay activity={mockActivity} />);
 
+        expect(screen.getByText('This is a cool activity with a long description that is more than 98 characters long and is really l...')).toBeInTheDocument();
+        expect(screen.queryByTestId('show-more')).toBeInTheDocument();
+        expect(screen.queryByTestId('show-less')).not.toBeInTheDocument();
+    });
+    it('shortens the activity description if it is more than 2 lines', async () => {
+        mockActivity.description = 'This is a cool \nactivity with \na long description that is more than 98 characters long and is really long.';
+        render(<ActivityDisplay activity={mockActivity} />);
+
+        expect(screen.getByText('This is a cool')).toBeInTheDocument();
+        expect(screen.getByText('activity with ...')).toBeInTheDocument();
+        expect(screen.queryByTestId('show-more')).toBeInTheDocument();
+        expect(screen.queryByTestId('show-less')).not.toBeInTheDocument();
+    })
+    it('renders activity full description after clicking to show more', async () => {
+        mockActivity.description = 'This is a cool activity with a long description that is more than 98 characters long and is really long.';
+        render(<ActivityDisplay activity={mockActivity} />);
+
+        expect(screen.getByText('This is a cool activity with a long description that is more than 98 characters long and is really l...')).toBeInTheDocument();
+        
         await userEvent.click(screen.getByTestId('show-more'));
-        expect(screen.getByText('This is a cool activity')).toBeInTheDocument();
+        expect(screen.getByText('This is a cool activity with a long description that is more than 98 characters long and is really long.')).toBeInTheDocument();
+        expect(screen.queryByTestId('show-more')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('show-less')).toBeInTheDocument();
+    });
+    it('truncates the activity description after clicking to show less', async () => {
+        mockActivity.description = 'This is a cool activity with a long description that is more than 98 characters long and is really long.';
+        render(<ActivityDisplay activity={mockActivity} />);
+
+        
+        await userEvent.click(screen.getByTestId('show-more'));
+        expect(screen.getByText('This is a cool activity with a long description that is more than 98 characters long and is really long.')).toBeInTheDocument();
+        expect(screen.queryByTestId('show-more')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('show-less')).toBeInTheDocument();
+
         await userEvent.click(screen.getByTestId('show-less'));
-        expect(screen.queryByText('This is a cool activity')).not.toBeInTheDocument();
+        expect(screen.getByText('This is a cool activity with a long description that is more than 98 characters long and is really l...')).toBeInTheDocument();
     });
 
-    it('shows activity description if allowHideDescription is false', async () => {
+    it('does not truncate the activity description if allowHideDescription is false', async () => {
+        mockActivity.description = 'This is a cool activity with a long description that is more than 98 characters long and is really long.';
         render(<ActivityDisplay activity={mockActivity} allowHideDescription={false} />);
 
-        expect(screen.getByText('This is a cool activity')).toBeInTheDocument();
+        expect(screen.getByText('This is a cool activity with a long description that is more than 98 characters long and is really long.')).toBeInTheDocument();
+        expect(screen.queryByTestId('show-more')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('show-less')).not.toBeInTheDocument();
     })
     
     it('does not display the dropdown if the user is not an editor', async () => {

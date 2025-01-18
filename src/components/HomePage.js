@@ -20,9 +20,10 @@ import { restrictToVerticalAxis, restrictToWindowEdges } from "@dnd-kit/modifier
 const HomePageContainer = ({ activities:initialActivities }) => {
     const { isPublic, isEditor } = useAuth();
     const [ activelyDraggedId, setActivelyDraggedId ] = useState(null);
+    const activationConstraint = { delay: 250, tolerance: 5};
     const sensors = useSensors(
-        useSensor(TouchSensor),
-        useSensor(MouseSensor),
+        useSensor(TouchSensor, {activationConstraint}),
+        useSensor(MouseSensor, {activationConstraint}),
     );
     return (
         <ChangePollingContainer>
@@ -53,9 +54,15 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                             sensors={sensors}
                                             collisionDetection={closestCenter}
                                             onDragStart={event => {
+                                                if (!isEditor()) {
+                                                    return;
+                                                }
                                                 setActivelyDraggedId(event.active.id);
                                             }}
                                             onDragEnd={event => {
+                                                if (!isEditor()) {
+                                                    return;
+                                                }
                                                 setActivelyDraggedId(null);
                                                 const { active, over } = event;
                                                 const activityId = active.id;
@@ -84,7 +91,9 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                         onEdit={editActivity}
                                                         onUnschedule={id => moveActivity(id, 'unschedule', 0)}
                                                         onMoveUp={index !== 0 ? id => moveActivity(id, 'schedule', activity.scheduleIndex - 1) : undefined}
+                                                        onMoveTop={index !== 0 ? id => moveActivity(id, 'schedule', 0) : undefined}
                                                         onMoveDown={index !== scheduledActivities.length - 1 ? id => moveActivity(id, 'schedule', activity.scheduleIndex + 2) : undefined}
+                                                        onMoveBottom={index !== scheduledActivities.length - 1 ? id => moveActivity(id, 'schedule', scheduledActivities.length) : undefined}
                                                         allowHideDescription={index !== 0}
                                                     >
                                                         <Comments 
@@ -126,7 +135,9 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                             onSchedule={id => moveActivity(id, 'schedule', scheduledActivities.length || 0)}
                                                             onEdit={editActivity}
                                                             onMoveUp={index !== 0 ? id => moveActivity(id, 'unschedule', activity.sortIndex - 1) : undefined}
+                                                            onMoveTop={index !== 0 ? id => moveActivity(id, 'unschedule', 0) : undefined}
                                                             onMoveDown={index !== unscheduledActivities.length - 1 ? id => moveActivity(id, 'unschedule', activity.sortIndex + 2) : undefined}
+                                                            onMoveBottom={index !== unscheduledActivities.length - 1 ? id => moveActivity(id, 'unschedule', unscheduledActivities.length) : undefined}
                                                         >
                                                             <Comments 
                                                                 activity={activity}
