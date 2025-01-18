@@ -70,6 +70,31 @@ const ActivityDisplay = ({
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
       } : undefined;
 
+
+
+    const truncatedDescriptionLength = 100;
+
+    function isDescriptionTruncatable() {
+        const minimumCharacterCutoff = 3;
+        const lines = activity.description.split('\n');
+        if (lines.length > 2) {
+            return true;
+        }
+        return allowHideDescription && activity.description.length > truncatedDescriptionLength - minimumCharacterCutoff;
+    }
+
+    function getDescription() {
+        if (isDescriptionVisible || !allowHideDescription) {
+            return activity.description;
+        }
+        let description = activity.description.trim().split('\n').slice(0, 2).join('\n');
+        if (isDescriptionTruncatable()) {
+            description = description.substring(0, truncatedDescriptionLength) + '...';
+        }
+
+        return description;
+    }
+
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners} >
             <Panel >
@@ -158,8 +183,10 @@ const ActivityDisplay = ({
                                 </Dropdown>
                             )}
                         </div>
+
+                        {getDescription().split('\n').map((line, index) => <p key={`${line}${index}`}>{line}&nbsp;</p>)}
                         
-                        {(isDescriptionVisible || !allowHideDescription) && activity.description.split('\n').map((line, index) => <p key={`${line}${index}`}>{line}&nbsp;</p>)}
+                        
                         <div 
                             className={css({ 
                                 display: 'flex',
@@ -169,8 +196,8 @@ const ActivityDisplay = ({
                             })}
                         >
                             <div>
-                                {(isDescriptionVisible && allowHideDescription) && <LinkButton data-testid="show-less" onClick={() => setIsDescriptionVisible(false)}>Show less</LinkButton>}
-                                {(!isDescriptionVisible && allowHideDescription) && <LinkButton data-testid="show-more" onClick={() => setIsDescriptionVisible(true)}>Show more</LinkButton>}
+                                {(isDescriptionTruncatable() && isDescriptionVisible && allowHideDescription) && <LinkButton data-testid="show-less" onClick={() => setIsDescriptionVisible(false)}>Show less</LinkButton>}
+                                {(isDescriptionTruncatable() && !isDescriptionVisible && allowHideDescription) && <LinkButton data-testid="show-more" onClick={() => setIsDescriptionVisible(true)}>Show more</LinkButton>}
                             </div>
                             <div>{children}</div>
                         </div>
