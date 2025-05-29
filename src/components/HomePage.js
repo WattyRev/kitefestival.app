@@ -73,7 +73,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                         >
                                             {!scheduledActivities.length && (<>
                                                 <p className={css({ paddingLeft: '16px'})} data-testid="empty-schedule">There&apos;s nothing happening right now</p>
-                                                {isEditor() && activities.length && <ActivityDropZone bucket="schedule" index={0} id="schedule-empty" text="Drag activities here to schedule them" />}
+                                                {isEditor() && !!activities.length && <ActivityDropZone bucket="schedule" index={0} id="schedule-empty" text="Drag activities here to schedule them" />}
                                             </>)}
                                             {scheduledActivities.map((activity, index) => (
                                                 <div key={activity.id}>
@@ -115,7 +115,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                 <H1 data-testid="unscheduled" className={css({ paddingLeft: '16px', paddingTop: '32px'})}>Unscheduled Activities</H1>
                                                 {!unscheduledActivities.length && (<>
                                                     <p data-testid="empty-unscheduled" className={css({ paddingLeft: '16px'})}>There are no unscheduled activities</p>
-                                                    {isEditor() && activities.length && <ActivityDropZone 
+                                                    {isEditor() && !!activities.length && <ActivityDropZone 
                                                         bucket="unschedule"
                                                         index={0}
                                                         id={"unschedule-empty"}
