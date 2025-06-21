@@ -33,7 +33,7 @@ const ActivityForm = ({ onSubmit, title: defaultTitle = '', description: default
                 <label>Title</label>
                 <TextInput autoFocus={autoFocus} data-testid="title" required value={title} onChange={e => setTitle(e.target.value)} />
                 <label>Description</label>
-                <Textarea data-testid="description" required value={description} onChange={e => setDescription(e.target.value)} />
+                <Textarea data-testid="description" value={description} onChange={e => setDescription(e.target.value)} />
                 <Button data-testid="save-activity" type="submit" disabled={pending}>Save</Button>
                 {onCancel && <Button data-testid="cancel-activity" className="secondary" onClick={onCancel}>Cancel</Button>}
             </Panel>
