@@ -13,8 +13,6 @@ import ActivityForm from "./ActivityForm"
 import LinkButton from "./ui/LinkButton"
 import { useDraggable } from "@dnd-kit/core"
 
-
-
 const ActivityDisplay = ({
     activity,
     onDelete,
@@ -26,7 +24,8 @@ const ActivityDisplay = ({
     onMoveBottom,
     onEdit,
     children,
-    allowHideDescription = true
+    allowHideDescription = true,
+    isGlobalDragging,
 }) => {
     const { isEditor } = useAuth();
     const { openPrompt } = usePrompt();
@@ -184,22 +183,28 @@ const ActivityDisplay = ({
                             )}
                         </div>
 
-                        {getDescription().split('\n').map((line, index) => <p key={`${line}${index}`}>{line}&nbsp;</p>)}
-                        
-                        
-                        <div 
-                            className={css({ 
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'flex-start', 
-                                marginTop: '8px'
-                            })}
-                        >
-                            <div>
-                                {(isDescriptionTruncatable() && isDescriptionVisible && allowHideDescription) && <LinkButton data-testid="show-less" onClick={() => setIsDescriptionVisible(false)}>Show less</LinkButton>}
-                                {(isDescriptionTruncatable() && !isDescriptionVisible && allowHideDescription) && <LinkButton data-testid="show-more" onClick={() => setIsDescriptionVisible(true)}>Show more</LinkButton>}
+                        <div className={`${isGlobalDragging && 'minimal'} ${css({
+                            '&.minimal': {
+                                display: 'none'
+                            }
+                        })}`}>
+                            {getDescription().split('\n').map((line, index) => <p key={`${line}${index}`}>{line}&nbsp;</p>)}
+                            
+                            
+                            <div 
+                                className={css({ 
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'flex-start', 
+                                    marginTop: '8px'
+                                })}
+                            >
+                                <div>
+                                    {(isDescriptionTruncatable() && isDescriptionVisible && allowHideDescription) && <LinkButton data-testid="show-less" onClick={() => setIsDescriptionVisible(false)}>Show less</LinkButton>}
+                                    {(isDescriptionTruncatable() && !isDescriptionVisible && allowHideDescription) && <LinkButton data-testid="show-more" onClick={() => setIsDescriptionVisible(true)}>Show more</LinkButton>}
+                                </div>
+                                <div>{children}</div>
                             </div>
-                            <div>{children}</div>
                         </div>
                     </div>
                 </div>
