@@ -116,7 +116,7 @@ const ActivityDisplay = ({
                                     display: 'flex',
                                 })}
                             >
-                                {isEditor && scheduleIndex !== null && <input className={css({ width: '25px', border: '1px solid gray', borderRadius: '4px', textAlign: 'center', marginRight: '4px' })} value={scheduleIndex} 
+                                {isEditor() && scheduleIndex !== null && <input className={css({ width: '25px', border: '1px solid gray', borderRadius: '4px', textAlign: 'center', marginRight: '4px' })} value={scheduleIndex} 
                                     onChange={e => {
                                         setScheduleIndex(e.target.value);
                                         const number = parseInt(e.target.value);
