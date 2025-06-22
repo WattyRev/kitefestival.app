@@ -94,6 +94,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                         onMoveTop={index !== 0 ? id => moveActivity(id, 'schedule', 0) : undefined}
                                                         onMoveDown={index !== scheduledActivities.length - 1 ? id => moveActivity(id, 'schedule', activity.scheduleIndex + 2) : undefined}
                                                         onMoveBottom={index !== scheduledActivities.length - 1 ? id => moveActivity(id, 'schedule', scheduledActivities.length) : undefined}
+                                                        onMoveTo={index => moveActivity(activity.id, 'schedule', parseInt(index))}
                                                         allowHideDescription={index !== 0}
                                                         isGlobalDragging={!!activelyDraggedId}
                                                     >
