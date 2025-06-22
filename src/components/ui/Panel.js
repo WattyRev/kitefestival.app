@@ -1,14 +1,16 @@
 import React from 'react';
 import { css } from '../../../styled-system/css';
 
-const Panel = ({ children, ...props }) => {
+const styles = css({ 
+    background: 'sectionBackground',
+    padding: '8px 16px',
+    margin: '8px 0',
+})
+
+const Panel = ({ children, className = '', ...props }) => {
     return (
         <div 
-            className={css({ 
-                background: 'sectionBackground',
-                padding: '8px 16px',
-                margin: '8px 0',
-            })}
+            className={`${styles} ${className}`}
             {...props}
         >
             {children}

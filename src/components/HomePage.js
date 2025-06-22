@@ -95,6 +95,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                         onMoveDown={index !== scheduledActivities.length - 1 ? id => moveActivity(id, 'schedule', activity.scheduleIndex + 2) : undefined}
                                                         onMoveBottom={index !== scheduledActivities.length - 1 ? id => moveActivity(id, 'schedule', scheduledActivities.length) : undefined}
                                                         allowHideDescription={index !== 0}
+                                                        isGlobalDragging={!!activelyDraggedId}
                                                     >
                                                         <Comments 
                                                             activity={activity}
