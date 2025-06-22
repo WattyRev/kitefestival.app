@@ -2,7 +2,7 @@
 
 import Panel from "./ui/Panel"
 import H2 from "./ui/H2"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useAuth } from "./global/Auth"
 import { usePrompt } from "./ui/Prompt"
 import { css } from "../../styled-system/css"
@@ -22,6 +22,7 @@ const ActivityDisplay = ({
     onMoveDown,
     onMoveTop,
     onMoveBottom,
+    onMoveTo,
     onEdit,
     children,
     allowHideDescription = true,
@@ -33,6 +34,11 @@ const ActivityDisplay = ({
 
     const [pending, setPending] = useState(false);
     const [ isEditing, setIsEditing ] = useState(false);
+    const [ scheduleIndex, setScheduleIndex ] = useState(activity.scheduleIndex + 1);
+
+    useEffect(() => {
+        setScheduleIndex(activity.scheduleIndex + 1);
+    }, [activity.scheduleIndex])
 
     async function deleteActivity() {
         try {
@@ -93,7 +99,7 @@ const ActivityDisplay = ({
 
         return description;
     }
-
+    console.log('activity', activity);
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners} >
             <Panel >
@@ -106,7 +112,27 @@ const ActivityDisplay = ({
                             justifyContent: 'space-between',
                             alignItems: 'flex-start'
                         })}>
-                            <H2>{activity.title}</H2>
+                            <H2
+                                className={css({
+                                    display: 'flex',
+                                })}
+                            >
+                                {isEditor && scheduleIndex !== null && <input className={css({ width: '25px', border: '1px solid gray', borderRadius: '4px', textAlign: 'center', marginRight: '4px' })} value={scheduleIndex} 
+                                    onChange={e => {
+                                        setScheduleIndex(e.target.value);
+                                        const number = parseInt(e.target.value);
+                                        if (!isNaN(number)) {
+                                            if (number < activity.scheduleIndex + 1) {
+                                                onMoveTo(number - 1);
+                                            } else {
+                                                onMoveTo(number);
+                                            }
+                                            
+                                        }
+                                    }}
+                                />}
+                                {activity.title}
+                            </H2>
                             {isEditor() && (
                                 <Dropdown
                                     dropdownContent={(() => (
@@ -189,7 +215,6 @@ const ActivityDisplay = ({
                             }
                         })}`}>
                             {getDescription().split('\n').map((line, index) => <p key={`${line}${index}`}>{line}&nbsp;</p>)}
-                            
                             
                             <div 
                                 className={css({ 
