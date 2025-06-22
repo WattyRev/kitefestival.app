@@ -99,7 +99,6 @@ const ActivityDisplay = ({
 
         return description;
     }
-    console.log('activity', activity);
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners} >
             <Panel >
