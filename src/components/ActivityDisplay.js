@@ -32,12 +32,12 @@ const ActivityDisplay = ({
     const { openPrompt } = usePrompt();
     const [ isDescriptionVisible, setIsDescriptionVisible ] = useState(false);
 
-    const [pending, setPending] = useState(false);
+    const [ pending, setPending ] = useState(false);
     const [ isEditing, setIsEditing ] = useState(false);
-    const [ scheduleIndex, setScheduleIndex ] = useState(activity.scheduleIndex + 1);
+    const [ scheduleIndex, setScheduleIndex ] = useState(activity.scheduleIndex !== null ? activity.scheduleIndex + 1 : null);
 
     useEffect(() => {
-        setScheduleIndex(activity.scheduleIndex + 1);
+        setScheduleIndex(activity.scheduleIndex !== null ? activity.scheduleIndex + 1 : null);
     }, [activity.scheduleIndex])
 
     async function deleteActivity() {
@@ -116,20 +116,25 @@ const ActivityDisplay = ({
                                     display: 'flex',
                                 })}
                             >
-                                {isEditor() && scheduleIndex !== null && <input className={css({ width: '25px', border: '1px solid gray', borderRadius: '4px', textAlign: 'center', marginRight: '4px' })} value={scheduleIndex} 
-                                    onChange={e => {
-                                        setScheduleIndex(e.target.value);
-                                        const number = parseInt(e.target.value);
-                                        if (!isNaN(number)) {
-                                            if (number < activity.scheduleIndex + 1) {
-                                                onMoveTo(number - 1);
-                                            } else {
-                                                onMoveTo(number);
+                                {isEditor() && scheduleIndex !== null && 
+                                    <input 
+                                        data-testid="schedule-index" 
+                                        className={css({ width: '25px', border: '1px solid gray', borderRadius: '4px', textAlign: 'center', marginRight: '4px' })} 
+                                        value={scheduleIndex} 
+                                        onChange={e => {
+                                            setScheduleIndex(e.target.value);
+                                            const number = parseInt(e.target.value);
+                                            if (!isNaN(number) && e.target.value !== '') {
+                                                if (number < activity.scheduleIndex + 1) {
+                                                    onMoveTo(number - 1);
+                                                } else {
+                                                    onMoveTo(number);
+                                                }
+                                                
                                             }
-                                            
-                                        }
-                                    }}
-                                />}
+                                        }}
+                                    />
+                                }
                                 {activity.title}
                             </H2>
                             {isEditor() && (

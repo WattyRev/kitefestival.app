@@ -222,4 +222,58 @@ describe('ActivityDisplay', () => {
         doResolve();
         await waitFor(() => expect(screen.getByTestId('move-down')).not.toHaveAttribute('disabled'));
     });
+
+    describe('index display and sorting', () => {
+        let onMoveTo;
+        beforeEach(() => {
+            useAuth.mockReturnValue({
+                isEditor: jest.fn().mockReturnValue(true)
+            });
+            onMoveTo = jest.fn().mockImplementation(() => {
+                return new Promise(resolve => {
+                    doResolve = resolve;
+                })
+            });
+            mockActivity.scheduleIndex = 0;
+        })
+        it('displays the position number of the scheduled activity, starting at 1', async () => {
+            render(<ActivityDisplay activity={mockActivity} onMoveTo={onMoveTo} />);
+
+            expect(screen.getByTestId('schedule-index')).toHaveValue('1');
+        });
+        it('does not display the position number if the activity is not scheduled', async () => {
+            mockActivity.scheduleIndex = null;
+
+            render(<ActivityDisplay activity={mockActivity} onMoveTo={onMoveTo} />);
+
+            expect(screen.queryByTestId('schedule-index')).toBeNull();
+        });
+        it('does not display the user is not an editor', async () => {
+            useAuth.mockReturnValue({
+                isEditor: jest.fn().mockReturnValue(false)
+            });
+
+            render(<ActivityDisplay activity={mockActivity} onMoveTo={onMoveTo} />);
+
+            expect(screen.queryByTestId('schedule-index')).toBeNull();
+        });
+        it('updates the scheduleIndex when the number is changed', async () => {
+            render(<ActivityDisplay activity={mockActivity} onMoveTo={onMoveTo} />);
+
+            await userEvent.click(screen.getByTestId('schedule-index'));
+            await userEvent.clear(screen.getByTestId('schedule-index'));
+            await userEvent.type(screen.getByTestId('schedule-index'), '2');
+            expect(onMoveTo).toHaveBeenCalledWith(2);
+        });
+        it('updates the scheduleIndex with the new value - 1 when moving up the schedule', async () => {
+            mockActivity.scheduleIndex = 5;
+
+            render(<ActivityDisplay activity={mockActivity} onMoveTo={onMoveTo} />);
+
+            await userEvent.click(screen.getByTestId('schedule-index'));
+            await userEvent.clear(screen.getByTestId('schedule-index'));
+            await userEvent.type(screen.getByTestId('schedule-index'), '2');
+            expect(onMoveTo).toHaveBeenCalledWith(1);
+        });
+    });
 })
