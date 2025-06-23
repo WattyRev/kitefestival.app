@@ -18,7 +18,7 @@ import ActivityDropZone from "./ActivityDropZone";
 import { restrictToVerticalAxis, restrictToWindowEdges } from "@dnd-kit/modifiers";
 
 const HomePageContainer = ({ activities:initialActivities }) => {
-    const { isPublic, isEditor } = useAuth();
+    const { isEditor } = useAuth();
     const [ activelyDraggedId, setActivelyDraggedId ] = useState(null);
     const activationConstraint = { delay: 250, tolerance: 5};
     const sensors = useSensors(
@@ -113,7 +113,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                     />}
                                                 </div>
                                             ))}
-                                            {!isPublic() && (<>
+                                            {isEditor() && (<>
                                                 <H1 data-testid="unscheduled" className={css({ paddingLeft: '16px', paddingTop: '32px'})}>Unscheduled Activities</H1>
                                                 {!unscheduledActivities.length && (<>
                                                     <p data-testid="empty-unscheduled" className={css({ paddingLeft: '16px'})}>There are no unscheduled activities</p>
