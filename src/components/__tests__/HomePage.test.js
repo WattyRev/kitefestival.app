@@ -7,6 +7,7 @@ import Comments from "../Comments";
 import ActivityForm from "../ActivityForm";
 import { useAuth } from "../global/Auth";
 import HomePage from '../HomePage';
+import EventsContainer from '../EventsContainer';
 
 jest.mock('../ActivitiesContainer');
 jest.mock('../ChangePollingContainer');
@@ -15,11 +16,22 @@ jest.mock('../ActivityDisplay');
 jest.mock('../Comments');
 jest.mock('../ActivityForm');
 jest.mock('../global/Auth');
+jest.mock('../EventsContainer');
 
 
 describe('HomePage', () => {
     beforeEach(() => {
         ChangePollingContainer.mockImplementation(({ children }) => <>{children}</>);
+        EventsContainer.mockImplementation(({ children }) => {
+            return children({
+                events: [],
+                activeEvent: null,
+                isLoading: false,
+                createEvent: jest.fn(),
+                deleteEvent: jest.fn(),
+                setActiveEvent: jest.fn(),
+            });
+        });
         ActivitiesContainer.mockImplementation(({ children }) => {
             return children({
                 scheduledActivities: [],
@@ -54,8 +66,7 @@ describe('HomePage', () => {
         render(<HomePage />);
         expect(screen.getByTestId('empty-unscheduled')).toBeInTheDocument();
         expect(screen.queryByTestId('activity-display')).not.toBeInTheDocument();
-    });
-    it('renders an ActivityDisplay for each unscheduledActivity', async () => {
+    });    it('renders an ActivityDisplay for each unscheduledActivity', async () => {
         ActivitiesContainer.mockImplementation(({ children }) => {
             const scheduledActivities = [];
             const unscheduledActivities = [{
@@ -73,7 +84,7 @@ describe('HomePage', () => {
                 activities: [...scheduledActivities, ...unscheduledActivities],
                 isLoading: false,
                 createActivity: jest.fn(),
-                deleteActivit: jest.fn(),
+                deleteActivity: jest.fn(),
             });
         });
 
@@ -81,9 +92,7 @@ describe('HomePage', () => {
 
         expect(screen.getAllByTestId('activity-display')).toHaveLength(2);
         expect(screen.getAllByTestId('comments')).toHaveLength(2);
-    });
-
-    it('renders an ActivityDisplay for each scheduledActivity', async () => {
+    });    it('renders an ActivityDisplay for each scheduledActivity', async () => {
         ActivitiesContainer.mockImplementation(({ children }) => {
             const scheduledActivities = [{
                 id: 1,
@@ -101,7 +110,7 @@ describe('HomePage', () => {
                 activities: [...scheduledActivities, ...unscheduledActivities],
                 isLoading: false,
                 createActivity: jest.fn(),
-                deleteActivit: jest.fn(),
+                deleteActivity: jest.fn(),
             });
         });
 
@@ -140,12 +149,11 @@ describe('HomePage', () => {
                             id: 4,
                             name: 'Activity 4',
                             description: 'Description 4',
-                            sortIndex: 3
-                        }
+                            sortIndex: 3                        }
                     ],
                     isLoading: false,
                     createActivity: jest.fn(),
-                    deleteActivit: jest.fn(),
+                    deleteActivity: jest.fn(),
                     moveActivityUp: jest.fn(),
                     moveActivityDown: jest.fn(),
                 });
@@ -205,11 +213,10 @@ describe('HomePage', () => {
                             name: 'Activity 4',
                             description: 'Description 4',
                             sortIndex: 3
-                        }
-                    ],
+                        }                    ],
                     isLoading: false,
                     createActivity: jest.fn(),
-                    deleteActivit: jest.fn(),
+                    deleteActivity: jest.fn(),
                     moveActivityUp: jest.fn(),
                     moveActivityDown: jest.fn(),
                 });

@@ -1,4 +1,4 @@
-import { createContext, useEffect, useReducer, useState } from "react";
+import { createContext, useEffect, useReducer, useState, useCallback } from "react";
 import fetch from '../util/fetch';
 import { useAlert } from "./ui/Alert";
 import { useChangePolling } from "./ChangePollingContainer";
@@ -117,7 +117,7 @@ function reindexActivities(activities) {
     return { changedActivities, newActivities };
 }
 
-const ActivitiesContainer = ({ children, initialActivities }) => {
+const ActivitiesContainer = ({ children, initialActivities, eventId = null }) => {
     const [activitiesData, dispatch] = useReducer(ActivitiesReducer, {
         activities: initialActivities,
         scheduledActivities: initialActivities.filter(activity => activity.scheduleIndex !== null),
@@ -129,42 +129,43 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
 
     const fetchActivities = async () => {
         setIsLoading(true);
-        const activitiesResponse = await fetch('/api/activities')
+        const url = eventId ? `/api/activities?eventId=${eventId}` : '/api/activities';
+        const activitiesResponse = await fetch(url);
         const activitiesJson = await activitiesResponse.json();
         const { activities } = activitiesJson;
         dispatch({ type: 'refresh', newState: {
             activities, 
             scheduledActivities: activities.filter(activity => activity.scheduleIndex !== null), 
             unscheduledActivities: activities.filter(activity => activity.scheduleIndex === null)
-        }});
-        setIsLoading(false);
+        }});        setIsLoading(false);
     }
 
-    const checkForUpdates = async () => {
+    const checkForUpdates = useCallback(async () => {
         const newerChanges = changes.filter(change => new Date(change.updated).getTime() > lastUpdate && change.tablename === 'activities');
         if (!newerChanges.length) {
             return;
         }
         lastUpdate = new Date().getTime();
         return fetchActivities();
-    }
-
-    useEffect(() => {
+    }, [changes, fetchActivities]);    useEffect(() => {
         checkForUpdates();
-    }, [changes])
+    }, [changes, checkForUpdates])
 
     const childData = {
         activities: activitiesData.activities,
         scheduledActivities: activitiesData.scheduledActivities,
         unscheduledActivities: activitiesData.unscheduledActivities,
-        isLoading,
-        createActivity: async ({ title, description }) => {
+        isLoading,        createActivity: async ({ title, description }) => {
+            const body = { title, description };
+            if (eventId) {
+                body.eventId = eventId;
+            }
             const response = await fetch('/api/activities', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ title, description })
+                body: JSON.stringify(body)
             })
             if (!response.ok) {
                 openAlert('Failed to create activity', 'error');

@@ -1,4 +1,4 @@
-import { createContext, useEffect, useReducer, useState } from "react";
+import { createContext, useEffect, useReducer, useState, useCallback } from "react";
 import fetch from '../util/fetch';
 import { useAlert } from "./ui/Alert";
 import { useChangePolling } from "./ChangePollingContainer";
@@ -89,7 +89,7 @@ const CommentsReducer = (state, action) => {
     }
 }
 
-const CommentsContainer = ({ children }) => {
+const CommentsContainer = ({ children, eventId = null }) => {
     const [commentsData, dispatch] = useReducer(CommentsReducer, {
         comments: [],
         commentsByActivityId: {}
@@ -105,7 +105,8 @@ const CommentsContainer = ({ children }) => {
             return;
         }
         setIsLoading(true);
-        const commentsResponse = await fetch('/api/comments')
+        const url = eventId ? `/api/comments?eventId=${eventId}` : '/api/comments';
+        const commentsResponse = await fetch(url);
         const commentsJson = await commentsResponse.json();
         const { comments } = commentsJson;
         dispatch({ type: 'refresh', newState: {
@@ -118,11 +119,10 @@ const CommentsContainer = ({ children }) => {
                 return acc;
             }, {}),
         }});
-        setLastUpdate(new Date().getTime());
-        setIsLoading(false);
+        setLastUpdate(new Date().getTime());        setIsLoading(false);
     }
 
-    const checkForUpdates = async () => {
+    const checkForUpdates = useCallback(async () => {
         if (!lastUpdate) {
             return fetchComments();
         }
@@ -131,11 +131,9 @@ const CommentsContainer = ({ children }) => {
             return;
         }
         return fetchComments();
-    }
-
-    useEffect(() => {
+    }, [lastUpdate, changes, fetchComments]);    useEffect(() => {
         checkForUpdates();
-      }, [auth.userType, changes, lastUpdate])
+      }, [auth.userType, changes, lastUpdate, checkForUpdates])
 
     const childData = {
         comments: commentsData.comments,

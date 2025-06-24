@@ -22,8 +22,7 @@ describe('activities/route', () => {
             get: mockGetCookie
         })
     })
-    describe('GET', () => {
-        it('should return a list of activities', async () => {
+    describe('GET', () => {        it('should return a list of activities', async () => {
             sql.mockResolvedValue({ rows: [{
                 id: '1',
                 title: 'boogers',
@@ -31,10 +30,14 @@ describe('activities/route', () => {
                 sortindex: 1,
                 scheduleindex: null
             }] });
-            const response = await GET();
-            expect(response).toEqual({ data: {
-                activities: [{ id: '1', title: 'boogers', description: 'green things', sortIndex: 1, scheduleIndex: null }]
-            }});
+            const mockReq = {
+                url: 'http://localhost:3000/api/activities'
+            };            const response = await GET(mockReq);
+            expect(response).toEqual({
+                data: {
+                    activities: [{ id: '1', title: 'boogers', description: 'green things', sortIndex: 1, scheduleIndex: null, eventId: undefined }]
+                }
+            });
         });
     });
     describe('POST', () => {
@@ -76,8 +79,7 @@ describe('activities/route', () => {
             };
             const response = await POST(mockReq);
             expect(response).toEqual({ data: {message: 'No title provided' }, status: 400 });
-        });
-        it('inserts the activity and returns it', async () => {
+        });        it('inserts the activity and returns it', async () => {
             sql.mockResolvedValue({ rows: []});
             const mockReq = {
                 json: jest.fn().mockResolvedValue({ 
@@ -86,16 +88,16 @@ describe('activities/route', () => {
                 })
             };
             await POST(mockReq);
+            expect(sql).toHaveBeenCalledWith(['SELECT (sortIndex) FROM activities WHERE eventId IS NULL ORDER BY sortIndex DESC LIMIT 1']);
             expect(sql).toHaveBeenCalledWith([
-                'INSERT INTO activities (id, title, description, sortIndex, scheduleIndex) VALUES (',
+                'INSERT INTO activities (id, title, description, sortIndex, scheduleIndex, eventId) VALUES (',
                 ', ',
                 ', ',
                 ', ',
-                ', null)'
-            ], expect.anything(), 'boogers', 'green things', 0);
-        });
-
-        it('sets the sort index based on what already exists in the table', async () => {
+                ', null, ',
+                ')'
+            ], 'uuid', 'boogers', 'green things', 0, null);
+        });        it('sets the sort index based on what already exists in the table', async () => {
             sql.mockResolvedValue({ rows: [{ sortindex: 5 }]});
             const mockReq = {
                 json: jest.fn().mockResolvedValue({ 
@@ -104,13 +106,15 @@ describe('activities/route', () => {
                 })
             };
             await POST(mockReq);
+            expect(sql).toHaveBeenCalledWith(['SELECT (sortIndex) FROM activities WHERE eventId IS NULL ORDER BY sortIndex DESC LIMIT 1']);
             expect(sql).toHaveBeenCalledWith([
-                'INSERT INTO activities (id, title, description, sortIndex, scheduleIndex) VALUES (',
+                'INSERT INTO activities (id, title, description, sortIndex, scheduleIndex, eventId) VALUES (',
                 ', ',
                 ', ',
                 ', ',
-                ', null)'
-            ], expect.anything(), 'boogers', 'green things', 6);
+                ', null, ',
+                ')'
+            ], 'uuid', 'boogers', 'green things', 6, null);
         });
     });
     describe('PATCH', () => {

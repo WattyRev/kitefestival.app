@@ -16,8 +16,9 @@ import { closestCenter, DndContext, MouseSensor, TouchSensor, useSensor, useSens
 import ActivityDrop from "./ActivityDrop";
 import ActivityDropZone from "./ActivityDropZone";
 import { restrictToVerticalAxis, restrictToWindowEdges } from "@dnd-kit/modifiers";
+import EventsContainer from "./EventsContainer";
 
-const HomePageContainer = ({ activities:initialActivities }) => {
+const HomePageContainer = ({ activities: initialActivities = [], events: initialEvents = [] }) => {
     const { isEditor } = useAuth();
     const [ activelyDraggedId, setActivelyDraggedId ] = useState(null);
     const activationConstraint = { delay: 250, tolerance: 5};
@@ -27,29 +28,57 @@ const HomePageContainer = ({ activities:initialActivities }) => {
     );
     return (
         <ChangePollingContainer>
-            <ActivitiesContainer initialActivities={initialActivities}>
-                {({ 
-                    activities,
-                    scheduledActivities,
-                    unscheduledActivities,
-                    isLoading: isLoadingActivities,
-                    createActivity,
-                    editActivity,
-                    deleteActivity,
-                    moveActivity,
-                }) => (
-                    <CommentsContainer>
-                        {({
-                            commentsByActivityId,
-                            isLoading: isLoadingComments,
-                            createComment,
-                            deleteComment,
-                            editComment
+            <EventsContainer initialEvents={initialEvents}>
+                {({ activeEvent }) => (
+                    <ActivitiesContainer initialActivities={initialActivities} eventId={activeEvent?.id}>
+                        {({ 
+                            activities,
+                            scheduledActivities,
+                            unscheduledActivities,
+                            isLoading: isLoadingActivities,
+                            createActivity,
+                            editActivity,
+                            deleteActivity,
+                            moveActivity,
                         }) => (
-                            <Suspense>
-                                <PaneProvider>
-                                    <LoadingBar isLoading={isLoadingActivities || isLoadingComments} />
-                                    <div data-testid="home-page">
+                            <CommentsContainer eventId={activeEvent?.id}>
+                                {({
+                                    commentsByActivityId,
+                                    isLoading: isLoadingComments,
+                                    createComment,
+                                    deleteComment,
+                                    editComment
+                                }) => (
+                                    <Suspense>
+                                        <PaneProvider>
+                                            <LoadingBar isLoading={isLoadingActivities || isLoadingComments} />
+                                            <div data-testid="home-page">
+                                                {activeEvent && (
+                                                    <div className={css({ 
+                                                        padding: '16px', 
+                                                        backgroundColor: '#e3f2fd', 
+                                                        borderBottom: '1px solid #ddd',
+                                                        marginBottom: '16px' 
+                                                    })}>
+                                                        <H1 className={css({ margin: 0 })}>{activeEvent.title}</H1>
+                                                        <p className={css({ margin: '4px 0 0 0', fontSize: '14px', color: '#666' })}>
+                                                            {new Date(activeEvent.startDate).toLocaleDateString()} - {new Date(activeEvent.endDate).toLocaleDateString()}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                                {!activeEvent && (
+                                                    <div className={css({ 
+                                                        padding: '16px', 
+                                                        backgroundColor: '#fff3cd', 
+                                                        borderBottom: '1px solid #ddd',
+                                                        marginBottom: '16px' 
+                                                    })}>
+                                                        <H1 className={css({ margin: 0 })}>No Active Event</H1>
+                                                        <p className={css({ margin: '4px 0 0 0', fontSize: '14px', color: '#666' })}>
+                                                            Please create and activate an event to manage activities.
+                                                        </p>
+                                                    </div>
+                                                )}
                                         <DndContext
                                             sensors={sensors}
                                             collisionDetection={closestCenter}
@@ -156,16 +185,16 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                         />}
                                                     </div>
                                                 ))}
-                                            </>)}
-                                        </DndContext>
-                                        <ActivityForm onSubmit={createActivity} />
-                                    </div>
+                                            </>)}                                        </DndContext>
+                                        <ActivityForm onSubmit={createActivity} />                                    </div>
                                 </PaneProvider>
                             </Suspense>
                         )}
                     </CommentsContainer>
                 )}  
             </ActivitiesContainer>
+                )}
+            </EventsContainer>
         </ChangePollingContainer>
     )
 }

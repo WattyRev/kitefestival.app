@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import { AlertProvider, useAlert } from '../Alert';
 import userEvent from '@testing-library/user-event';
 import setTimeout from '../../../util/setTimeout';
@@ -57,20 +57,21 @@ describe('Alert', () => {
 
     it('closes the alert after 5 seconds', async () => {
         let finishTimer;
-        setTimeout.mockImplementation(callback => finishTimer = callback);
-        const MockConsumer = () => {
+        setTimeout.mockImplementation(callback => finishTimer = callback);        const MockConsumer = () => {
             const { openAlert } = useAlert();
             return <button data-testid="open-alert" onClick={() => openAlert('boogers', 'error')}>Open Alert</button>
-        }
+        };
         render(
             <AlertProvider>
                 <MockConsumer />
             </AlertProvider>
-        )
+        );
 
         await userEvent.click(screen.getByTestId('open-alert'));
         expect(screen.queryAllByTestId('alert-container')).toHaveLength(1);
-        await finishTimer();
+        await act(async () => {
+            await finishTimer();
+        });
         await waitFor(() => expect(screen.queryAllByTestId('alert-container')).toHaveLength(0));
     });
     it('closes the alert when the user clicks the close button', async () => {
