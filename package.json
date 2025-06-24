@@ -3,25 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "prepare": "panda codegen && husky install",
+    "prepare": "panda codegen && husky init",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "pre-commit": "next lint"
+    "pre-commit": "next lint && jest"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/modifiers": "^9.0.0",
     "@vercel/postgres": "^0.10.0",
     "@vercel/speed-insights": "^1.1.0",
-    "next": "14.2.11",
+    "next": "^14.2.30",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
-    "@pandacss/dev": "^0.46.0",
+    "@pandacss/dev": "^0.54.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
