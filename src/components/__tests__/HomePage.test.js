@@ -17,29 +17,58 @@ jest.mock('../ActivityForm');
 jest.mock('../global/Auth');
 
 
-describe('HomePage', () => {
-    beforeEach(() => {
+describe('HomePage', () => {    beforeEach(() => {
         ChangePollingContainer.mockImplementation(({ children }) => <>{children}</>);
         ActivitiesContainer.mockImplementation(({ children }) => {
-            return children({
-                scheduledActivities: [],
-                unscheduledActivities: [],
-                activities: [],
-                isLoading: false,
-                createActivity: jest.fn(),
-                deleteActivity: jest.fn(),
-                moveActivityUp: jest.fn(),
-                moveActivityDown: jest.fn(),
-            });
+            // Handle the case where children is an array with a function (due to JSX whitespace)
+            let renderFunction = null;
+            if (typeof children === 'function') {
+                renderFunction = children;
+            } else if (Array.isArray(children)) {
+                // Find the function in the children array
+                renderFunction = children.find(child => typeof child === 'function');
+            }
+            
+            if (renderFunction) {
+                return renderFunction({
+                    scheduledActivities: [],
+                    unscheduledActivities: [],
+                    activities: [],
+                    isLoading: false,
+                    createActivity: jest.fn(),
+                    editActivity: jest.fn(),
+                    deleteActivity: jest.fn(),
+                    moveActivity: jest.fn(),
+                    moveActivityUp: jest.fn(),
+                    moveActivityDown: jest.fn(),
+                    undoLastMove: jest.fn(),
+                    hasUndo: false,
+                    undoCount: 0,
+                    clearUndo: jest.fn(),
+                });
+            }
+            return <div data-testid="activities-container">Mock ActivitiesContainer</div>;
         });
         CommentsContainer.mockImplementation(({ children }) => {
-            return children({
-                commentsByActivityId: {},
-                isLoading: false,
-                createComment: jest.fn(),
-                deleteComment: jest.fn(),
-                editComment: jest.fn(),
-            });
+            // Handle the case where children is an array with a function (due to JSX whitespace)
+            let renderFunction = null;
+            if (typeof children === 'function') {
+                renderFunction = children;
+            } else if (Array.isArray(children)) {
+                // Find the function in the children array
+                renderFunction = children.find(child => typeof child === 'function');
+            }
+            
+            if (renderFunction) {
+                return renderFunction({
+                    commentsByActivityId: {},
+                    isLoading: false,
+                    createComment: jest.fn(),
+                    deleteComment: jest.fn(),
+                    editComment: jest.fn(),
+                });
+            }
+            return <div data-testid="comments-container">{children}</div>;
         });
         ActivityDisplay.mockImplementation(({ children }) => (<div data-testid="activity-display" >{children}</div>));
         Comments.mockReturnValue(<div data-testid="comments" />);
@@ -54,9 +83,7 @@ describe('HomePage', () => {
         render(<HomePage />);
         expect(screen.getByTestId('empty-unscheduled')).toBeInTheDocument();
         expect(screen.queryByTestId('activity-display')).not.toBeInTheDocument();
-    });
-    it('renders an ActivityDisplay for each unscheduledActivity', async () => {
-        ActivitiesContainer.mockImplementation(({ children }) => {
+    });    it('renders an ActivityDisplay for each unscheduledActivity', async () => {        ActivitiesContainer.mockImplementation(({ children }) => {
             const scheduledActivities = [];
             const unscheduledActivities = [{
                 id: 1,
@@ -67,24 +94,41 @@ describe('HomePage', () => {
                 name: 'Activity 2',
                 description: 'Description 2'
             }];
-            return children({
-                scheduledActivities,
-                unscheduledActivities,
-                activities: [...scheduledActivities, ...unscheduledActivities],
-                isLoading: false,
-                createActivity: jest.fn(),
-                deleteActivit: jest.fn(),
-            });
+            
+            // Handle the case where children is an array with a function (due to JSX whitespace)
+            let renderFunction = null;
+            if (typeof children === 'function') {
+                renderFunction = children;
+            } else if (Array.isArray(children)) {
+                renderFunction = children.find(child => typeof child === 'function');
+            }
+            
+            if (renderFunction) {
+                return renderFunction({
+                    scheduledActivities,
+                    unscheduledActivities,
+                    activities: [...scheduledActivities, ...unscheduledActivities],
+                    isLoading: false,
+                    createActivity: jest.fn(),
+                    deleteActivity: jest.fn(),
+                    editActivity: jest.fn(),
+                    moveActivity: jest.fn(),
+                    moveActivityUp: jest.fn(),
+                    moveActivityDown: jest.fn(),
+                    undoLastMove: jest.fn(),
+                    hasUndo: false,
+                    undoCount: 0,
+                    clearUndo: jest.fn(),
+                });
+            }
+            return <div data-testid="activities-container">{children}</div>;
         });
 
         render(<HomePage />);
 
         expect(screen.getAllByTestId('activity-display')).toHaveLength(2);
         expect(screen.getAllByTestId('comments')).toHaveLength(2);
-    });
-
-    it('renders an ActivityDisplay for each scheduledActivity', async () => {
-        ActivitiesContainer.mockImplementation(({ children }) => {
+    });    it('renders an ActivityDisplay for each scheduledActivity', async () => {        ActivitiesContainer.mockImplementation(({ children }) => {
             const scheduledActivities = [{
                 id: 1,
                 name: 'Activity 1',
@@ -93,62 +137,96 @@ describe('HomePage', () => {
                 id: 2,
                 name: 'Activity 2',
                 description: 'Description 2'
-            }];
-            const unscheduledActivities = [];
-            return children({
-                scheduledActivities,
-                unscheduledActivities,
-                activities: [...scheduledActivities, ...unscheduledActivities],
-                isLoading: false,
-                createActivity: jest.fn(),
-                deleteActivit: jest.fn(),
-            });
+            }];            const unscheduledActivities = [];
+            
+            // Handle the case where children is an array with a function (due to JSX whitespace)
+            let renderFunction = null;
+            if (typeof children === 'function') {
+                renderFunction = children;
+            } else if (Array.isArray(children)) {
+                renderFunction = children.find(child => typeof child === 'function');
+            }
+            
+            if (renderFunction) {
+                return renderFunction({
+                    scheduledActivities,
+                    unscheduledActivities,
+                    activities: [...scheduledActivities, ...unscheduledActivities],
+                    isLoading: false,
+                    createActivity: jest.fn(),
+                    deleteActivity: jest.fn(),
+                    editActivity: jest.fn(),
+                    moveActivity: jest.fn(),
+                    moveActivityUp: jest.fn(),
+                    moveActivityDown: jest.fn(),
+                    undoLastMove: jest.fn(),
+                    hasUndo: false,
+                    undoCount: 0,
+                    clearUndo: jest.fn(),
+                });
+            }
+            return <div data-testid="activities-container">{children}</div>;
         });
 
         render(<HomePage />);
 
         expect(screen.getAllByTestId('activity-display')).toHaveLength(2);
         expect(screen.getAllByTestId('comments')).toHaveLength(2);
-    });
-    
-    describe('move up', () => {
+    });    describe('move up', () => {
         beforeEach(() => {
             ActivitiesContainer.mockImplementation(({ children }) => {
-                return children({
-                    scheduledActivities: [
-                        {
-                            id: 1,
-                            name: 'Activity 1',
-                            description: 'Description 1',
-                            scheduleIndex: 0
-                        },
-                        {
-                            id: 2,
-                            name: 'Activity 2',
-                            description: 'Description 2',
-                            scheduleIndex: 1
-                        }
-                    ],
-                    unscheduledActivities: [
-                        {
-                            id: 3,
-                            name: 'Activity 3',
-                            description: 'Description 3',
-                            sortIndex: 2
-                        },
-                        {
-                            id: 4,
-                            name: 'Activity 4',
-                            description: 'Description 4',
-                            sortIndex: 3
-                        }
-                    ],
-                    isLoading: false,
-                    createActivity: jest.fn(),
-                    deleteActivit: jest.fn(),
-                    moveActivityUp: jest.fn(),
-                    moveActivityDown: jest.fn(),
-                });
+                // Handle the case where children is an array with a function (due to JSX whitespace)
+                let renderFunction = null;
+                if (typeof children === 'function') {
+                    renderFunction = children;
+                } else if (Array.isArray(children)) {
+                    renderFunction = children.find(child => typeof child === 'function');
+                }
+                
+                if (renderFunction) {
+                    return renderFunction({
+                        scheduledActivities: [
+                            {
+                                id: 1,
+                                name: 'Activity 1',
+                                description: 'Description 1',
+                                scheduleIndex: 0
+                            },
+                            {
+                                id: 2,
+                                name: 'Activity 2',
+                                description: 'Description 2',
+                                scheduleIndex: 1
+                            }
+                        ],
+                        unscheduledActivities: [
+                            {
+                                id: 3,
+                                name: 'Activity 3',
+                                description: 'Description 3',
+                                sortIndex: 2
+                            },
+                            {
+                                id: 4,
+                                name: 'Activity 4',
+                                description: 'Description 4',
+                                sortIndex: 3
+                            }                    ],
+                        activities: [],
+                        isLoading: false,
+                        createActivity: jest.fn(),
+                        editActivity: jest.fn(),
+                        deleteActivity: jest.fn(),
+                        moveActivity: jest.fn(),
+                        moveActivityUp: jest.fn(),
+                        moveActivityDown: jest.fn(),
+                        undoLastMove: jest.fn(),
+                        hasUndo: false,
+                        undoCount: 0,
+                        clearUndo: jest.fn(),
+                    });
+                }
+                return <div data-testid="activities-container">{children}</div>;
             });
             ActivityDisplay.mockImplementation(({ onMoveUp }) => {
                 return <div data-testid="hasMoveUp">{onMoveUp ? 'has move up' : 'no move up'}</div>
@@ -174,45 +252,61 @@ describe('HomePage', () => {
             const activities = await screen.findAllByTestId('hasMoveUp');
             expect(activities[2]).toHaveTextContent('no move up');
         });
-    });
-    describe('move down', () => {
+    });    describe('move down', () => {
         beforeEach(() => {
             ActivitiesContainer.mockImplementation(({ children }) => {
-                return children({
-                    scheduledActivities: [
-                        {
-                            id: 1,
-                            name: 'Activity 1',
-                            description: 'Description 1',
-                            scheduleIndex: 0
-                        },
-                        {
-                            id: 2,
-                            name: 'Activity 2',
-                            description: 'Description 2',
-                            scheduleIndex: 1
-                        }
-                    ],
-                    unscheduledActivities: [
-                        {
-                            id: 3,
-                            name: 'Activity 3',
-                            description: 'Description 3',
-                            sortIndex: 2
-                        },
-                        {
-                            id: 4,
-                            name: 'Activity 4',
-                            description: 'Description 4',
-                            sortIndex: 3
-                        }
-                    ],
-                    isLoading: false,
-                    createActivity: jest.fn(),
-                    deleteActivit: jest.fn(),
-                    moveActivityUp: jest.fn(),
-                    moveActivityDown: jest.fn(),
-                });
+                // Handle the case where children is an array with a function (due to JSX whitespace)
+                let renderFunction = null;
+                if (typeof children === 'function') {
+                    renderFunction = children;
+                } else if (Array.isArray(children)) {
+                    renderFunction = children.find(child => typeof child === 'function');
+                }
+                
+                if (renderFunction) {
+                    return renderFunction({
+                        scheduledActivities: [
+                            {
+                                id: 1,
+                                name: 'Activity 1',
+                                description: 'Description 1',
+                                scheduleIndex: 0
+                            },
+                            {
+                                id: 2,
+                                name: 'Activity 2',
+                                description: 'Description 2',
+                                scheduleIndex: 1
+                            }
+                        ],
+                        unscheduledActivities: [
+                            {
+                                id: 3,
+                                name: 'Activity 3',
+                                description: 'Description 3',
+                                sortIndex: 2
+                            },
+                            {
+                                id: 4,
+                                name: 'Activity 4',
+                                description: 'Description 4',
+                                sortIndex: 3
+                            }                    ],
+                        activities: [],
+                        isLoading: false,
+                        createActivity: jest.fn(),
+                        editActivity: jest.fn(),
+                        deleteActivity: jest.fn(),
+                        moveActivity: jest.fn(),
+                        moveActivityUp: jest.fn(),
+                        moveActivityDown: jest.fn(),
+                        undoLastMove: jest.fn(),
+                        hasUndo: false,
+                        undoCount: 0,
+                        clearUndo: jest.fn(),
+                    });
+                }
+                return <div data-testid="activities-container">{children}</div>;
             });
             ActivityDisplay.mockImplementation(({ onMoveDown }) => {
                 return <div data-testid="hasMoveDown">{onMoveDown ? 'has move down' : 'no move down'}</div>

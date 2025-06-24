@@ -16,6 +16,7 @@ import { closestCenter, DndContext, MouseSensor, TouchSensor, useSensor, useSens
 import ActivityDrop from "./ActivityDrop";
 import ActivityDropZone from "./ActivityDropZone";
 import { restrictToVerticalAxis, restrictToWindowEdges } from "@dnd-kit/modifiers";
+import UndoButton from "./ui/UndoButton";
 
 const HomePageContainer = ({ activities:initialActivities }) => {
     const { isEditor } = useAuth();
@@ -26,9 +27,7 @@ const HomePageContainer = ({ activities:initialActivities }) => {
         useSensor(MouseSensor, {activationConstraint}),
     );
     return (
-        <ChangePollingContainer>
-            <ActivitiesContainer initialActivities={initialActivities}>
-                {({ 
+        <ChangePollingContainer>            <ActivitiesContainer initialActivities={initialActivities}>                {({ 
                     activities,
                     scheduledActivities,
                     unscheduledActivities,
@@ -37,6 +36,10 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                     editActivity,
                     deleteActivity,
                     moveActivity,
+                    undoLastMove,
+                    hasUndo,
+                    undoCount,
+                    clearUndo,
                 }) => (
                     <CommentsContainer>
                         {({
@@ -156,9 +159,14 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                         />}
                                                     </div>
                                                 ))}
-                                            </>)}
-                                        </DndContext>
-                                        <ActivityForm onSubmit={createActivity} />
+                                            </>)}                                        </DndContext>
+                                        <ActivityForm onSubmit={createActivity} />                                        {isEditor() && hasUndo && (
+                                            <UndoButton 
+                                                onUndo={undoLastMove}
+                                                undoCount={undoCount}
+                                                data-testid="undo-button"
+                                            />
+                                        )}
                                     </div>
                                 </PaneProvider>
                             </Suspense>
