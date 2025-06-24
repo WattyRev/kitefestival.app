@@ -172,14 +172,13 @@ const CommentsContainer = ({ children }) => {
             if (!response.ok) {
                 openAlert('Failed to edit comment', 'error');
                 return;
-            }
-            dispatch({ type: 'patch', comment: { id, message } });
+            }            dispatch({ type: 'patch', comment: { id, message } });
         }
-    }
+    };
     return (
         <CommentsContext.Provider value={commentsData}>
             <CommentsDispatchContext.Provider value={dispatch}>
-                {children?.(childData)}
+                {typeof children === 'function' ? children(childData) : children}
             </CommentsDispatchContext.Provider>
         </CommentsContext.Provider>
     )

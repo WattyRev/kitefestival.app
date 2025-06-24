@@ -25,9 +25,10 @@ const HomePageContainer = ({ activities:initialActivities }) => {
     const sensors = useSensors(
         useSensor(TouchSensor, {activationConstraint}),
         useSensor(MouseSensor, {activationConstraint}),
-    );
-    return (
-        <ChangePollingContainer>            <ActivitiesContainer initialActivities={initialActivities}>                {({ 
+    );    return (
+        <ChangePollingContainer>
+            <ActivitiesContainer initialActivities={initialActivities}>
+                {({ 
                     activities,
                     scheduledActivities,
                     unscheduledActivities,
@@ -39,7 +40,6 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                     undoLastMove,
                     hasUndo,
                     undoCount,
-                    clearUndo,
                 }) => (
                     <CommentsContainer>
                         {({
@@ -75,13 +75,19 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                             modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
                                         >
                                             {!scheduledActivities.length && (<>
-                                                <p className={css({ paddingLeft: '16px'})} data-testid="empty-schedule">There&apos;s nothing happening right now</p>
+                                                <p className={css({ 
+                                                    paddingLeft: { base: '12px', sm: '16px' }
+                                                })} data-testid="empty-schedule">There&apos;s nothing happening right now</p>
                                                 {isEditor() && !!activities.length && <ActivityDropZone bucket="schedule" index={0} id="schedule-empty" text="Drag activities here to schedule them" />}
                                             </>)}
                                             {scheduledActivities.map((activity, index) => (
-                                                <div key={activity.id}>
-                                                    {index === 0 && <H1 className={css({ paddingLeft: '16px'})}>Happening Now</H1>}
-                                                    {index === 1 && <H2 className={css({ paddingLeft: '16px', paddingTop: "16px"})}>Upcoming</H2>}
+                                                <div key={activity.id}>                                                    {index === 0 && <H1 className={css({ 
+                                                        paddingLeft: { base: '12px', sm: '16px' }
+                                                    })}>Happening Now</H1>}
+                                                    {index === 1 && <H2 className={css({ 
+                                                        paddingLeft: { base: '12px', sm: '16px' }, 
+                                                        paddingTop: { base: '12px', sm: '16px' }
+                                                    })}>Upcoming</H2>}
                                                     {isEditor () && activelyDraggedId !== scheduledActivities[index - 1]?.id && <ActivityDrop 
                                                         bucket="schedule"
                                                         index={activity.scheduleIndex}
@@ -117,9 +123,14 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                                 </div>
                                             ))}
                                             {isEditor() && (<>
-                                                <H1 data-testid="unscheduled" className={css({ paddingLeft: '16px', paddingTop: '32px'})}>Unscheduled Activities</H1>
+                                                <H1 data-testid="unscheduled" className={css({ 
+                                                    paddingLeft: { base: '12px', sm: '16px' }, 
+                                                    paddingTop: { base: '16px', sm: '32px' }
+                                                })}>Unscheduled Activities</H1>
                                                 {!unscheduledActivities.length && (<>
-                                                    <p data-testid="empty-unscheduled" className={css({ paddingLeft: '16px'})}>There are no unscheduled activities</p>
+                                                    <p data-testid="empty-unscheduled" className={css({ 
+                                                        paddingLeft: { base: '12px', sm: '16px' }
+                                                    })}>There are no unscheduled activities</p>
                                                     {isEditor() && !!activities.length && <ActivityDropZone 
                                                         bucket="unschedule"
                                                         index={0}
@@ -169,10 +180,9 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                         )}
                                     </div>
                                 </PaneProvider>
-                            </Suspense>
-                        )}
+                            </Suspense>                        )}
                     </CommentsContainer>
-                )}  
+                )}
             </ActivitiesContainer>
         </ChangePollingContainer>
     )

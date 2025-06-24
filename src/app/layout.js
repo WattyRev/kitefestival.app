@@ -20,15 +20,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <Script src="https://kit.fontawesome.com/f870624930.js" crossorigin="anonymous"></Script>
       </head>
       <body className={inter.className}>
         <SpeedInsights />
         <AuthProvider>
           <PromptProvider>
-            <AlertProvider>
-              <TopNav />
-              <div>
+            <AlertProvider>              <TopNav />
+              <div className="main-container" style={{
+                padding: '0 8px',
+                maxWidth: '100vw',
+                overflowX: 'hidden'
+              }}>
                 {children}
               </div>
             </AlertProvider>

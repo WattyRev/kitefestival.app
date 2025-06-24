@@ -28,7 +28,11 @@ const ActivityForm = ({ onSubmit, title: defaultTitle = '', description: default
     }
     return (
         <form data-testid="create-activity-form" onSubmit={e => {e.preventDefault(); submit()}}>
-            <H1 className={css({ paddingLeft: '16px', paddingTop: '32px'})}>Create Activity</H1>
+            <H1 className={css({ 
+                paddingLeft: { base: '12px', sm: '16px' }, 
+                paddingTop: { base: '16px', sm: '32px' },
+                fontSize: { base: '20px', sm: '24px' }
+            })}>Create Activity</H1>
             <Panel>
                 <label>Title</label>
                 <TextInput autoFocus={autoFocus} data-testid="title" required value={title} onChange={e => setTitle(e.target.value)} />

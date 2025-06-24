@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "pre-commit": "next lint"
+    "pre-commit": "next lint && jest"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

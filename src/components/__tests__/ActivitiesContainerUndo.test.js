@@ -236,7 +236,7 @@ describe('ActivitiesContainer undo functionality', () => {
         });
     });
 
-    it('can undo up to three move operations', async () => {
+    it('supports single undo operation', async () => {
         render(
             <ActivitiesContainer initialActivities={initialActivities}>
                 {({ hasUndo, moveActivity, undoLastMove, undoCount, unscheduledActivities, scheduledActivities }) => (
@@ -250,18 +250,11 @@ describe('ActivitiesContainer undo functionality', () => {
                             onClick={() => moveActivity('1', 'schedule', 1)}
                         >
                             Move Activity 1
-                        </button>
-                        <button 
+                        </button>                        <button 
                             data-testid="move-activity-2" 
                             onClick={() => moveActivity('2', 'schedule', 1)}
                         >
                             Move Activity 2
-                        </button>
-                        <button 
-                            data-testid="move-activity-3" 
-                            onClick={() => moveActivity('3', 'unschedule', 1)}
-                        >
-                            Move Activity 3
                         </button>
                         <button 
                             data-testid="undo-move"
@@ -277,9 +270,7 @@ describe('ActivitiesContainer undo functionality', () => {
         // Initial state: 2 unscheduled, 1 scheduled
         expect(screen.getByTestId('unscheduled-count')).toHaveTextContent('2');
         expect(screen.getByTestId('scheduled-count')).toHaveTextContent('1');
-        expect(screen.getByTestId('undo-count')).toHaveTextContent('0');
-
-        // First move: Activity 1 from unscheduled to scheduled
+        expect(screen.getByTestId('undo-count')).toHaveTextContent('0');        // First move: Activity 1 from unscheduled to scheduled
         await userEvent.click(screen.getByTestId('move-activity-1'));
 
         await waitFor(() => {
@@ -288,54 +279,27 @@ describe('ActivitiesContainer undo functionality', () => {
             expect(screen.getByTestId('undo-count')).toHaveTextContent('1');
         });
 
-        // Second move: Activity 2 from unscheduled to scheduled
+        // Second move: Activity 2 from unscheduled to scheduled (replaces previous undo)
         await userEvent.click(screen.getByTestId('move-activity-2'));
 
         await waitFor(() => {
             expect(screen.getByTestId('unscheduled-count')).toHaveTextContent('0');
             expect(screen.getByTestId('scheduled-count')).toHaveTextContent('3');
-            expect(screen.getByTestId('undo-count')).toHaveTextContent('2');
+            expect(screen.getByTestId('undo-count')).toHaveTextContent('1'); // Still only 1 undo available
         });
 
-        // Third move: Activity 3 from scheduled to unscheduled
-        await userEvent.click(screen.getByTestId('move-activity-3'));
-
-        await waitFor(() => {
-            expect(screen.getByTestId('unscheduled-count')).toHaveTextContent('1');
-            expect(screen.getByTestId('scheduled-count')).toHaveTextContent('2');
-            expect(screen.getByTestId('undo-count')).toHaveTextContent('3');
-        });
-
-        // First undo: Should restore Activity 3 to scheduled
-        await userEvent.click(screen.getByTestId('undo-move'));
-
-        await waitFor(() => {
-            expect(screen.getByTestId('unscheduled-count')).toHaveTextContent('0');
-            expect(screen.getByTestId('scheduled-count')).toHaveTextContent('3');
-            expect(screen.getByTestId('undo-count')).toHaveTextContent('2');
-        });
-
-        // Second undo: Should restore Activity 2 to unscheduled
+        // Undo: Should restore only the last move (Activity 2 back to unscheduled)
         await userEvent.click(screen.getByTestId('undo-move'));
 
         await waitFor(() => {
             expect(screen.getByTestId('unscheduled-count')).toHaveTextContent('1');
             expect(screen.getByTestId('scheduled-count')).toHaveTextContent('2');
-            expect(screen.getByTestId('undo-count')).toHaveTextContent('1');
-        });
-
-        // Third undo: Should restore Activity 1 to unscheduled
-        await userEvent.click(screen.getByTestId('undo-move'));
-
-        await waitFor(() => {
-            expect(screen.getByTestId('unscheduled-count')).toHaveTextContent('2');
-            expect(screen.getByTestId('scheduled-count')).toHaveTextContent('1');
             expect(screen.getByTestId('undo-count')).toHaveTextContent('0');
             expect(screen.getByTestId('has-undo')).toHaveTextContent('no');
         });
     });
 
-    it('maintains only 3 undo states maximum', async () => {
+    it('maintains only a single undo state', async () => {
         render(
             <ActivitiesContainer initialActivities={initialActivities}>
                 {({ hasUndo, moveActivity, undoCount }) => (
@@ -375,18 +339,16 @@ describe('ActivitiesContainer undo functionality', () => {
 
         // Make 4 moves
         await userEvent.click(screen.getByTestId('move-activity-1'));
+        await waitFor(() => expect(screen.getByTestId('undo-count')).toHaveTextContent('1'));        await userEvent.click(screen.getByTestId('move-activity-2'));
         await waitFor(() => expect(screen.getByTestId('undo-count')).toHaveTextContent('1'));
 
-        await userEvent.click(screen.getByTestId('move-activity-2'));
-        await waitFor(() => expect(screen.getByTestId('undo-count')).toHaveTextContent('2'));
-
         await userEvent.click(screen.getByTestId('move-activity-3'));
-        await waitFor(() => expect(screen.getByTestId('undo-count')).toHaveTextContent('3'));
+        await waitFor(() => expect(screen.getByTestId('undo-count')).toHaveTextContent('1'));
 
         await userEvent.click(screen.getByTestId('move-activity-1-again'));
         await waitFor(() => {
-            // Should still be 3, not 4
-            expect(screen.getByTestId('undo-count')).toHaveTextContent('3');
+            // Should still be 1, as each new move replaces the previous undo
+            expect(screen.getByTestId('undo-count')).toHaveTextContent('1');
         });
     });
 });

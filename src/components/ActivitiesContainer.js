@@ -123,7 +123,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
         scheduledActivities: initialActivities.filter(activity => activity.scheduleIndex !== null),
         unscheduledActivities: initialActivities.filter(activity => activity.scheduleIndex === null),
     });    const [isLoading, setIsLoading] = useState(false);
-    const [undoStack, setUndoStack] = useState([]);
+    const [undoState, setUndoState] = useState(null);
     const { openAlert } = useAlert();
     const { changes } = useChangePolling();
 
@@ -171,8 +171,8 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             }
             const updatedActivityJson = await response.json();
             const updatedActivity = updatedActivityJson.activities[0];            dispatch({ type: 'create', activity: updatedActivity });
-            // Clear undo stack since creating an activity changes the list
-            setUndoStack([]);
+            // Clear undo since creating an activity changes the list
+            setUndoState(null);
         },
         deleteActivity: async (id) => {
             const response = await fetch(`/api/activities/${id}`, {
@@ -182,8 +182,8 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 openAlert('Failed to delete activity', 'error');
                 return;
             }            dispatch({ type: 'delete', id });
-            // Clear undo stack since deleting an activity changes the list
-            setUndoStack([]);
+            // Clear undo since deleting an activity changes the list
+            setUndoState(null);
         },
         editActivity: async(activity) => {
             const response = await fetch(`/api/activities/${activity.id}`, {
@@ -194,8 +194,8 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 openAlert('Failed to update activity', 'error');
                 return;
             }            dispatch({ type: 'patch', activity})
-            // Clear undo stack since editing an activity changes the data
-            setUndoStack([]);
+            // Clear undo since editing an activity changes the data
+            setUndoState(null);
         },        moveActivity: async (id, bucketName, index) => {
             // Capture current state for undo (deep copy to avoid shared references)
             const previousState = {
@@ -230,27 +230,21 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             if (!response.ok) {
                 openAlert('Failed to move activities', 'error');
                 return;
-            }            // Store undo state after successful server update (keep max 3)
-            setUndoStack(prevStack => {
-                const newStack = [previousState, ...prevStack];
-                return newStack.slice(0, 3); // Keep only the last 3 undo states
-            });
+            }            // Store undo state after successful server update
+            setUndoState(previousState);
 
             // Dispatch state update
             dispatch({ type: 'bulkUpdate', activities: newActivities });
         },        undoLastMove: async () => {
-            if (undoStack.length === 0) {
+            if (!undoState) {
                 return;
             }
-
-            // Get the most recent undo state
-            const mostRecentState = undoStack[0];
 
             // Patch all activities back to their previous state
             const response = await fetch('/api/activities', {
                 method: 'PATCH',
                 body: JSON.stringify({
-                    activities: mostRecentState.activities.map(activity => ({
+                    activities: undoState.activities.map(activity => ({
                         id: activity.id,
                         sortIndex: activity.sortIndex,
                         scheduleIndex: activity.scheduleIndex
@@ -264,19 +258,19 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             }
 
             // Restore previous state
-            dispatch({ type: 'bulkUpdate', activities: mostRecentState.activities });
+            dispatch({ type: 'bulkUpdate', activities: undoState.activities });
             
-            // Remove the used undo state from the stack
-            setUndoStack(prevStack => prevStack.slice(1));
-        },        hasUndo: undoStack.length > 0,
-        undoCount: undoStack.length,
-        clearUndo: () => setUndoStack([])
-    }
+            // Clear the undo state after use
+            setUndoState(null);
+        },        hasUndo: !!undoState,
+        undoCount: undoState ? 1 : 0,
+        clearUndo: () => setUndoState(null)
+    };
 
     return (
         <ActivitiesContext.Provider value={activitiesData}>
             <ActivitiesDispatchContext.Provider value={dispatch}>
-                {children?.(childData)}
+                {typeof children === 'function' ? children(childData) : children}
             </ActivitiesDispatchContext.Provider>
         </ActivitiesContext.Provider>
     )
