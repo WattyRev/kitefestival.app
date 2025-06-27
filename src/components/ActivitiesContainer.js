@@ -157,7 +157,8 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
         activities: activitiesData.activities,
         scheduledActivities: activitiesData.scheduledActivities,
         unscheduledActivities: activitiesData.unscheduledActivities,
-        isLoading,        createActivity: async ({ title, description }) => {
+        isLoading,
+        createActivity: async ({ title, description }) => {
             const response = await fetch('/api/activities', {
                 method: 'POST',
                 headers: {
@@ -181,7 +182,8 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             if (!response.ok) {
                 openAlert('Failed to delete activity', 'error');
                 return;
-            }            dispatch({ type: 'delete', id });
+            }
+            dispatch({ type: 'delete', id });
             // Clear undo since deleting an activity changes the list
             setUndoState(null);
         },
@@ -193,10 +195,12 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             if (!response.ok) {
                 openAlert('Failed to update activity', 'error');
                 return;
-            }            dispatch({ type: 'patch', activity})
+            }
+            dispatch({ type: 'patch', activity})
             // Clear undo since editing an activity changes the data
             setUndoState(null);
-        },        moveActivity: async (id, bucketName, index) => {
+        },
+        moveActivity: async (id, bucketName, index) => {
             // Capture current state for undo (deep copy to avoid shared references)
             const previousState = {
                 activities: activitiesData.activities.map(activity => ({ ...activity })),
@@ -220,22 +224,20 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             const { changedActivities, newActivities } = reindexActivities(activitiesClone);
 
             // Patch changed activities
-            const response = await fetch('/api/activities', { 
+            fetch('/api/activities', { 
                 method: 'PATCH',
                 body: JSON.stringify({
                     activities: changedActivities
                 })
             });
             
-            if (!response.ok) {
-                openAlert('Failed to move activities', 'error');
-                return;
-            }            // Store undo state after successful server update
+            // Store undo state after successful server update
             setUndoState(previousState);
 
             // Dispatch state update
             dispatch({ type: 'bulkUpdate', activities: newActivities });
-        },        undoLastMove: async () => {
+        },
+        undoLastMove: async () => {
             if (!undoState) {
                 return;
             }
