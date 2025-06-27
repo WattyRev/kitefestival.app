@@ -793,4 +793,326 @@ describe('ActivitiesContainer', () => {
             expect(activities[2]).toHaveTextContent('Activity 4');
         });
     });
+
+    describe('undo functionality', () => {
+        let undoTestActivities;
+        
+        beforeEach(() => {
+            undoTestActivities = [
+                {
+                    id: '1',
+                    title: 'Activity 1',
+                    description: 'Description 1',
+                    sortIndex: 0,
+                    scheduleIndex: null
+                },
+                {
+                    id: '2',
+                    title: 'Activity 2',
+                    description: 'Description 2',
+                    sortIndex: 1,
+                    scheduleIndex: null
+                },
+                {
+                    id: '3',
+                    title: 'Activity 3',
+                    description: 'Description 3',
+                    sortIndex: null,
+                    scheduleIndex: 0
+                }
+            ];
+        });
+
+        it('initially does not have undo available', async () => {
+            render(
+                <ActivitiesContainer initialActivities={undoTestActivities}>
+                    {({ hasUndo }) => (
+                        <div data-testid="has-undo">{hasUndo ? 'yes' : 'no'}</div>
+                    )}
+                </ActivitiesContainer>
+            );
+
+            expect(screen.getByTestId('has-undo')).toHaveTextContent('no');
+        });
+
+        it('has undo available after moving an activity', async () => {
+            render(
+                <ActivitiesContainer initialActivities={undoTestActivities}>
+                    {({ hasUndo, moveActivity }) => (
+                        <div>
+                            <div data-testid="has-undo">{hasUndo ? 'yes' : 'no'}</div>
+                            <button 
+                                data-testid="move-activity" 
+                                onClick={() => moveActivity('1', 'schedule', 1)}
+                            >
+                                Move Activity
+                            </button>
+                        </div>
+                    )}
+                </ActivitiesContainer>
+            );
+
+            expect(screen.getByTestId('has-undo')).toHaveTextContent('no');
+
+            await userEvent.click(screen.getByTestId('move-activity'));
+
+            await waitFor(() => {
+                expect(screen.getByTestId('has-undo')).toHaveTextContent('yes');
+            });
+        });
+
+        it('can undo a move operation', async () => {
+            render(
+                <ActivitiesContainer initialActivities={undoTestActivities}>
+                    {({ hasUndo, moveActivity, undoLastMove, unscheduledActivities, scheduledActivities }) => (
+                        <div>
+                            <div data-testid="has-undo">{hasUndo ? 'yes' : 'no'}</div>
+                            <div data-testid="unscheduled-count">{unscheduledActivities.length}</div>
+                            <div data-testid="scheduled-count">{scheduledActivities.length}</div>
+                            <button 
+                                data-testid="move-activity" 
+                                onClick={() => moveActivity('1', 'schedule', 1)}
+                            >
+                                Move Activity
+                            </button>
+                            <button 
+                                data-testid="undo-move"
+                                onClick={undoLastMove}
+                            >
+                                Undo Move
+                            </button>
+                        </div>
+                    )}
+                </ActivitiesContainer>
+            );
+
+            // Initial state: 2 unscheduled, 1 scheduled
+            expect(screen.getByTestId('unscheduled-count')).toHaveTextContent('2');
+            expect(screen.getByTestId('scheduled-count')).toHaveTextContent('1');
+
+            // Move activity from unscheduled to scheduled
+            await userEvent.click(screen.getByTestId('move-activity'));
+
+            await waitFor(() => {
+                expect(screen.getByTestId('unscheduled-count')).toHaveTextContent('1');
+                expect(screen.getByTestId('scheduled-count')).toHaveTextContent('2');
+                expect(screen.getByTestId('has-undo')).toHaveTextContent('yes');
+            });
+
+            // Undo the move
+            await userEvent.click(screen.getByTestId('undo-move'));
+
+            await waitFor(() => {
+                expect(screen.getByTestId('unscheduled-count')).toHaveTextContent('2');
+                expect(screen.getByTestId('scheduled-count')).toHaveTextContent('1');
+                expect(screen.getByTestId('has-undo')).toHaveTextContent('no');
+            });
+        });
+
+        it('clears undo when creating a new activity', async () => {
+            render(
+                <ActivitiesContainer initialActivities={undoTestActivities}>
+                    {({ hasUndo, moveActivity, createActivity }) => (
+                        <div>
+                            <div data-testid="has-undo">{hasUndo ? 'yes' : 'no'}</div>
+                            <button 
+                                data-testid="move-activity" 
+                                onClick={() => moveActivity('1', 'schedule', 1)}
+                            >
+                                Move Activity
+                            </button>
+                            <button 
+                                data-testid="create-activity"
+                                onClick={() => createActivity({ title: 'New Activity', description: 'New Description' })}
+                            >
+                                Create Activity
+                            </button>
+                        </div>
+                    )}
+                </ActivitiesContainer>
+            );
+
+            // Move activity to enable undo
+            await userEvent.click(screen.getByTestId('move-activity'));
+
+            await waitFor(() => {
+                expect(screen.getByTestId('has-undo')).toHaveTextContent('yes');
+            });
+
+            // Create activity should clear undo
+            fetch.mockResolvedValueOnce({
+                ok: true,
+                json: jest.fn().mockResolvedValue({
+                    activities: [{
+                        id: '4',
+                        title: 'New Activity',
+                        description: 'New Description',
+                        sortIndex: 2,
+                        scheduleIndex: null
+                    }]
+                })
+            });
+
+            await userEvent.click(screen.getByTestId('create-activity'));
+
+            await waitFor(() => {
+                expect(screen.getByTestId('has-undo')).toHaveTextContent('no');
+            });
+        });
+
+        it('handles undo failure gracefully', async () => {
+            render(
+                <ActivitiesContainer initialActivities={undoTestActivities}>
+                    {({ hasUndo, moveActivity, undoLastMove }) => (
+                        <div>
+                            <div data-testid="has-undo">{hasUndo ? 'yes' : 'no'}</div>
+                            <button 
+                                data-testid="move-activity" 
+                                onClick={() => moveActivity('1', 'schedule', 1)}
+                            >
+                                Move Activity
+                            </button>
+                            <button 
+                                data-testid="undo-move"
+                                onClick={undoLastMove}
+                            >
+                                Undo Move
+                            </button>
+                        </div>
+                    )}
+                </ActivitiesContainer>
+            );
+
+            // Move activity to enable undo
+            await userEvent.click(screen.getByTestId('move-activity'));
+
+            await waitFor(() => {
+                expect(screen.getByTestId('has-undo')).toHaveTextContent('yes');
+            });
+
+            // Mock failure response for undo
+            fetch.mockResolvedValueOnce({
+                ok: false
+            });
+
+            await userEvent.click(screen.getByTestId('undo-move'));
+
+            await waitFor(() => {
+                expect(mockOpenAlert).toHaveBeenCalledWith('Failed to undo move', 'error');
+            });
+        });
+
+        it('supports single undo operation', async () => {
+            render(
+                <ActivitiesContainer initialActivities={undoTestActivities}>
+                    {({ hasUndo, moveActivity, undoLastMove, unscheduledActivities, scheduledActivities }) => (
+                        <div>
+                            <div data-testid="has-undo">{hasUndo ? 'yes' : 'no'}</div>
+                            <div data-testid="unscheduled-count">{unscheduledActivities.length}</div>
+                            <div data-testid="scheduled-count">{scheduledActivities.length}</div>
+                            <button 
+                                data-testid="move-activity-1" 
+                                onClick={() => moveActivity('1', 'schedule', 1)}
+                            >
+                                Move Activity 1
+                            </button>
+                            <button 
+                                data-testid="move-activity-2" 
+                                onClick={() => moveActivity('2', 'schedule', 1)}
+                            >
+                                Move Activity 2
+                            </button>
+                            <button 
+                                data-testid="undo-move"
+                                onClick={undoLastMove}
+                            >
+                                Undo Move
+                            </button>
+                        </div>
+                    )}
+                </ActivitiesContainer>
+            );
+
+            // Initial state: 2 unscheduled, 1 scheduled
+            expect(screen.getByTestId('unscheduled-count')).toHaveTextContent('2');
+            expect(screen.getByTestId('scheduled-count')).toHaveTextContent('1');
+            
+            // First move: Activity 1 from unscheduled to scheduled
+            await userEvent.click(screen.getByTestId('move-activity-1'));
+
+            await waitFor(() => {
+                expect(screen.getByTestId('unscheduled-count')).toHaveTextContent('1');
+                expect(screen.getByTestId('scheduled-count')).toHaveTextContent('2');
+            });
+
+            // Second move: Activity 2 from unscheduled to scheduled (replaces previous undo)
+            await userEvent.click(screen.getByTestId('move-activity-2'));
+
+            await waitFor(() => {
+                expect(screen.getByTestId('unscheduled-count')).toHaveTextContent('0');
+                expect(screen.getByTestId('scheduled-count')).toHaveTextContent('3');
+            });
+
+            // Undo: Should restore only the last move (Activity 2 back to unscheduled)
+            await userEvent.click(screen.getByTestId('undo-move'));
+
+            await waitFor(() => {
+                expect(screen.getByTestId('unscheduled-count')).toHaveTextContent('1');
+                expect(screen.getByTestId('scheduled-count')).toHaveTextContent('2');
+                expect(screen.getByTestId('has-undo')).toHaveTextContent('no');
+            });
+        });
+
+        it('maintains only a single undo state', async () => {
+            render(
+                <ActivitiesContainer initialActivities={undoTestActivities}>
+                    {({ hasUndo, moveActivity }) => (
+                        <div>
+                            <div data-testid="has-undo">{hasUndo ? 'yes' : 'no'}</div>
+                            <button 
+                                data-testid="move-activity-1" 
+                                onClick={() => moveActivity('1', 'schedule', 1)}
+                            >
+                                Move Activity 1
+                            </button>
+                            <button 
+                                data-testid="move-activity-2" 
+                                onClick={() => moveActivity('2', 'schedule', 1)}
+                            >
+                                Move Activity 2
+                            </button>
+                            <button 
+                                data-testid="move-activity-3" 
+                                onClick={() => moveActivity('3', 'unschedule', 1)}
+                            >
+                                Move Activity 3
+                            </button>
+                            <button 
+                                data-testid="move-activity-1-again" 
+                                onClick={() => moveActivity('1', 'unschedule', 1)}
+                            >
+                                Move Activity 1 Again
+                            </button>
+                        </div>
+                    )}
+                </ActivitiesContainer>
+            );
+
+            // Make 4 moves
+            await userEvent.click(screen.getByTestId('move-activity-1'));
+            await waitFor(() => expect(screen.getByTestId('has-undo')).toHaveTextContent('yes'));
+            
+            await userEvent.click(screen.getByTestId('move-activity-2'));
+            await waitFor(() => expect(screen.getByTestId('has-undo')).toHaveTextContent('yes'));
+
+            await userEvent.click(screen.getByTestId('move-activity-3'));
+            await waitFor(() => expect(screen.getByTestId('has-undo')).toHaveTextContent('yes'));
+
+            await userEvent.click(screen.getByTestId('move-activity-1-again'));
+            await waitFor(() => {
+                // Should still have undo available, as each new move replaces the previous undo
+                expect(screen.getByTestId('has-undo')).toHaveTextContent('yes');
+            });
+        });
+    });
 });
