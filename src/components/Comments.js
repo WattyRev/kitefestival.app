@@ -16,29 +16,38 @@ const Comments = ({ comments = [], onCreate, onDelete, onEdit, activity }) => {
         <Pane
             paneId={`comments-${activity.id}`}
             trigger={({ openPane, closePane, isOpen }) => (
-                <Button 
+                <Button
                     data-testid="toggle-comments"
                     onClick={isOpen ? closePane : openPane}
                     title="Comments"
-                    className={`secondary ${isOpen ? 'active' : ''}`}
+                    className={`secondary ${isOpen ? "active" : ""}`}
                 >
                     <i className="fa-solid fa-comment" /> ({comments.length})
                 </Button>
             )}
         >
             <div>
-                <H1><i className="fa-solid fa-comments"></i> {activity.title}</H1>
+                <H1>
+                    <i className="fa-solid fa-comments"></i> {activity.title}
+                </H1>
                 {!comments.length && (
-                    <p data-testid="no-comments"><em>No Comments</em></p>
-                )} 
-                {comments.map(comment => (
-                    <Comment key={comment.id} comment={comment} onDelete={onDelete} onEdit={onEdit} />
+                    <p data-testid="no-comments">
+                        <em>No Comments</em>
+                    </p>
+                )}
+                {comments.map((comment) => (
+                    <Comment
+                        key={comment.id}
+                        comment={comment}
+                        onDelete={onDelete}
+                        onEdit={onEdit}
+                    />
                 ))}
-                <div className={css({ marginTop: '8px' })} />
+                <div className={css({ marginTop: "8px" })} />
                 <CommentForm onSubmit={onCreate} />
             </div>
         </Pane>
-    )
-}
+    );
+};
 
 export default Comments;

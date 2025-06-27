@@ -1,16 +1,16 @@
-import { render, screen } from '@testing-library/react';
-import AuthSelection from '../TopNav/AuthSelection';
-import TopNav from '../TopNav';
+import { render, screen } from "@testing-library/react";
+import AuthSelection from "../TopNav/AuthSelection";
+import TopNav from "../TopNav";
 
-jest.mock('../TopNav/AuthSelection');
+jest.mock("../TopNav/AuthSelection");
 
-describe('TopNav', () => {
+describe("TopNav", () => {
     beforeEach(() => {
         AuthSelection.mockReturnValue(<div data-testid="auth-selection" />);
     });
-    it('renders', () => {
+    it("renders", () => {
         render(<TopNav />);
 
-        expect(screen.getByTestId('top-nav')).toBeInTheDocument();
+        expect(screen.getByTestId("top-nav")).toBeInTheDocument();
     });
 });

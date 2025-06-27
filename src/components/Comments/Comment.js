@@ -1,4 +1,4 @@
-import TimeAgo from "../ui/TimeAgo"
+import TimeAgo from "../ui/TimeAgo";
 import { usePrompt } from "../ui/Prompt";
 import { useAuth } from "../global/Auth";
 import { useState } from "react";
@@ -10,53 +10,102 @@ import PlainButton from "../ui/PlainButton";
 const Comment = ({ comment, onDelete, onEdit }) => {
     const { auth } = useAuth();
     const { openPrompt } = usePrompt();
-    const [ isPending, setIsPending ] = useState(false);
-    const [ isEditing, setIsEditing ] = useState(false);
+    const [isPending, setIsPending] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     const handleDelete = async (commentId) => {
-        await openPrompt('Are you sure you want to delete this comment?', 'confirm');
+        await openPrompt(
+            "Are you sure you want to delete this comment?",
+            "confirm",
+        );
         setIsPending(true);
         await onDelete(commentId);
         setIsPending(false);
-    }
+    };
     return (
-        <div 
-            key={comment.id} 
-            className={`${comment.userId === auth.userId ? 'my-comment' : ''} ${css({ 
-                padding: '8px',
-                '&.my-comment': {
-                    background: 'sectionBackground',
-                }
-            })}`}
+        <div
+            key={comment.id}
+            className={`${comment.userId === auth.userId ? "my-comment" : ""} ${css(
+                {
+                    padding: "8px",
+                    "&.my-comment": {
+                        background: "sectionBackground",
+                    },
+                },
+            )}`}
         >
             {!isEditing && (
                 <>
-                    <div className={css({ display: 'flex', justifyContent: 'space-between' })}>
-                        <p><strong>{comment.userName}</strong> <TimeAgo className={css({ fontSize: 'sm'})} timestamp={comment.createTime} /></p>
-                        {(comment.userId === auth.userId || auth.userType === 'editor') && (
+                    <div
+                        className={css({
+                            display: "flex",
+                            justifyContent: "space-between",
+                        })}
+                    >
+                        <p>
+                            <strong>{comment.userName}</strong>{" "}
+                            <TimeAgo
+                                className={css({ fontSize: "sm" })}
+                                timestamp={comment.createTime}
+                            />
+                        </p>
+                        {(comment.userId === auth.userId ||
+                            auth.userType === "editor") && (
                             <Dropdown
-                                dropdownContent={(() => (
+                                dropdownContent={() => (
                                     <>
                                         {comment.userId === auth.userId && (
-                                            <DropdownItem data-testid="edit-comment" onClick={() => setIsEditing(true)} disabled={isPending}><i className="fa-solid fa-pen"/> Edit Comment</DropdownItem>
+                                            <DropdownItem
+                                                data-testid="edit-comment"
+                                                onClick={() =>
+                                                    setIsEditing(true)
+                                                }
+                                                disabled={isPending}
+                                            >
+                                                <i className="fa-solid fa-pen" />{" "}
+                                                Edit Comment
+                                            </DropdownItem>
                                         )}
-                                        <DropdownItem data-testid="delete-comment" onClick={() => handleDelete(comment.id)} disabled={isPending}><i className="fa-solid fa-trash"/> Delete Comment</DropdownItem>
+                                        <DropdownItem
+                                            data-testid="delete-comment"
+                                            onClick={() =>
+                                                handleDelete(comment.id)
+                                            }
+                                            disabled={isPending}
+                                        >
+                                            <i className="fa-solid fa-trash" />{" "}
+                                            Delete Comment
+                                        </DropdownItem>
                                     </>
-                                ))}
+                                )}
                             >
                                 {({ open, close, isOpen }) => (
-                                    <PlainButton data-testid="comment-dropdown" className={css({ cursor: 'pointer' })} onClick={isOpen ? close : open}><i className="fa-solid fa-ellipsis"></i></PlainButton>
+                                    <PlainButton
+                                        data-testid="comment-dropdown"
+                                        className={css({ cursor: "pointer" })}
+                                        onClick={isOpen ? close : open}
+                                    >
+                                        <i className="fa-solid fa-ellipsis"></i>
+                                    </PlainButton>
                                 )}
                             </Dropdown>
                         )}
                     </div>
-                    <p data-testid="comment-message">{comment.message}{comment.edited && <em className={css({ fontSize: 'sm'})}> (edited)</em>}</p>
+                    <p data-testid="comment-message">
+                        {comment.message}
+                        {comment.edited && (
+                            <em className={css({ fontSize: "sm" })}>
+                                {" "}
+                                (edited)
+                            </em>
+                        )}
+                    </p>
                 </>
             )}
             {isEditing && (
-                <CommentForm 
+                <CommentForm
                     initialMessage={comment.message}
-                    onSubmit={async message => {
+                    onSubmit={async (message) => {
                         await onEdit(comment.id, message);
                         setIsEditing(false);
                     }}
@@ -64,7 +113,7 @@ const Comment = ({ comment, onDelete, onEdit }) => {
                 />
             )}
         </div>
-    )
-}
+    );
+};
 
 export default Comment;

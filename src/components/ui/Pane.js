@@ -1,8 +1,8 @@
-import { createPortal } from 'react-dom';
-import { createContext, useState, useContext, useEffect } from 'react';
+import { createPortal } from "react-dom";
+import { createContext, useState, useContext, useEffect } from "react";
 import { css } from "../../../styled-system/css";
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import PlainButton from './PlainButton';
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import PlainButton from "./PlainButton";
 
 const PaneContext = createContext({});
 
@@ -11,18 +11,23 @@ const PaneFrame = ({ children, onClose, ...props }) => {
         <div
             {...props}
             className={css({
-                padding: '8px',
-                borderLeft: '1px solid var(--colors-secondary)',
-                height: '100%',
-                overflow: 'auto',
-                minWidth: '34vw',
+                padding: "8px",
+                borderLeft: "1px solid var(--colors-secondary)",
+                height: "100%",
+                overflow: "auto",
+                minWidth: "34vw",
             })}
         >
-            <div className={css({ display: 'flex', justifyContent: 'space-between' })}>
+            <div
+                className={css({
+                    display: "flex",
+                    justifyContent: "space-between",
+                })}
+            >
                 <div />
-                <PlainButton 
+                <PlainButton
                     data-testid="close-pane"
-                    className={css({ cursor: 'pointer' })}
+                    className={css({ cursor: "pointer" })}
                     onClick={onClose}
                 >
                     <i className="fa-solid fa-xmark" />
@@ -30,12 +35,12 @@ const PaneFrame = ({ children, onClose, ...props }) => {
             </div>
             {children}
         </div>
-    )
-}
+    );
+};
 
 export const PaneProvider = ({ children }) => {
-    const [ isOpen, setIsOpen ] = useState(false);
-    const [ paneContentId, setPaneContentId] = useState(null);
+    const [isOpen, setIsOpen] = useState(false);
+    const [paneContentId, setPaneContentId] = useState(null);
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -44,19 +49,19 @@ export const PaneProvider = ({ children }) => {
         setPaneContentId(paneContentId);
         setIsOpen(true);
         const params = new URLSearchParams(searchParams.toString());
-        params.set('pane', paneContentId);
+        params.set("pane", paneContentId);
         router.push(`${pathname}?${params.toString()}`);
     }
 
     function closePane() {
         setIsOpen(false);
         const params = new URLSearchParams(searchParams.toString());
-        params.delete('pane');
+        params.delete("pane");
         router.push(`${pathname}?${params.toString()}`);
     }
 
     useEffect(() => {
-        const contentId = searchParams.get('pane');
+        const contentId = searchParams.get("pane");
         if (contentId) {
             setPaneContentId(contentId);
             setIsOpen(true);
@@ -64,51 +69,61 @@ export const PaneProvider = ({ children }) => {
             setIsOpen(false);
             setPaneContentId(null);
         }
-    }, [searchParams])
+    }, [searchParams]);
 
-    return <PaneContext.Provider value={{ openPane, closePane, isOpen, paneContentId }}>
-        <div 
-            className={css({ 
-                display: 'flex',
-                height: 'calc(100vh - 40px)',
-            })}
+    return (
+        <PaneContext.Provider
+            value={{ openPane, closePane, isOpen, paneContentId }}
         >
             <div
-                className={`${isOpen ? 'open' : 'closed'} ${css({
-                    width: '100%',
-                    transition: { sm: 'width 0.2s ease-in-out', base: 'none' },
-                    height: '100%',
-                    overflow: 'auto',
-
-                    '&.open': {
-                        width: { md: '66%', sm: '50%', base: '100%' },
-                        display: { sm: 'block', base: 'none'}
-                    }
-                })}`}
+                className={css({
+                    display: "flex",
+                    height: "calc(100vh - 68px)",
+                })}
             >
-                {children}
-            </div> 
-            <div
-                className={`${isOpen ? 'open' : 'closed'} ${css({
-                    width: '0%',
-                    transition: { sm: 'width 0.2s ease-in-out', base: 'none' },
-                    height: '100%',
-                    overflow: 'auto',
+                <div
+                    className={`${isOpen ? "open" : "closed"} ${css({
+                        width: "100%",
+                        transition: {
+                            sm: "width 0.2s ease-in-out",
+                            base: "none",
+                        },
+                        height: "100%",
+                        overflow: "auto",
 
-                    '&.open': {
-                        width: { md: '34%', sm: '50%', base: '100%' }
-                    }
-                })}`}
-            >
-                <PaneFrame onClose={closePane} id="pane-overlay" />
+                        "&.open": {
+                            width: { md: "66%", sm: "50%", base: "100%" },
+                            display: { sm: "block", base: "none" },
+                        },
+                    })}`}
+                >
+                    {children}
+                </div>
+                <div
+                    className={`${isOpen ? "open" : "closed"} ${css({
+                        width: "0%",
+                        transition: {
+                            sm: "width 0.2s ease-in-out",
+                            base: "none",
+                        },
+                        height: "100%",
+                        overflow: "auto",
+
+                        "&.open": {
+                            width: { md: "34%", sm: "50%", base: "100%" },
+                        },
+                    })}`}
+                >
+                    <PaneFrame onClose={closePane} id="pane-overlay" />
+                </div>
             </div>
-        </div>
-    </PaneContext.Provider>
+        </PaneContext.Provider>
+    );
 };
 
-
 const Pane = ({ children, trigger, paneId }) => {
-    const { openPane, closePane, paneContentId, isOpen } = useContext(PaneContext);
+    const { openPane, closePane, paneContentId, isOpen } =
+        useContext(PaneContext);
 
     function open() {
         openPane(paneId);
@@ -116,10 +131,16 @@ const Pane = ({ children, trigger, paneId }) => {
 
     return (
         <>
-            {trigger({ openPane: open, closePane, isOpen: isOpen && paneContentId === paneId })}
-            {isOpen && paneContentId === paneId && createPortal(children, document.getElementById('pane-overlay'))}
+            {trigger({
+                openPane: open,
+                closePane,
+                isOpen: isOpen && paneContentId === paneId,
+            })}
+            {isOpen &&
+                paneContentId === paneId &&
+                createPortal(children, document.getElementById("pane-overlay"))}
         </>
-    )
-}
+    );
+};
 
 export default Pane;

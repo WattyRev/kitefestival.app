@@ -1,9 +1,9 @@
-import { render, screen } from '@testing-library/react';
-import TextInput from '../TextInput';
+import { render, screen } from "@testing-library/react";
+import TextInput from "../TextInput";
 
-describe('TextInput', () => {
-    it('renders an input', () => {
+describe("TextInput", () => {
+    it("renders an input", () => {
         render(<TextInput data-testid="target" />);
-        expect(screen.getByTestId('target')).toHaveRole('textbox');
-    })
-})
+        expect(screen.getByTestId("target")).toHaveRole("textbox");
+    });
+});
