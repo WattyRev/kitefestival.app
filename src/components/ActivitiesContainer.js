@@ -167,7 +167,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 body: JSON.stringify({ title, description })
             })
             if (!response.ok) {
-                openAlert('Failed to create activity', 'error');
+                openAlert('Create failed', 'error');
                 return;
             }
             const updatedActivityJson = await response.json();
@@ -202,11 +202,13 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             setUndoState(null);
         },
         moveActivity: async (id, bucketName, index) => {
-            // Capture current state for undo (deep copy to avoid shared references)
+            // Capture current state for undo (only store essential positioning data)
             const previousState = {
-                activities: activitiesData.activities.map(activity => ({ ...activity })),
-                scheduledActivities: activitiesData.scheduledActivities.map(activity => ({ ...activity })),
-                unscheduledActivities: activitiesData.unscheduledActivities.map(activity => ({ ...activity })),
+                activities: activitiesData.activities.map(activity => ({
+                    id: activity.id,
+                    sortIndex: activity.sortIndex,
+                    scheduleIndex: activity.scheduleIndex
+                })),
                 timestamp: Date.now()
             };
 
@@ -252,8 +254,21 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             // Store the undo state before clearing it
             const previousState = undoState;
             
+            // Restore previous positions by merging with current activities
+            const restoredActivities = activitiesData.activities.map(activity => {
+                const previousActivity = previousState.activities.find(prev => prev.id === activity.id);
+                if (previousActivity) {
+                    return {
+                        ...activity,
+                        sortIndex: previousActivity.sortIndex,
+                        scheduleIndex: previousActivity.scheduleIndex
+                    };
+                }
+                return activity;
+            });
+            
             // Restore previous state immediately for responsive UI
-            dispatch({ type: 'bulkUpdate', activities: previousState.activities });
+            dispatch({ type: 'bulkUpdate', activities: restoredActivities });
             
             // Clear the undo state after use
             setUndoState(null);
@@ -262,11 +277,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             fetch('/api/activities', {
                 method: 'PATCH',
                 body: JSON.stringify({
-                    activities: previousState.activities.map(activity => ({
-                        id: activity.id,
-                        sortIndex: activity.sortIndex,
-                        scheduleIndex: activity.scheduleIndex
-                    }))
+                    activities: previousState.activities
                 })
             }).then(response => {
                 if (!response.ok) {
