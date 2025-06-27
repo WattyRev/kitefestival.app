@@ -39,7 +39,6 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                     moveActivity,
                     undoLastMove,
                     hasUndo,
-                    undoCount,
                 }) => (
                     <CommentsContainer>
                         {({
@@ -174,7 +173,6 @@ const HomePageContainer = ({ activities:initialActivities }) => {
                                         <ActivityForm onSubmit={createActivity} />                                        {isEditor() && hasUndo && (
                                             <UndoButton 
                                                 onUndo={undoLastMove}
-                                                undoCount={undoCount}
                                                 data-testid="undo-button"
                                             />
                                         )}

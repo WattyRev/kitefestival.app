@@ -1,4 +1,4 @@
-import { createContext, useEffect, useReducer, useState } from "react";
+import { createContext, useEffect, useReducer, useState, useCallback } from "react";
 import fetch from '../util/fetch';
 import { useAlert } from "./ui/Alert";
 import { useChangePolling } from "./ChangePollingContainer";
@@ -127,7 +127,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
     const { openAlert } = useAlert();
     const { changes } = useChangePolling();
 
-    const fetchActivities = async () => {
+    const fetchActivities = useCallback(async () => {
         setIsLoading(true);
         const activitiesResponse = await fetch('/api/activities')
         const activitiesJson = await activitiesResponse.json();
@@ -138,16 +138,16 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             unscheduledActivities: activities.filter(activity => activity.scheduleIndex === null)
         }});
         setIsLoading(false);
-    }
+    }, []);
 
-    const checkForUpdates = async () => {
+    const checkForUpdates = useCallback(async () => {
         const newerChanges = changes.filter(change => new Date(change.updated).getTime() > lastUpdate && change.tablename === 'activities');
         if (!newerChanges.length) {
             return;
         }
         lastUpdate = new Date().getTime();
         return fetchActivities();
-    }
+    }, [changes, fetchActivities]);
 
     useEffect(() => {
         checkForUpdates();
@@ -271,8 +271,8 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             
             // Clear the undo state after use
             setUndoState(null);
-        },        hasUndo: !!undoState,
-        undoCount: undoState ? 1 : 0,
+        },
+        hasUndo: !!undoState,
         clearUndo: () => setUndoState(null)
     };
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { css } from '../../../styled-system/css';
 
-const UndoButton = ({ onUndo, disabled = false, undoCount = 1, ...props }) => {
+const UndoButton = ({ onUndo, disabled = false, ...props }) => {
     return (
         <button
             onClick={onUndo}
@@ -41,7 +41,7 @@ const UndoButton = ({ onUndo, disabled = false, undoCount = 1, ...props }) => {
             {...props}
         >
             <i className="fa-solid fa-rotate-left" />
-            Undo Move {undoCount > 1 && `(${undoCount})`}
+            Undo Move
         </button>
     );
 };

@@ -1,4 +1,4 @@
-import { createContext, useEffect, useReducer, useState } from "react";
+import { createContext, useEffect, useReducer, useState, useCallback } from "react";
 import fetch from '../util/fetch';
 import { useAlert } from "./ui/Alert";
 import { useChangePolling } from "./ChangePollingContainer";
@@ -100,7 +100,7 @@ const CommentsContainer = ({ children }) => {
     const { openAlert } = useAlert();
     const { changes } = useChangePolling();
 
-    const fetchComments = async () => {
+    const fetchComments = useCallback(async () => {
         if (!['editor', 'user'].includes(auth.userType)) {
             return;
         }
@@ -120,9 +120,9 @@ const CommentsContainer = ({ children }) => {
         }});
         setLastUpdate(new Date().getTime());
         setIsLoading(false);
-    }
+    }, [auth.userType]);
 
-    const checkForUpdates = async () => {
+    const checkForUpdates = useCallback(async () => {
         if (!lastUpdate) {
             return fetchComments();
         }
@@ -131,7 +131,7 @@ const CommentsContainer = ({ children }) => {
             return;
         }
         return fetchComments();
-    }
+    }, [changes, lastUpdate, fetchComments]);
 
     useEffect(() => {
         checkForUpdates();

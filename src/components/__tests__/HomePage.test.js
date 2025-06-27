@@ -43,7 +43,6 @@ describe('HomePage', () => {    beforeEach(() => {
                     moveActivityDown: jest.fn(),
                     undoLastMove: jest.fn(),
                     hasUndo: false,
-                    undoCount: 0,
                     clearUndo: jest.fn(),
                 });
             }
@@ -117,7 +116,6 @@ describe('HomePage', () => {    beforeEach(() => {
                     moveActivityDown: jest.fn(),
                     undoLastMove: jest.fn(),
                     hasUndo: false,
-                    undoCount: 0,
                     clearUndo: jest.fn(),
                 });
             }
@@ -161,7 +159,6 @@ describe('HomePage', () => {    beforeEach(() => {
                     moveActivityDown: jest.fn(),
                     undoLastMove: jest.fn(),
                     hasUndo: false,
-                    undoCount: 0,
                     clearUndo: jest.fn(),
                 });
             }
@@ -222,7 +219,6 @@ describe('HomePage', () => {    beforeEach(() => {
                         moveActivityDown: jest.fn(),
                         undoLastMove: jest.fn(),
                         hasUndo: false,
-                        undoCount: 0,
                         clearUndo: jest.fn(),
                     });
                 }
@@ -302,7 +298,7 @@ describe('HomePage', () => {    beforeEach(() => {
                         moveActivityDown: jest.fn(),
                         undoLastMove: jest.fn(),
                         hasUndo: false,
-                        undoCount: 0,
+
                         clearUndo: jest.fn(),
                     });
                 }

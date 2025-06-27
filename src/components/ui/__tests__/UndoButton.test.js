@@ -35,19 +35,4 @@ describe('UndoButton', () => {
         
         expect(mockOnUndo).not.toHaveBeenCalled();
     });
-
-    it('shows undo count when greater than 1', () => {
-        const mockOnUndo = jest.fn();
-        render(<UndoButton onUndo={mockOnUndo} undoCount={3} />);
-        
-        expect(screen.getByRole('button')).toHaveTextContent('Undo Move (3)');
-    });
-
-    it('does not show count when undoCount is 1', () => {
-        const mockOnUndo = jest.fn();
-        render(<UndoButton onUndo={mockOnUndo} undoCount={1} />);
-        
-        expect(screen.getByRole('button')).toHaveTextContent('Undo Move');
-        expect(screen.getByRole('button')).not.toHaveTextContent('(1)');
-    });
 });
