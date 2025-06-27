@@ -283,7 +283,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
     return (
         <ActivitiesContext.Provider value={activitiesData}>
             <ActivitiesDispatchContext.Provider value={dispatch}>
-                {typeof children === 'function' ? children(childData) : children}
+                {children(childData)}
             </ActivitiesDispatchContext.Provider>
         </ActivitiesContext.Provider>
     )

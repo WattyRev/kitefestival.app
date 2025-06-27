@@ -178,7 +178,7 @@ const CommentsContainer = ({ children }) => {
     return (
         <CommentsContext.Provider value={commentsData}>
             <CommentsDispatchContext.Provider value={dispatch}>
-                {typeof children === 'function' ? children(childData) : children}
+                {children(childData)}
             </CommentsDispatchContext.Provider>
         </CommentsContext.Provider>
     )
