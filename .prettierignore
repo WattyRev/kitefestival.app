@@ -5,3 +5,5 @@ dist
 node_modules
 .next
 .vercel
+package.json
+package-lock.json
