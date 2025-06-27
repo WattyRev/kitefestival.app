@@ -1,20 +1,19 @@
-import React from 'react';
-import { css } from '../../../styled-system/css';
+import React from "react";
+import { css } from "../../../styled-system/css";
 
-export const buttonStyles = css({ 
-    color: 'link',
-    cursor: 'pointer',
+export const buttonStyles = css({
+    color: "link",
+    cursor: "pointer",
     _hover: {
-        textDecoration: 'underline'
-    }
-})
+        textDecoration: "underline",
+    },
+});
 
-const LinkButton = ({ className = '', children, ...props}) => {
+const LinkButton = ({ className = "", children, ...props }) => {
     return (
-        <button
-            className={`${className} ${buttonStyles}`}
-            {...props}
-        >{children}</button>
+        <button className={`${className} ${buttonStyles}`} {...props}>
+            {children}
+        </button>
     );
 };
 

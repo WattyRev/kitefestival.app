@@ -1,14 +1,16 @@
-import React from 'react';
-import { css } from '../../../styled-system/css';
+import React from "react";
+import { css } from "../../../styled-system/css";
 
-const H1 = ({ children, className, ...props} ) => {
+const H1 = ({ children, className, ...props }) => {
     return (
         <h1
-            className={`${className} ${css({ 
-                fontSize: '2rem',
+            className={`${className} ${css({
+                fontSize: "2rem",
             })}`}
             {...props}
-        >{children}</h1>
+        >
+            {children}
+        </h1>
     );
 };
 
