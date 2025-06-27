@@ -249,28 +249,32 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 return;
             }
 
-            // Patch all activities back to their previous state
-            const response = await fetch('/api/activities', {
+            // Store the undo state before clearing it
+            const previousState = undoState;
+            
+            // Restore previous state immediately for responsive UI
+            dispatch({ type: 'bulkUpdate', activities: previousState.activities });
+            
+            // Clear the undo state after use
+            setUndoState(null);
+
+            // Patch all activities back to their previous state (fire and forget)
+            fetch('/api/activities', {
                 method: 'PATCH',
                 body: JSON.stringify({
-                    activities: undoState.activities.map(activity => ({
+                    activities: previousState.activities.map(activity => ({
                         id: activity.id,
                         sortIndex: activity.sortIndex,
                         scheduleIndex: activity.scheduleIndex
                     }))
                 })
-            });
-
-            if (!response.ok) {
+            }).then(response => {
+                if (!response.ok) {
+                    openAlert('Failed to undo move', 'error');
+                }
+            }).catch(() => {
                 openAlert('Failed to undo move', 'error');
-                return;
-            }
-
-            // Restore previous state
-            dispatch({ type: 'bulkUpdate', activities: undoState.activities });
-            
-            // Clear the undo state after use
-            setUndoState(null);
+            });
         },
         hasUndo: !!undoState,
         clearUndo: () => setUndoState(null)
