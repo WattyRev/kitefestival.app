@@ -171,7 +171,8 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 return;
             }
             const updatedActivityJson = await response.json();
-            const updatedActivity = updatedActivityJson.activities[0];            dispatch({ type: 'create', activity: updatedActivity });
+            const updatedActivity = updatedActivityJson.activities[0];            
+            dispatch({ type: 'create', activity: updatedActivity });
             // Clear undo since creating an activity changes the list
             setUndoState(null);
         },
@@ -223,12 +224,18 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             // Reindex all activities
             const { changedActivities, newActivities } = reindexActivities(activitiesClone);
 
-            // Patch changed activities
+            // Patch changed activities (fire and forget for responsive UI, but handle errors)
             fetch('/api/activities', { 
                 method: 'PATCH',
                 body: JSON.stringify({
                     activities: changedActivities
                 })
+            }).then(response => {
+                if (!response.ok) {
+                    openAlert('Failed to move activities', 'error');
+                }
+            }).catch(() => {
+                openAlert('Failed to move activities', 'error');
             });
             
             // Store undo state after successful server update

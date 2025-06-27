@@ -39,13 +39,8 @@ const UndoButton = ({ onUndo, disabled = false, undoCount = 1, ...props }) => {
                 }
             })}
             {...props}
-        >            <span className={css({
-                fontSize: '16px',
-                transform: 'rotate(180deg)',
-                display: 'inline-block'
-            })}>
-                ↻
-            </span>
+        >
+            <i className="fa-solid fa-rotate-left" />
             Undo Move {undoCount > 1 && `(${undoCount})`}
         </button>
     );
