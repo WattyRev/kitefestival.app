@@ -1,5 +1,11 @@
-import { createContext, useEffect, useReducer, useState, useCallback } from "react";
-import fetch from '../util/fetch';
+import {
+    createContext,
+    useEffect,
+    useReducer,
+    useState,
+    useCallback,
+} from "react";
+import fetch from "../util/fetch";
 import { useAlert } from "./ui/Alert";
 import { useChangePolling } from "./ChangePollingContainer";
 
@@ -19,7 +25,7 @@ function sortActivities(activities) {
     const bBeforeA = 1;
     sortedActivities.sort((a, b) => {
         if (a.scheduleIndex !== null && b.scheduleIndex === null) {
-            return aBeforeB
+            return aBeforeB;
         }
         if (a.scheduleIndex === null && b.scheduleIndex !== null) {
             return bBeforeA;
@@ -37,60 +43,75 @@ function buildActivitiesState(activities) {
     const newState = sortedActivities.reduce(
         (acc, activity) => {
             acc.activities.push(activity);
-            if (activity.scheduleIndex !== null && activity.sortIndex === null) {
+            if (
+                activity.scheduleIndex !== null &&
+                activity.sortIndex === null
+            ) {
                 acc.scheduledActivities.push(activity);
             }
-            if (activity.sortIndex !== null && activity.scheduleIndex === null) {
+            if (
+                activity.sortIndex !== null &&
+                activity.scheduleIndex === null
+            ) {
                 acc.unscheduledActivities.push(activity);
             }
             return acc;
-        }, 
-        {activities: [], unscheduledActivities: [], scheduledActivities: []}
+        },
+        { activities: [], unscheduledActivities: [], scheduledActivities: [] },
     );
     return newState;
 }
 
 const ActivitiesReducer = (state, action) => {
     switch (action.type) {
-        case 'delete' : {
+        case "delete": {
             if (!action.id) {
-                throw new Error('No id provided to delete activity from state');
+                throw new Error("No id provided to delete activity from state");
             }
-            return buildActivitiesState(state.activities.filter(activity => activity.id !== action.id));
+            return buildActivitiesState(
+                state.activities.filter(
+                    (activity) => activity.id !== action.id,
+                ),
+            );
         }
-        case 'patch' : {
+        case "patch": {
             if (!action?.activity?.id) {
-                throw new Error('No id provided to patch activity from state');
+                throw new Error("No id provided to patch activity from state");
             }
-            return buildActivitiesState(state.activities.map(activity => {
-                if (activity.id === action.activity.id) {
-                    Object.assign(activity, action.activity);
-                }
-                return activity;
-            }))
+            return buildActivitiesState(
+                state.activities.map((activity) => {
+                    if (activity.id === action.activity.id) {
+                        Object.assign(activity, action.activity);
+                    }
+                    return activity;
+                }),
+            );
         }
-        case 'create' : {
+        case "create": {
             if (!action.activity) {
-                throw new Error('No activity provided to create');
+                throw new Error("No activity provided to create");
             }
-            const newState = { 
+            const newState = {
                 ...state,
                 activities: [...state.activities, action.activity],
-                unscheduledActivities: [...state.unscheduledActivities, action.activity],
+                unscheduledActivities: [
+                    ...state.unscheduledActivities,
+                    action.activity,
+                ],
             };
             return newState;
         }
-        case 'bulkUpdate': {
+        case "bulkUpdate": {
             return buildActivitiesState(action.activities);
         }
-        case 'refresh': {
+        case "refresh": {
             return action.newState;
         }
         default: {
             throw new Error(`Unhandled activities action type: ${action.type}`);
         }
     }
-}
+};
 
 function reindexActivities(activities) {
     let changedActivities = [];
@@ -105,7 +126,7 @@ function reindexActivities(activities) {
             activity.scheduleIndex = scheduleIndex;
             scheduleIndex = scheduleIndex + 1;
             return activity;
-        } 
+        }
         if (activity.sortIndex !== index) {
             changedActivities.push(activity);
         }
@@ -120,28 +141,44 @@ function reindexActivities(activities) {
 const ActivitiesContainer = ({ children, initialActivities }) => {
     const [activitiesData, dispatch] = useReducer(ActivitiesReducer, {
         activities: initialActivities,
-        scheduledActivities: initialActivities.filter(activity => activity.scheduleIndex !== null),
-        unscheduledActivities: initialActivities.filter(activity => activity.scheduleIndex === null),
-    });    const [isLoading, setIsLoading] = useState(false);
+        scheduledActivities: initialActivities.filter(
+            (activity) => activity.scheduleIndex !== null,
+        ),
+        unscheduledActivities: initialActivities.filter(
+            (activity) => activity.scheduleIndex === null,
+        ),
+    });
+    const [isLoading, setIsLoading] = useState(false);
     const [undoState, setUndoState] = useState(null);
     const { openAlert } = useAlert();
     const { changes } = useChangePolling();
 
     const fetchActivities = useCallback(async () => {
         setIsLoading(true);
-        const activitiesResponse = await fetch('/api/activities')
+        const activitiesResponse = await fetch("/api/activities");
         const activitiesJson = await activitiesResponse.json();
         const { activities } = activitiesJson;
-        dispatch({ type: 'refresh', newState: {
-            activities, 
-            scheduledActivities: activities.filter(activity => activity.scheduleIndex !== null), 
-            unscheduledActivities: activities.filter(activity => activity.scheduleIndex === null)
-        }});
+        dispatch({
+            type: "refresh",
+            newState: {
+                activities,
+                scheduledActivities: activities.filter(
+                    (activity) => activity.scheduleIndex !== null,
+                ),
+                unscheduledActivities: activities.filter(
+                    (activity) => activity.scheduleIndex === null,
+                ),
+            },
+        });
         setIsLoading(false);
     }, []);
 
     const checkForUpdates = useCallback(async () => {
-        const newerChanges = changes.filter(change => new Date(change.updated).getTime() > lastUpdate && change.tablename === 'activities');
+        const newerChanges = changes.filter(
+            (change) =>
+                new Date(change.updated).getTime() > lastUpdate &&
+                change.tablename === "activities",
+        );
         if (!newerChanges.length) {
             return;
         }
@@ -151,7 +188,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
 
     useEffect(() => {
         checkForUpdates();
-    }, [changes, checkForUpdates])
+    }, [changes, checkForUpdates]);
 
     const childData = {
         activities: activitiesData.activities,
@@ -159,92 +196,97 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
         unscheduledActivities: activitiesData.unscheduledActivities,
         isLoading,
         createActivity: async ({ title, description }) => {
-            const response = await fetch('/api/activities', {
-                method: 'POST',
+            const response = await fetch("/api/activities", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ title, description })
-            })
+                body: JSON.stringify({ title, description }),
+            });
             if (!response.ok) {
-                openAlert('Failed to create activity', 'error');
+                openAlert("Failed to create activity", "error");
                 return;
             }
             const updatedActivityJson = await response.json();
-            const updatedActivity = updatedActivityJson.activities[0];            
-            dispatch({ type: 'create', activity: updatedActivity });
+            const updatedActivity = updatedActivityJson.activities[0];
+            dispatch({ type: "create", activity: updatedActivity });
             // Clear undo since creating an activity changes the list
             setUndoState(null);
         },
         deleteActivity: async (id) => {
             const response = await fetch(`/api/activities/${id}`, {
-                method: 'DELETE'
+                method: "DELETE",
             });
             if (!response.ok) {
-                openAlert('Failed to delete activity', 'error');
+                openAlert("Failed to delete activity", "error");
                 return;
             }
-            dispatch({ type: 'delete', id });
+            dispatch({ type: "delete", id });
             // Clear undo since deleting an activity changes the list
             setUndoState(null);
         },
-        editActivity: async(activity) => {
+        editActivity: async (activity) => {
             const response = await fetch(`/api/activities/${activity.id}`, {
-                method: 'PATCH',
-                body: JSON.stringify({ activity })
+                method: "PATCH",
+                body: JSON.stringify({ activity }),
             });
             if (!response.ok) {
-                openAlert('Failed to update activity', 'error');
+                openAlert("Failed to update activity", "error");
                 return;
             }
-            dispatch({ type: 'patch', activity})
+            dispatch({ type: "patch", activity });
             // Clear undo since editing an activity changes the data
             setUndoState(null);
         },
         moveActivity: async (id, bucketName, index) => {
             // Capture current state for undo (only store essential positioning data)
             const previousState = {
-                activities: activitiesData.activities.map(activity => ({
+                activities: activitiesData.activities.map((activity) => ({
                     id: activity.id,
                     sortIndex: activity.sortIndex,
-                    scheduleIndex: activity.scheduleIndex
+                    scheduleIndex: activity.scheduleIndex,
                 })),
-                timestamp: Date.now()
+                timestamp: Date.now(),
             };
 
             const activitiesClone = [...activitiesData.activities];
             // Set activity's new position
-            const currentActivity = activitiesClone.find(activity => activity.id === id);
-            if (bucketName === 'schedule') {
+            const currentActivity = activitiesClone.find(
+                (activity) => activity.id === id,
+            );
+            if (bucketName === "schedule") {
                 currentActivity.sortIndex = null;
                 currentActivity.scheduleIndex = index - 0.5;
-            } else if (bucketName === 'unschedule') {
+            } else if (bucketName === "unschedule") {
                 currentActivity.sortIndex = index - 0.5;
                 currentActivity.scheduleIndex = null;
             }
 
             // Reindex all activities
-            const { changedActivities, newActivities } = reindexActivities(activitiesClone);
+            const { changedActivities, newActivities } =
+                reindexActivities(activitiesClone);
 
             // Patch changed activities (fire and forget for responsive UI, but handle errors)
-            fetch('/api/activities', { 
-                method: 'PATCH',
+            fetch("/api/activities", {
+                method: "PATCH",
                 body: JSON.stringify({
-                    activities: changedActivities
+                    activities: changedActivities,
+                }),
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        openAlert("Failed to move activities", "error");
+                    }
                 })
-            }).then(response => {
-                if (!response.ok) {
-                    openAlert('Failed to move activities', 'error');
-                }
-            }).catch(() => {
-                openAlert('Failed to move activities', 'error');
-            });
-            
+                .catch(() => {
+                    openAlert("Failed to move activities", "error");
+                });
+
             // Store undo state after successful server update
             setUndoState(previousState);
 
             // Dispatch state update
-            dispatch({ type: 'bulkUpdate', activities: newActivities });
+            dispatch({ type: "bulkUpdate", activities: newActivities });
         },
         undoLastMove: async () => {
             if (!undoState) {
@@ -253,42 +295,48 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
 
             // Store the undo state before clearing it
             const previousState = undoState;
-            
+
             // Restore previous positions by merging with current activities
-            const restoredActivities = activitiesData.activities.map(activity => {
-                const previousActivity = previousState.activities.find(prev => prev.id === activity.id);
-                if (previousActivity) {
-                    return {
-                        ...activity,
-                        sortIndex: previousActivity.sortIndex,
-                        scheduleIndex: previousActivity.scheduleIndex
-                    };
-                }
-                return activity;
-            });
-            
+            const restoredActivities = activitiesData.activities.map(
+                (activity) => {
+                    const previousActivity = previousState.activities.find(
+                        (prev) => prev.id === activity.id,
+                    );
+                    if (previousActivity) {
+                        return {
+                            ...activity,
+                            sortIndex: previousActivity.sortIndex,
+                            scheduleIndex: previousActivity.scheduleIndex,
+                        };
+                    }
+                    return activity;
+                },
+            );
+
             // Restore previous state immediately for responsive UI
-            dispatch({ type: 'bulkUpdate', activities: restoredActivities });
-            
+            dispatch({ type: "bulkUpdate", activities: restoredActivities });
+
             // Clear the undo state after use
             setUndoState(null);
 
             // Patch all activities back to their previous state (fire and forget)
-            fetch('/api/activities', {
-                method: 'PATCH',
+            fetch("/api/activities", {
+                method: "PATCH",
                 body: JSON.stringify({
-                    activities: previousState.activities
+                    activities: previousState.activities,
+                }),
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        openAlert("Failed to undo move", "error");
+                    }
                 })
-            }).then(response => {
-                if (!response.ok) {
-                    openAlert('Failed to undo move', 'error');
-                }
-            }).catch(() => {
-                openAlert('Failed to undo move', 'error');
-            });
+                .catch(() => {
+                    openAlert("Failed to undo move", "error");
+                });
         },
         hasUndo: !!undoState,
-        clearUndo: () => setUndoState(null)
+        clearUndo: () => setUndoState(null),
     };
 
     return (
@@ -297,7 +345,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 {children(childData)}
             </ActivitiesDispatchContext.Provider>
         </ActivitiesContext.Provider>
-    )
+    );
 };
 
 export default ActivitiesContainer;
