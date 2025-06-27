@@ -135,7 +135,7 @@ const CommentsContainer = ({ children }) => {
 
     useEffect(() => {
         checkForUpdates();
-      }, [auth.userType, changes, lastUpdate])
+      }, [auth.userType, changes, lastUpdate, checkForUpdates])
 
     const childData = {
         comments: commentsData.comments,

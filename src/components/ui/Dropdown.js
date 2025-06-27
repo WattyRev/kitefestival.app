@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { css } from "../../../styled-system/css";
 
 const Dropdown = ({ children, dropdownContent, ...props }) => {
@@ -12,7 +12,7 @@ const Dropdown = ({ children, dropdownContent, ...props }) => {
         setIsOpen(false);
     }
 
-    const autoClose = event => {
+    const autoClose = useCallback(event => {
         if (!isOpen) {
             return;
         }
@@ -20,7 +20,7 @@ const Dropdown = ({ children, dropdownContent, ...props }) => {
             return;
         }
         handleClose();
-    };
+    }, [isOpen]);
 
     useEffect(() => {
         document.addEventListener("click", autoClose);

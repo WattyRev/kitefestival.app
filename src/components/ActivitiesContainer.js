@@ -151,7 +151,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
 
     useEffect(() => {
         checkForUpdates();
-    }, [changes])
+    }, [changes, checkForUpdates])
 
     const childData = {
         activities: activitiesData.activities,
