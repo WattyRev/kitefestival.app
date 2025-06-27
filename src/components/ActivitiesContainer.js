@@ -167,7 +167,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 body: JSON.stringify({ title, description })
             })
             if (!response.ok) {
-                openAlert('Create failed', 'error');
+                openAlert('Failed to create activity', 'error');
                 return;
             }
             const updatedActivityJson = await response.json();
