@@ -6,6 +6,7 @@ import { AuthProvider } from '../components/global/Auth';
 import { PromptProvider } from '../components/ui/Prompt';
 import { AlertProvider } from '../components/ui/Alert';
 import Script from 'next/script';
+import { css } from '../../styled-system/css';
 
 const inter = Inter({ subsets: ['latin'] })
  
@@ -28,11 +29,13 @@ export default function RootLayout({
         <AuthProvider>
           <PromptProvider>
             <AlertProvider>              <TopNav />
-              <div className="main-container" style={{
-                padding: '0 8px',
-                maxWidth: '100vw',
-                overflowX: 'hidden'
-              }}>
+              <div 
+                className={`main-container ${css({
+                  padding: '0 8px',
+                  maxWidth: '100vw',
+                  overflowX: 'hidden'
+                })}`}
+              >
                 {children}
               </div>
             </AlertProvider>
