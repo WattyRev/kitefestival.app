@@ -445,6 +445,9 @@ const HomePageContainer = ({ activities: initialActivities }) => {
                                                                                   )
                                                                             : undefined
                                                                     }
+                                                                    isGlobalDragging={
+                                                                        !!activelyDraggedId
+                                                                    }
                                                                 >
                                                                     <Comments
                                                                         activity={
