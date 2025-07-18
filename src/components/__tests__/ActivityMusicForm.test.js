@@ -1,5 +1,4 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { useAuth } from "../global/Auth";
 import ActivityMusicForm from "../ActivityMusicForm";
 import userEvent from "@testing-library/user-event";
 
