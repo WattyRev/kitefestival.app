@@ -155,7 +155,7 @@ describe("activities/activityId/route", () => {
                     activity: { foo: "bar" },
                 }),
             };
-            const response = await PATCH(mockReq, {
+            await PATCH(mockReq, {
                 params: { activityId: "1" },
             });
             expect(patchActivity).toHaveBeenCalledWith("1", { foo: "bar" }, 'user');
