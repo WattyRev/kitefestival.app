@@ -29,7 +29,7 @@ describe("ActivityDisplay", () => {
         });
         useAuth.mockReturnValue({
             isEditor: jest.fn().mockReturnValue(false),
-            isPublic: jest.fn().mockReturnValue(true)
+            isPublic: jest.fn().mockReturnValue(true),
         });
     });
     it("renders activity title", async () => {
@@ -128,11 +128,11 @@ describe("ActivityDisplay", () => {
         expect(screen.queryByTestId("show-less")).not.toBeInTheDocument();
     });
 
-    describe('editor', () => {
+    describe("editor", () => {
         beforeEach(() => {
             useAuth.mockReturnValue({
                 isEditor: jest.fn().mockReturnValue(true),
-                isPublic: jest.fn().mockReturnValue(false)
+                isPublic: jest.fn().mockReturnValue(false),
             });
         });
         it("allows an editor to delete an activity", async () => {
@@ -143,7 +143,9 @@ describe("ActivityDisplay", () => {
                 });
             });
             mockOpenPrompt.mockResolvedValue();
-            render(<ActivityDisplay activity={mockActivity} onDelete={onDelete} />);
+            render(
+                <ActivityDisplay activity={mockActivity} onDelete={onDelete} />,
+            );
 
             await userEvent.click(screen.getByTestId("activity-dropdown"));
             await userEvent.click(screen.getByTestId("delete-activity"));
@@ -158,9 +160,9 @@ describe("ActivityDisplay", () => {
             );
             resolveDelete();
             await waitFor(() =>
-                expect(screen.getByTestId("delete-activity")).not.toHaveAttribute(
-                    "disabled",
-                ),
+                expect(
+                    screen.getByTestId("delete-activity"),
+                ).not.toHaveAttribute("disabled"),
             );
         });
         it("allows an editor to edit an activity", async () => {
@@ -191,14 +193,19 @@ describe("ActivityDisplay", () => {
             });
             mockOpenPrompt.mockResolvedValue();
             render(
-                <ActivityDisplay activity={mockActivity} onSchedule={onSchedule} />,
+                <ActivityDisplay
+                    activity={mockActivity}
+                    onSchedule={onSchedule}
+                />,
             );
 
             await userEvent.click(screen.getByTestId("activity-dropdown"));
             await userEvent.click(screen.getByTestId("add-schedule"));
 
             expect(onSchedule).toHaveBeenCalledWith(mockActivity.id);
-            expect(screen.getByTestId("add-schedule")).toHaveAttribute("disabled");
+            expect(screen.getByTestId("add-schedule")).toHaveAttribute(
+                "disabled",
+            );
             resolveSchedule();
             await waitFor(() =>
                 expect(screen.getByTestId("add-schedule")).not.toHaveAttribute(
@@ -229,9 +236,9 @@ describe("ActivityDisplay", () => {
             );
             resolveUnschedule();
             await waitFor(() =>
-                expect(screen.getByTestId("remove-schedule")).not.toHaveAttribute(
-                    "disabled",
-                ),
+                expect(
+                    screen.getByTestId("remove-schedule"),
+                ).not.toHaveAttribute("disabled"),
             );
         });
         it("allows an editor to move an activity up", async () => {
@@ -241,7 +248,9 @@ describe("ActivityDisplay", () => {
                     doResolve = resolve;
                 });
             });
-            render(<ActivityDisplay activity={mockActivity} onMoveUp={onMoveUp} />);
+            render(
+                <ActivityDisplay activity={mockActivity} onMoveUp={onMoveUp} />,
+            );
 
             await userEvent.click(screen.getByTestId("activity-dropdown"));
             await userEvent.click(screen.getByTestId("move-up"));
@@ -263,7 +272,10 @@ describe("ActivityDisplay", () => {
                 });
             });
             render(
-                <ActivityDisplay activity={mockActivity} onMoveDown={onMoveDown} />,
+                <ActivityDisplay
+                    activity={mockActivity}
+                    onMoveDown={onMoveDown}
+                />,
             );
 
             await userEvent.click(screen.getByTestId("activity-dropdown"));
@@ -278,7 +290,7 @@ describe("ActivityDisplay", () => {
                 ),
             );
         });
-        
+
         it("allows an editor to edit music", async () => {
             const onEdit = jest.fn().mockImplementation(() => {
                 return Promise.resolve();
@@ -309,37 +321,49 @@ describe("ActivityDisplay", () => {
             });
             it("displays the position number of the scheduled activity, starting at 1", async () => {
                 render(
-                    <ActivityDisplay activity={mockActivity} onMoveTo={onMoveTo} />,
+                    <ActivityDisplay
+                        activity={mockActivity}
+                        onMoveTo={onMoveTo}
+                    />,
                 );
-    
+
                 expect(screen.getByTestId("schedule-index")).toHaveValue("1");
             });
             it("does not display the position number if the activity is not scheduled", async () => {
                 mockActivity.scheduleIndex = null;
-    
+
                 render(
-                    <ActivityDisplay activity={mockActivity} onMoveTo={onMoveTo} />,
+                    <ActivityDisplay
+                        activity={mockActivity}
+                        onMoveTo={onMoveTo}
+                    />,
                 );
-    
+
                 expect(screen.queryByTestId("schedule-index")).toBeNull();
             });
             it("does not display the user is not an editor", async () => {
                 useAuth.mockReturnValue({
                     isEditor: jest.fn().mockReturnValue(false),
-                    isPublic: jest.fn().mockReturnValue(true)
+                    isPublic: jest.fn().mockReturnValue(true),
                 });
-    
+
                 render(
-                    <ActivityDisplay activity={mockActivity} onMoveTo={onMoveTo} />,
+                    <ActivityDisplay
+                        activity={mockActivity}
+                        onMoveTo={onMoveTo}
+                    />,
                 );
-    
+
                 expect(screen.queryByTestId("schedule-index")).toBeNull();
             });
             it("updates the scheduleIndex when the number is changed", async () => {
                 render(
-                    <ActivityDisplay activity={mockActivity} onMoveTo={onMoveTo} />,
+                    <ActivityDisplay
+                        activity={mockActivity}
+                        onMoveTo={onMoveTo}
+                    />,
                 );
-    
+
                 await userEvent.click(screen.getByTestId("schedule-index"));
                 await userEvent.clear(screen.getByTestId("schedule-index"));
                 await userEvent.type(screen.getByTestId("schedule-index"), "2");
@@ -347,11 +371,14 @@ describe("ActivityDisplay", () => {
             });
             it("updates the scheduleIndex with the new value - 1 when moving up the schedule", async () => {
                 mockActivity.scheduleIndex = 5;
-    
+
                 render(
-                    <ActivityDisplay activity={mockActivity} onMoveTo={onMoveTo} />,
+                    <ActivityDisplay
+                        activity={mockActivity}
+                        onMoveTo={onMoveTo}
+                    />,
                 );
-    
+
                 await userEvent.click(screen.getByTestId("schedule-index"));
                 await userEvent.clear(screen.getByTestId("schedule-index"));
                 await userEvent.type(screen.getByTestId("schedule-index"), "2");
@@ -360,13 +387,13 @@ describe("ActivityDisplay", () => {
         });
     });
 
-    describe('user', () => {
+    describe("user", () => {
         beforeEach(() => {
             useAuth.mockReturnValue({
                 isEditor: jest.fn().mockReturnValue(false),
-                isPublic: jest.fn().mockReturnValue(false)
+                isPublic: jest.fn().mockReturnValue(false),
             });
-        })
+        });
         it("does not display the dropdown if the user is a user", async () => {
             render(<ActivityDisplay activity={mockActivity} />);
 
@@ -394,11 +421,11 @@ describe("ActivityDisplay", () => {
         });
     });
 
-    describe('public', () => {
+    describe("public", () => {
         beforeEach(() => {
             useAuth.mockReturnValue({
                 isEditor: jest.fn().mockReturnValue(false),
-                isPublic: jest.fn().mockReturnValue(true)
+                isPublic: jest.fn().mockReturnValue(true),
             });
         });
         it("does not display the dropdown if the user is general public", async () => {
@@ -416,10 +443,10 @@ describe("ActivityDisplay", () => {
             mockOpenPrompt.mockResolvedValue();
             render(<ActivityDisplay activity={mockActivity} onEdit={onEdit} />);
 
+            expect(screen.queryByTestId("edit-music")).not.toBeInTheDocument();
             expect(
-                screen.queryByTestId("edit-music"),
+                screen.queryByTestId("activity-music"),
             ).not.toBeInTheDocument();
-            expect(screen.queryByTestId("activity-music")).not.toBeInTheDocument();
         });
-    })
+    });
 });

@@ -14,7 +14,7 @@ describe("ActivityMusicForm", () => {
         await userEvent.click(screen.getByTestId("save-activity"));
 
         expect(onSubmit).toHaveBeenCalledWith({
-            music: ['song 1'],
+            music: ["song 1"],
         });
     });
     it("disables the save button while pending", async () => {

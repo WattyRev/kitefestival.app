@@ -143,7 +143,11 @@ describe("activities/activityId/route", () => {
             const response = await PATCH(mockReq, {
                 params: { activityId: "1" },
             });
-            expect(patchActivity).toHaveBeenCalledWith("1", { foo: "bar" }, 'editor');
+            expect(patchActivity).toHaveBeenCalledWith(
+                "1",
+                { foo: "bar" },
+                "editor",
+            );
             expect(logUpdateByTableName).toHaveBeenCalledWith("activities");
             expect(response).toEqual({ data: {} });
         });
@@ -158,7 +162,11 @@ describe("activities/activityId/route", () => {
             await PATCH(mockReq, {
                 params: { activityId: "1" },
             });
-            expect(patchActivity).toHaveBeenCalledWith("1", { foo: "bar" }, 'user');
+            expect(patchActivity).toHaveBeenCalledWith(
+                "1",
+                { foo: "bar" },
+                "user",
+            );
         });
     });
 });

@@ -16,7 +16,7 @@ import Button from "./ui/Button";
 import ActivityMusicForm from "./ActivityMusicForm";
 
 function isMusicMissing(music) {
-    return !!(!music?.length || music.every((m) => !m.trim()))
+    return !!(!music?.length || music.every((m) => !m.trim()));
 }
 
 const ActivityDisplay = ({

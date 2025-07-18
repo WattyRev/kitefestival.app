@@ -38,7 +38,7 @@ export default async function patchActivity(
 
     if (!patchableKeysByLevel[permissionLevel]?.length) {
         throw new InvalidLevelError();
-    };
+    }
 
     const setStrings = patchableKeysByLevel[permissionLevel].reduce(
         (acc, key) => {
