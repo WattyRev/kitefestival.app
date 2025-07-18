@@ -47,7 +47,7 @@ describe("activities/route", () => {
                             id: "1",
                             title: "boogers",
                             description: "green things",
-                            music: ['song1', 'song2'],
+                            music: ["song1", "song2"],
                             sortIndex: 1,
                             scheduleIndex: null,
                         },
@@ -131,7 +131,7 @@ describe("activities/route", () => {
                 expect.anything(),
                 "boogers",
                 "green things",
-                "[\"song1\",\"song2\"]",
+                '["song1","song2"]',
                 0,
             );
         });
@@ -158,7 +158,7 @@ describe("activities/route", () => {
                 expect.anything(),
                 "boogers",
                 "green things",
-                "[\"song1\",\"song2\"]",
+                '["song1","song2"]',
                 6,
             );
         });
@@ -214,14 +214,22 @@ describe("activities/route", () => {
             };
             await PATCH(mockReq);
             expect(patchActivity).toHaveBeenCalledTimes(2);
-            expect(patchActivity).toHaveBeenCalledWith("1", {
-                id: "1",
-                description: "test",
-            }, 'editor');
-            expect(patchActivity).toHaveBeenCalledWith("2", {
-                id: "2",
-                sortIndex: 2,
-            }, 'editor');
+            expect(patchActivity).toHaveBeenCalledWith(
+                "1",
+                {
+                    id: "1",
+                    description: "test",
+                },
+                "editor",
+            );
+            expect(patchActivity).toHaveBeenCalledWith(
+                "2",
+                {
+                    id: "2",
+                    sortIndex: 2,
+                },
+                "editor",
+            );
             expect(logUpdateByTableName).toHaveBeenCalledWith("activities");
         });
     });

@@ -33,7 +33,7 @@ describe("ActivityForm", () => {
         expect(onSubmit).toHaveBeenCalledWith({
             title: "Cool Activity",
             description: "This is a cool activity",
-            music: ['song 1'],
+            music: ["song 1"],
         });
     });
     it("disables the save button while pending", async () => {
@@ -83,15 +83,15 @@ describe("ActivityForm", () => {
         expect(screen.getByTestId("description")).toHaveValue("");
         expect(screen.queryByTestId("input-item-0")).not.toBeInTheDocument();
     });
-    it('Uses the edit title if isEdit is true', async () => {
+    it("Uses the edit title if isEdit is true", async () => {
         useAuth.mockReturnValue({
             isEditor: jest.fn().mockReturnValue(true),
         });
         const onSubmit = jest.fn().mockResolvedValue();
         render(<ActivityForm onSubmit={onSubmit} />);
         expect(screen.getByText("Create Activity")).toBeInTheDocument();
-        
+
         render(<ActivityForm onSubmit={onSubmit} isEdit={true} />);
         expect(screen.getByText("Edit Activity")).toBeInTheDocument();
-    })
+    });
 });

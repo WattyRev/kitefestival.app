@@ -65,12 +65,20 @@ const TextInputList = ({ value = [], onChange, ...props }) => {
                         onChange={(e) => handleChange(e.target.value, index)}
                     />
                     {index !== 0 && (
-                        <Button type="button" data-testid={`move-up-item-${index}`} onClick={() => moveUp(index)}>
+                        <Button
+                            type="button"
+                            data-testid={`move-up-item-${index}`}
+                            onClick={() => moveUp(index)}
+                        >
                             <i className="fa-solid fa-arrow-up" />
                         </Button>
                     )}
                     {index !== value.length - 1 && (
-                        <Button type="button" data-testid={`move-down-item-${index}`} onClick={() => moveDown(index)}>
+                        <Button
+                            type="button"
+                            data-testid={`move-down-item-${index}`}
+                            onClick={() => moveDown(index)}
+                        >
                             <i className="fa-solid fa-arrow-down" />
                         </Button>
                     )}
