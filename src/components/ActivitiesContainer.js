@@ -195,13 +195,13 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
         scheduledActivities: activitiesData.scheduledActivities,
         unscheduledActivities: activitiesData.unscheduledActivities,
         isLoading,
-        createActivity: async ({ title, description }) => {
+        createActivity: async ({ title, description, music }) => {
             const response = await fetch("/api/activities", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ title, description }),
+                body: JSON.stringify({ title, description, music }),
             });
             if (!response.ok) {
                 openAlert("Failed to create activity", "error");

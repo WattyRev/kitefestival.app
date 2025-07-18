@@ -16,6 +16,12 @@ export class InvalidPasscodeError extends Error {
     }
 }
 
+/**
+ *
+ * @param {String} passcode
+ * @param {String[]} levels Options: "admin", "editor", "user"
+ * @returns true if passcode matches levels
+ */
 export default async function validatePasscode(passcode, levels) {
     if (!passcode) {
         throw new NoPasscodeError();

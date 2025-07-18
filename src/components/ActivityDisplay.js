@@ -12,6 +12,12 @@ import Modal from "./ui/Modal";
 import ActivityForm from "./ActivityForm";
 import LinkButton from "./ui/LinkButton";
 import { useDraggable } from "@dnd-kit/core";
+import Button from "./ui/Button";
+import ActivityMusicForm from "./ActivityMusicForm";
+
+function isMusicMissing(music) {
+    return !!(!music?.length || music.every((m) => !m.trim()))
+}
 
 const ActivityDisplay = ({
     activity,
@@ -28,12 +34,13 @@ const ActivityDisplay = ({
     allowHideDescription = true,
     isGlobalDragging,
 }) => {
-    const { isEditor } = useAuth();
+    const { isEditor, isPublic } = useAuth();
     const { openPrompt } = usePrompt();
     const [isDescriptionVisible, setIsDescriptionVisible] = useState(false);
 
     const [pending, setPending] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
+    const [isEditingActivity, setIsEditingActivity] = useState(false);
+    const [isEditingMusic, setIsEditingMusic] = useState(false);
     const [scheduleIndex, setScheduleIndex] = useState(
         activity.scheduleIndex !== null ? activity.scheduleIndex + 1 : null,
     );
@@ -69,7 +76,8 @@ const ActivityDisplay = ({
         setPending(true);
         await onEdit({ id: activity.id, ...updatedActivity });
         setPending(false);
-        setIsEditing(false);
+        setIsEditingActivity(false);
+        setIsEditingMusic(false);
     }
 
     const { attributes, listeners, setNodeRef, transform, isDragging } =
@@ -181,7 +189,7 @@ const ActivityDisplay = ({
                                             <DropdownItem
                                                 data-testid="edit-activity"
                                                 onClick={() =>
-                                                    setIsEditing(true)
+                                                    setIsEditingActivity(true)
                                                 }
                                                 disabled={pending}
                                             >
@@ -311,6 +319,59 @@ const ActivityDisplay = ({
                                 },
                             })}`}
                         >
+                            {!isPublic() > 0 && (
+                                <div
+                                    data-testid="activity-music"
+                                    className={css({
+                                        display: "flex",
+                                        alignItems: "center",
+                                        margin: "8px 0",
+                                        border: "1px solid var(--colors-secondary)",
+                                        borderWidth: "1px 0",
+                                        padding: "8px",
+                                    })}
+                                >
+                                    <i
+                                        className={`fa-solid fa-music ${isMusicMissing(activity.music) ? "missing" : ""} ${css({ marginRight: "8px", "&.missing": { color: "danger" } })}`}
+                                    ></i>
+                                    <ol
+                                        className={css({
+                                            borderLeft:
+                                                "1px solid var(--colors-secondary)",
+                                            paddingLeft: "8px",
+                                            flexGrow: 1,
+                                        })}
+                                    >
+                                        {activity.music &&
+                                            activity.music?.map(
+                                                (music, index) => (
+                                                    <li
+                                                        key={`${music}${index}`}
+                                                    >
+                                                        <span
+                                                            className={css({
+                                                                width: "25px",
+                                                                display:
+                                                                    "inline-block",
+                                                            })}
+                                                        >
+                                                            {index + 1}.
+                                                        </span>{" "}
+                                                        {music}
+                                                    </li>
+                                                ),
+                                            )}
+                                    </ol>
+                                    <Button
+                                        type="button"
+                                        className="secondary"
+                                        data-testid="edit-music"
+                                        onClick={() => setIsEditingMusic(true)}
+                                    >
+                                        <i className="fa-solid fa-pencil"></i>
+                                    </Button>
+                                </div>
+                            )}
                             {getDescription()
                                 .split("\n")
                                 .map((line, index) => (
@@ -360,13 +421,28 @@ const ActivityDisplay = ({
                         </div>
                     </div>
                 </div>
-                <Modal isOpen={isEditing} onClose={() => setIsEditing(false)}>
+                <Modal
+                    isOpen={isEditingActivity}
+                    onClose={() => setIsEditingActivity(false)}
+                >
                     <ActivityForm
+                        isEdit
                         title={activity.title}
                         description={activity.description}
-                        onCancel={() => setIsEditing(false)}
+                        music={activity.music}
+                        onCancel={() => setIsEditingActivity(false)}
                         onSubmit={editActivity}
                         autoFocus
+                    />
+                </Modal>
+                <Modal
+                    isOpen={isEditingMusic}
+                    onClose={() => setIsEditingMusic(false)}
+                >
+                    <ActivityMusicForm
+                        music={activity.music}
+                        onCancel={() => setIsEditingMusic(false)}
+                        onSubmit={editActivity}
                     />
                 </Modal>
             </Panel>

@@ -30,6 +30,7 @@ export async function GET() {
             id,
             title,
             description,
+            music: JSON.parse(activity.music),
             sortIndex: sortindex,
             scheduleIndex: scheduleindex,
         };
@@ -43,7 +44,8 @@ export async function GET() {
  * POST /api/activities
  * {
  *   title: string
- *   description: string
+ *   description: string,
+ *   music: string[]
  * }
  *
  * Response:
@@ -52,7 +54,7 @@ export async function GET() {
  * }
  */
 export async function POST(req) {
-    const { title, description = "" } = await req.json();
+    const { title, description = "", music = [] } = await req.json();
     const cookieStore = cookies();
     const passcode = cookieStore.get("passcode")?.value;
     try {
@@ -82,7 +84,7 @@ export async function POST(req) {
 
     const id = randomUUID();
     const highestSortIndexResponse =
-        await sql`SELECT (sortIndex) FROM activities ORDER BY sortIndex DESC LIMIT 1`;
+        await sql`SELECT (sortIndex) FROM activities WHERE sortIndex IS NOT NULL ORDER BY sortIndex DESC LIMIT 1`;
     let sortIndex;
     if (!highestSortIndexResponse.rows.length) {
         sortIndex = 0;
@@ -90,11 +92,11 @@ export async function POST(req) {
         sortIndex = highestSortIndexResponse.rows[0].sortindex + 1;
     }
     await Promise.all([
-        sql`INSERT INTO activities (id, title, description, sortIndex, scheduleIndex) VALUES (${id}, ${title}, ${description}, ${sortIndex}, null)`,
+        sql`INSERT INTO activities (id, title, description, music, sortIndex, scheduleIndex) VALUES (${id}, ${title}, ${description}, ${JSON.stringify(music)}, ${sortIndex}, null)`,
         logUpdateByTableName("activities"),
     ]);
     const activities = [
-        { id, title, description, sortIndex, scheduleIndex: null },
+        { id, title, description, music, sortIndex, scheduleIndex: null },
     ];
     return NextResponse.json({ activities });
 }
@@ -114,22 +116,33 @@ export async function PATCH(req) {
     const { activities } = await req.json();
     const cookieStore = cookies();
     const passcode = cookieStore.get("passcode")?.value;
+
+    let permissionLevel = null;
     try {
-        await validatePasscode(passcode, ["editor"]);
+        const isEditor = await validatePasscode(passcode, ["editor"]);
+        permissionLevel = isEditor ? "editor" : null;
     } catch (error) {
         if (error instanceof NoPasscodeError) {
             return NextResponse.json(
                 { message: "No passcode provided" },
                 { status: 401 },
             );
+        } else if (error instanceof InvalidPasscodeError) {
+            try {
+                const isUser = await validatePasscode(passcode, ["user"]);
+                permissionLevel = isUser ? "user" : null;
+            } catch (error) {
+                if (error instanceof InvalidPasscodeError) {
+                    return NextResponse.json(
+                        { message: "Provided passcode is invalid" },
+                        { status: 403 },
+                    );
+                }
+                throw error;
+            }
+        } else {
+            throw error;
         }
-        if (error instanceof InvalidPasscodeError) {
-            return NextResponse.json(
-                { message: "Provided passcode is invalid" },
-                { status: 403 },
-            );
-        }
-        throw error;
     }
 
     await Promise.all(
@@ -138,7 +151,7 @@ export async function PATCH(req) {
                 return;
             }
             await Promise.all([
-                patchActivity(activity.id, activity),
+                patchActivity(activity.id, activity, permissionLevel),
                 logUpdateByTableName("activities"),
             ]);
         }),

@@ -213,6 +213,7 @@ describe("ActivitiesContainer", () => {
                                     createActivity({
                                         title: "Activity 5",
                                         description: "Description 5",
+                                        music: ['song1', 'song2']
                                     })
                                 }
                             >
@@ -235,6 +236,7 @@ describe("ActivitiesContainer", () => {
                 body: JSON.stringify({
                     title: "Activity 5",
                     description: "Description 5",
+                    music: ['song1', 'song2']
                 }),
             });
 
