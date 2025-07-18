@@ -16,7 +16,7 @@ jest.mock("next/headers");
 describe("activities/activityId/route", () => {
     let mockGetCookie;
     beforeEach(() => {
-        validatePasscode.mockResolvedValue();
+        validatePasscode.mockResolvedValue(true);
         mockGetCookie = jest.fn().mockReturnValue({
             value: "boogers",
         });
@@ -143,9 +143,22 @@ describe("activities/activityId/route", () => {
             const response = await PATCH(mockReq, {
                 params: { activityId: "1" },
             });
-            expect(patchActivity).toHaveBeenCalledWith("1", { foo: "bar" });
+            expect(patchActivity).toHaveBeenCalledWith("1", { foo: "bar" }, 'editor');
             expect(logUpdateByTableName).toHaveBeenCalledWith("activities");
             expect(response).toEqual({ data: {} });
+        });
+        it('sends "user" permissionLevel if the user is a user and not an editor', async () => {
+            validatePasscode.mockRejectedValueOnce(new InvalidPasscodeError());
+            validatePasscode.mockResolvedValueOnce(true);
+            const mockReq = {
+                json: jest.fn().mockResolvedValue({
+                    activity: { foo: "bar" },
+                }),
+            };
+            const response = await PATCH(mockReq, {
+                params: { activityId: "1" },
+            });
+            expect(patchActivity).toHaveBeenCalledWith("1", { foo: "bar" }, 'user');
         });
     });
 });

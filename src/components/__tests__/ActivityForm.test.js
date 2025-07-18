@@ -26,11 +26,14 @@ describe("ActivityForm", () => {
             screen.getByTestId("description"),
             "This is a cool activity",
         );
+        await userEvent.click(screen.getByTestId("add-item"));
+        await userEvent.type(screen.getByTestId("input-item-0"), "song 1");
         await userEvent.click(screen.getByTestId("save-activity"));
 
         expect(onSubmit).toHaveBeenCalledWith({
             title: "Cool Activity",
             description: "This is a cool activity",
+            music: ['song 1'],
         });
     });
     it("disables the save button while pending", async () => {
@@ -50,6 +53,8 @@ describe("ActivityForm", () => {
             screen.getByTestId("description"),
             "This is a cool activity",
         );
+        await userEvent.click(screen.getByTestId("add-item"));
+        await userEvent.type(screen.getByTestId("input-item-0"), "song 1");
         await userEvent.click(screen.getByTestId("save-activity"));
 
         expect(screen.getByTestId("save-activity")).toHaveAttribute("disabled");
@@ -76,5 +81,17 @@ describe("ActivityForm", () => {
 
         expect(screen.getByTestId("title")).toHaveValue("");
         expect(screen.getByTestId("description")).toHaveValue("");
+        expect(screen.queryByTestId("input-item-0")).not.toBeInTheDocument();
     });
+    it('Uses the edit title if isEdit is true', async () => {
+        useAuth.mockReturnValue({
+            isEditor: jest.fn().mockReturnValue(true),
+        });
+        const onSubmit = jest.fn().mockResolvedValue();
+        render(<ActivityForm onSubmit={onSubmit} />);
+        expect(screen.getByText("Create Activity")).toBeInTheDocument();
+        
+        render(<ActivityForm onSubmit={onSubmit} isEdit={true} />);
+        expect(screen.getByText("Edit Activity")).toBeInTheDocument();
+    })
 });

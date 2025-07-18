@@ -33,6 +33,7 @@ describe("activities/route", () => {
                         id: "1",
                         title: "boogers",
                         description: "green things",
+                        music: '["song1","song2"]',
                         sortindex: 1,
                         scheduleindex: null,
                     },
@@ -46,6 +47,7 @@ describe("activities/route", () => {
                             id: "1",
                             title: "boogers",
                             description: "green things",
+                            music: ['song1', 'song2'],
                             sortIndex: 1,
                             scheduleIndex: null,
                         },
@@ -113,12 +115,14 @@ describe("activities/route", () => {
                 json: jest.fn().mockResolvedValue({
                     title: "boogers",
                     description: "green things",
+                    music: ["song1", "song2"],
                 }),
             };
             await POST(mockReq);
             expect(sql).toHaveBeenCalledWith(
                 [
-                    "INSERT INTO activities (id, title, description, sortIndex, scheduleIndex) VALUES (",
+                    "INSERT INTO activities (id, title, description, music, sortIndex, scheduleIndex) VALUES (",
+                    ", ",
                     ", ",
                     ", ",
                     ", ",
@@ -127,6 +131,7 @@ describe("activities/route", () => {
                 expect.anything(),
                 "boogers",
                 "green things",
+                "[\"song1\",\"song2\"]",
                 0,
             );
         });
@@ -137,12 +142,14 @@ describe("activities/route", () => {
                 json: jest.fn().mockResolvedValue({
                     title: "boogers",
                     description: "green things",
+                    music: ["song1", "song2"],
                 }),
             };
             await POST(mockReq);
             expect(sql).toHaveBeenCalledWith(
                 [
-                    "INSERT INTO activities (id, title, description, sortIndex, scheduleIndex) VALUES (",
+                    "INSERT INTO activities (id, title, description, music, sortIndex, scheduleIndex) VALUES (",
+                    ", ",
                     ", ",
                     ", ",
                     ", ",
@@ -151,13 +158,14 @@ describe("activities/route", () => {
                 expect.anything(),
                 "boogers",
                 "green things",
+                "[\"song1\",\"song2\"]",
                 6,
             );
         });
     });
     describe("PATCH", () => {
         beforeEach(() => {
-            validatePasscode.mockResolvedValue();
+            validatePasscode.mockResolvedValue(true);
             patchActivity.mockResolvedValue();
         });
         it("should return a 400 if no passcode was provided", async () => {
@@ -177,7 +185,7 @@ describe("activities/route", () => {
                 status: 401,
             });
         });
-        it("should return a 403 if the provided passcode does not match the editor passcode", async () => {
+        it("should return a 403 if the provided passcode does not match the editor or user passcode", async () => {
             mockGetCookie.mockReturnValue({ value: "boogers" });
             validatePasscode.mockRejectedValue(new InvalidPasscodeError());
             const mockReq = {
@@ -209,11 +217,11 @@ describe("activities/route", () => {
             expect(patchActivity).toHaveBeenCalledWith("1", {
                 id: "1",
                 description: "test",
-            });
+            }, 'editor');
             expect(patchActivity).toHaveBeenCalledWith("2", {
                 id: "2",
                 sortIndex: 2,
-            });
+            }, 'editor');
             expect(logUpdateByTableName).toHaveBeenCalledWith("activities");
         });
     });

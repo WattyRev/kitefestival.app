@@ -71,27 +71,37 @@ export async function PATCH(req, { params }) {
     const { activity } = await req.json();
     const cookieStore = cookies();
     const passcode = cookieStore.get("passcode")?.value;
+    let permissionLevel = null;
     try {
-        await validatePasscode(passcode, ["editor"]);
+        const isEditor = await validatePasscode(passcode, ["editor"]);
+        permissionLevel = isEditor ? "editor" : null;
     } catch (error) {
         if (error instanceof NoPasscodeError) {
             return NextResponse.json(
                 { message: "No passcode provided" },
                 { status: 401 },
             );
+        } else if (error instanceof InvalidPasscodeError) {
+            try {
+                const isUser = await validatePasscode(passcode, ["user"]);
+                permissionLevel = isUser ? "user" : null;
+            } catch (error) {
+                if (error instanceof InvalidPasscodeError) {
+                    return NextResponse.json(
+                        { message: "Provided passcode is invalid" },
+                        { status: 403 },
+                    );
+                }
+                throw error;
+            }
+        } else {
+            throw error;
         }
-        if (error instanceof InvalidPasscodeError) {
-            return NextResponse.json(
-                { message: "Provided passcode is invalid" },
-                { status: 403 },
-            );
-        }
-        throw error;
     }
 
     try {
         await Promise.all([
-            patchActivity(params.activityId, activity),
+            patchActivity(params.activityId, activity, permissionLevel),
             logUpdateByTableName("activities"),
         ]);
         return NextResponse.json({});

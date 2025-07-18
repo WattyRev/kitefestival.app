@@ -57,12 +57,6 @@ const Dropdown = ({ children, dropdownContent, ...props }) => {
                         zIndex: "100",
                         minWidth: { base: "200px", sm: "auto" },
                         maxWidth: { base: "90vw", sm: "none" },
-                        // Prevent dropdown from going off-screen on mobile
-                        "@media (max-width: 640px)": {
-                            right: "auto",
-                            left: "50%",
-                            transform: "translateX(-50%)",
-                        },
                     })}
                 >
                     {dropdownContent(renderData)}
