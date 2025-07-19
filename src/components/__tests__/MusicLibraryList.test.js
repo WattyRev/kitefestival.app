@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import MusicLibraryList from "../MusicLibraryList";
 import { useMusicLibrary } from "../MusicLibraryContainer";
 import { useAuth } from "../global/Auth";
+import userEvent from "@testing-library/user-event";
 
 jest.mock("../MusicLibraryContainer");
 jest.mock("../global/Auth");
@@ -49,5 +50,38 @@ describe("MusicLibraryList", () => {
         const actionsHeader = screen.queryByTestId("actions-header");
         expect(actions).toHaveLength(0);
         expect(actionsHeader).not.toBeInTheDocument();
+    });
+    it('allows the user to search the music library', async () => {
+        useMusicLibrary.mockReturnValue({
+            musicLibrary: [
+                { value: "hasb", id: "0" },
+                { value: "doesnt", id: "1" },
+                { value: "alsohasb", id: "2" },
+            ],
+        });
+        render(<MusicLibraryList />);
+
+        expect(screen.getAllByRole("row")).toHaveLength(4);
+
+        const searchInput = screen.getByTestId("music-search");
+        await userEvent.type(searchInput, "hasb");
+        expect(screen.getAllByRole("row")).toHaveLength(3);
+    });
+    it('allows the user to easily clear their search', async () => {
+        useMusicLibrary.mockReturnValue({
+            musicLibrary: [
+                { value: "hasb", id: "0" },
+                { value: "doesnt", id: "1" },
+                { value: "alsohasb", id: "2" },
+            ],
+        });
+        render(<MusicLibraryList />);
+
+        const searchInput = screen.getByTestId("music-search");
+        await userEvent.type(searchInput, "hasb");
+        expect(screen.getAllByRole("row")).toHaveLength(3);
+
+        await userEvent.click(screen.getByTestId("clear-search"));
+        expect(screen.getAllByRole("row")).toHaveLength(4);
     });
 });

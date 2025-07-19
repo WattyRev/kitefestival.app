@@ -5,7 +5,7 @@ export const Table = ({ className, children, ...props }) => {
         <table
             className={`${className} ${css({
                 margin: "8px",
-                width: "100%",
+                width: "calc(100% - 16px)",
             })}`}
             {...props}
         >
