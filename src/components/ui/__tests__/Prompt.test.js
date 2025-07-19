@@ -171,6 +171,35 @@ describe("Prompt", () => {
                 await userEvent.click(screen.getByTestId("next"));
             }
         });
+        it("uses the provided promptValue as the initial value", async () => {
+            const MockConsumer = () => {
+                const [value, setValue] = useState("");
+                const { openPrompt } = usePrompt();
+                async function handlePrompt() {
+                    const response = await openPrompt(
+                        "boogers",
+                        "text",
+                        "test",
+                    );
+                    setValue(response);
+                }
+                return (
+                    <>
+                        <div data-testid="value">{value}</div>
+                        <button onClick={handlePrompt}>Open Prompt</button>
+                    </>
+                );
+            };
+            render(
+                <PromptProvider>
+                    <MockConsumer />
+                </PromptProvider>,
+            );
+
+            await userEvent.click(screen.getByText("Open Prompt"));
+
+            expect(screen.getByTestId("prompt-input")).toHaveValue("test");
+        });
     });
     describe("confirm prompts", () => {
         it("it resolves the prompt upon submission", async () => {

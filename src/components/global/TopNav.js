@@ -1,8 +1,30 @@
+"use client";
+
 import React from "react";
 import { css } from "../../../styled-system/css";
 import AuthSelection from "./TopNav/AuthSelection";
+import { useAuth } from "./Auth";
+import Link from "next/link";
+
+const NavItem = ({ children, ...props }) => (
+    <Link
+        className={css({
+            padding: "8px",
+            minWidth: "44px",
+            minHeight: "44px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: { base: "16px", sm: "18px" },
+        })}
+        {...props}
+    >
+        {children}
+    </Link>
+);
 
 const TopNav = ({ ...props }) => {
+    const { isPublic } = useAuth();
     return (
         <nav
             data-testid="top-nav"
@@ -17,21 +39,16 @@ const TopNav = ({ ...props }) => {
             })}
             {...props}
         >
-            <a
-                href="/"
-                title="Home"
-                className={css({
-                    padding: "8px",
-                    minWidth: "44px",
-                    minHeight: "44px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: { base: "16px", sm: "18px" },
-                })}
-            >
-                <i className="fa-solid fa-house"></i>
-            </a>
+            <div className={css({ display: "flex", gap: "8px" })}>
+                <NavItem href="/" title="Home">
+                    <i className="fa-solid fa-house"></i>
+                </NavItem>
+                {!isPublic() && (
+                    <NavItem href="/music-library" title="Music Library">
+                        <i className="fa-solid fa-music"></i>
+                    </NavItem>
+                )}
+            </div>
             <AuthSelection />
         </nav>
     );

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useMusicLibrary } from "./MusicLibraryContainer";
 import AutoCompleteTextInput from "./ui/AutoCompleteTextInput";
 import InputList from "./ui/InputList";
@@ -15,6 +16,10 @@ import InputList from "./ui/InputList";
  */
 const MusicField = ({ value, onChange, ...props }) => {
     const { musicLibrary } = useMusicLibrary();
+    const songs = useMemo(
+        () => musicLibrary.map((musicItem) => musicItem.value),
+        [musicLibrary],
+    );
     return (
         <InputList
             {...props}
@@ -22,7 +27,7 @@ const MusicField = ({ value, onChange, ...props }) => {
             onChange={(newValue) => onChange(newValue)}
             inputRender={({ index, item, onChange: handleChange }) => (
                 <AutoCompleteTextInput
-                    options={musicLibrary}
+                    options={songs}
                     data-testid={`input-item-${index}`}
                     type="text"
                     value={item}
