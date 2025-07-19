@@ -5,7 +5,14 @@ import userEvent from "@testing-library/user-event";
 describe("AutoCompleteTextInput", () => {
     let options;
     beforeEach(() => {
-        options = ['boogers', 'Paint it Black', 'Breeze', 'One Piece', 'Exs and Ohs', 'How You Like Me Now'];
+        options = [
+            "boogers",
+            "Paint it Black",
+            "Breeze",
+            "One Piece",
+            "Exs and Ohs",
+            "How You Like Me Now",
+        ];
     });
     it("renders", async () => {
         render(<AutoCompleteTextInput options={options} />);
@@ -28,23 +35,33 @@ describe("AutoCompleteTextInput", () => {
         render(<AutoCompleteTextInput value="p" options={options} />);
         await userEvent.click(screen.getByRole("textbox"));
         expect(screen.getByTestId("suggestions")).toBeInTheDocument();
-        expect(screen.getByTestId('suggestion-0')).toHaveTextContent('Paint it Black');
-        expect(screen.getByTestId('suggestion-1')).toHaveTextContent('One Piece');
-        expect(screen.queryByTestId('suggestion-2')).not.toBeInTheDocument();
+        expect(screen.getByTestId("suggestion-0")).toHaveTextContent(
+            "Paint it Black",
+        );
+        expect(screen.getByTestId("suggestion-1")).toHaveTextContent(
+            "One Piece",
+        );
+        expect(screen.queryByTestId("suggestion-2")).not.toBeInTheDocument();
     });
-    it('calls onChange when the value changes', async () => {
+    it("calls onChange when the value changes", async () => {
         const onChange = jest.fn();
         render(<AutoCompleteTextInput options={options} onChange={onChange} />);
 
-        await userEvent.type(screen.getByRole("textbox"), 'p');
-        expect(onChange).toHaveBeenCalledWith('p');
-    })
+        await userEvent.type(screen.getByRole("textbox"), "p");
+        expect(onChange).toHaveBeenCalledWith("p");
+    });
     it("uses a suggested value when clicked", async () => {
         const onChange = jest.fn();
-        render(<AutoCompleteTextInput value="p" options={options} onChange={onChange} />);
+        render(
+            <AutoCompleteTextInput
+                value="p"
+                options={options}
+                onChange={onChange}
+            />,
+        );
         await userEvent.click(screen.getByRole("textbox"));
-        await userEvent.click(screen.getByTestId('suggestion-0'));
-        expect(onChange).toHaveBeenCalledWith('Paint it Black');
+        await userEvent.click(screen.getByTestId("suggestion-0"));
+        expect(onChange).toHaveBeenCalledWith("Paint it Black");
     });
 
     describe("with no options", () => {
@@ -56,8 +73,8 @@ describe("AutoCompleteTextInput", () => {
             const onChange = jest.fn();
             render(<AutoCompleteTextInput onChange={onChange} />);
 
-            await userEvent.type(screen.getByRole("textbox"), 'p');
-            expect(onChange).toHaveBeenCalledWith('p');
+            await userEvent.type(screen.getByRole("textbox"), "p");
+            expect(onChange).toHaveBeenCalledWith("p");
         });
     });
 });

@@ -3,11 +3,10 @@ import { css } from "../../../styled-system/css";
 import Button from "./Button";
 import { usePrompt } from "./Prompt";
 
-
 /**
  * A component that renders a list of inputs. It facilitates management of a
  * list, allowing the user to add, remove, edit, and reorder items.
- * 
+ *
  * Uses usePrompt, so it must be wrapped in a PromptProvider.
  *
  * @param {String[]} [value] The initial array of values.
