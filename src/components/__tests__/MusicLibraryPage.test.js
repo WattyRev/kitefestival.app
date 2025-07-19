@@ -1,17 +1,37 @@
 import { render, screen } from "@testing-library/react";
 import MusicLibraryPage from "../MusicLibraryPage";
 import { useAuth } from "../global/Auth";
+import ChangePollingContainer from "../ChangePollingContainer";
+import MusicLibraryContainer from "../MusicLibraryContainer";
+import MusicLibraryList from "../MusicLibraryList";
+import AddMusicForm from "../AddMusicForm";
 
 jest.mock("../global/Auth");
+jest.mock("../ChangePollingContainer");
+jest.mock("../MusicLibraryContainer");
+jest.mock("../MusicLibraryList");
+jest.mock("../AddMusicForm");
 
 describe("MusicLibraryPage", () => {
     let initialMusicLibrary;
     beforeEach(() => {
+        MusicLibraryList.mockImplementation(() => (
+            <div data-testid="music-library" />
+        ));
+        AddMusicForm.mockImplementation(() => (
+            <div data-testid="add-music-form" />
+        ));
+        ChangePollingContainer.mockImplementation(({ children }) => (
+            <>{children}</>
+        ));
+        MusicLibraryContainer.mockImplementation(({ children }) => (
+            <div data-testid="music-library-container">{children}</div>
+        ));
         initialMusicLibrary = [
             { value: "a", id: "A" },
             { value: "b", id: "B" },
             { value: "c", id: "C" },
-        ]
+        ];
         useAuth.mockReturnValue({
             isPublic: jest.fn().mockReturnValue(false),
             isEditor: jest.fn().mockReturnValue(true),
