@@ -7,10 +7,12 @@ import Comments from "../Comments";
 import ActivityForm from "../ActivityForm";
 import { useAuth } from "../global/Auth";
 import HomePage from "../HomePage";
+import MusicLibraryContainer from "../MusicLibraryContainer";
 
 jest.mock("../ActivitiesContainer");
 jest.mock("../ChangePollingContainer");
 jest.mock("../CommentsContainer");
+jest.mock("../MusicLibraryContainer");
 jest.mock("../ActivityDisplay");
 jest.mock("../Comments");
 jest.mock("../ActivityForm");
@@ -56,6 +58,9 @@ describe("HomePage", () => {
                 </div>
             );
         });
+        MusicLibraryContainer.mockImplementation(({ children }) => (
+            <div data-testid="music-library-container">{children}</div>
+        ));
         CommentsContainer.mockImplementation(({ children }) => {
             // Handle the case where children is an array with a function (due to JSX whitespace)
             let renderFunction = null;

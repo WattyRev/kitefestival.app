@@ -3,14 +3,19 @@ import MusicLibraryContainer, {
     useMusicLibrary,
 } from "../MusicLibraryContainer";
 import userEvent from "@testing-library/user-event";
+import { useChangePolling } from "../ChangePollingContainer";
 import fetch from "../../util/fetch";
 
 jest.mock("../../util/fetch");
+jest.mock("../ChangePollingContainer");
 
 describe("MusicLibraryContainer", () => {
     let MockConsumer;
     let initialMusicLibrary;
     beforeEach(() => {
+        useChangePolling.mockReturnValue({
+            changes: [],
+        });
         fetch.mockResolvedValue({
             ok: true,
             json: jest.fn().mockResolvedValue({
