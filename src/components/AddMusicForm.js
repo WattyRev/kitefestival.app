@@ -3,11 +3,20 @@ import { css } from "../../styled-system/css";
 import Button from "./ui/Button";
 import TextInput from "./ui/TextInput";
 import { useMusicLibrary } from "./MusicLibraryContainer";
+import FileInput from "./ui/FileInput";
+import H2 from "./ui/H2";
+import { useAlert } from "./ui/Alert";
+import LinkButton from "./ui/LinkButton";
+
+export function generateCSVExampleString() {
+    return ["Song1", "Song2", "Song3", "Song4"].join("\n");
+}
 
 const AddMusicForm = ({ ...props }) => {
     const { addMusic } = useMusicLibrary();
     const [musicValue, setMusicValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const { openAlert } = useAlert();
 
     async function handleSingleSubmit() {
         if (!musicValue) {
@@ -23,8 +32,37 @@ const AddMusicForm = ({ ...props }) => {
         setIsLoading(false);
     }
 
+    async function handleFileSubmit(file) {
+        if (!file) {
+            return;
+        }
+        if (file.type !== "text/csv") {
+            openAlert(
+                "Invalid file type selected. Please upload a CSV file.",
+                "error",
+            );
+            return;
+        }
+        setIsLoading(true);
+
+        const parsedMusic = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const csvString = e.target.result;
+                const rows = csvString.split("\n");
+                const music = rows.map((row) => ({
+                    value: row.split(",")[0].trim(),
+                }));
+                resolve(music);
+            };
+            reader.readAsText(file);
+        });
+        await addMusic(parsedMusic);
+        setIsLoading(false);
+    }
+
     return (
-        <>
+        <div className={css({ paddingBottom: "16px" })}>
             <form
                 data-testid="add-music-form"
                 {...props}
@@ -54,8 +92,34 @@ const AddMusicForm = ({ ...props }) => {
                     <i className="fa-solid fa-plus"></i>
                 </Button>
             </form>
-            <Button type="button">TODO Bulk Upload</Button>
-        </>
+            <H2>Bulk Upload</H2>
+            <FileInput
+                data-testid="upload-file"
+                onChange={(e) => handleFileSubmit(e.target.files[0])}
+                label={
+                    <>
+                        <i className="fa-solid fa-upload"></i> Upload CSV
+                    </>
+                }
+                accept="text/csv"
+            />
+            <LinkButton
+                onClick={() => {
+                    const exampleContent = generateCSVExampleString();
+                    const blob = new Blob([exampleContent], {
+                        type: "text/csv",
+                    });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.download = "example-music.csv";
+                    link.click();
+                    URL.revokeObjectURL(url);
+                }}
+            >
+                Download Example CSV
+            </LinkButton>
+        </div>
     );
 };
 

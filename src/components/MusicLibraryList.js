@@ -34,7 +34,15 @@ const MusicLibraryList = ({ ...props }) => {
                         setSearchTerm(e.target.value);
                     }}
                 />
-                <Button title="Clear" className="secondary" data-testid="clear-search" disabled={!searchTerm} onClick={() => { setSearchTerm("") }}>
+                <Button
+                    title="Clear"
+                    className="secondary"
+                    data-testid="clear-search"
+                    disabled={!searchTerm}
+                    onClick={() => {
+                        setSearchTerm("");
+                    }}
+                >
                     <i className="fa-solid fa-xmark"></i>
                 </Button>
             </div>
@@ -42,15 +50,28 @@ const MusicLibraryList = ({ ...props }) => {
                 <Thead>
                     <Tr>
                         <Th>Music</Th>
-                        {isEditor() && <Th data-testid="actions-header"></Th>}
+                        {isEditor() && (
+                            <Th
+                                className={css({ width: "140px" })}
+                                data-testid="actions-header"
+                            ></Th>
+                        )}
                     </Tr>
                 </Thead>
                 <Tbody>
+                    {!musicLibrary.length && (
+                        <Tr>
+                            <Td colSpan={isEditor() ? 2 : 1}>No music found</Td>
+                        </Tr>
+                    )}
                     {filteredMusicLibrary.map((music) => (
                         <Tr key={music.id}>
                             <Td>{music.value}</Td>
                             {isEditor() && (
-                                <Td data-testid="actions">
+                                <Td
+                                    className={css({ width: "140px" })}
+                                    data-testid="actions"
+                                >
                                     <MusicLibraryActions music={music} />
                                 </Td>
                             )}

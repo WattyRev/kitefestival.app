@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import AddMusicForm from "../AddMusicForm";
+import AddMusicForm, { generateCSVExampleString } from "../AddMusicForm";
 import { useMusicLibrary } from "../MusicLibraryContainer";
 import userEvent from "@testing-library/user-event";
 
@@ -25,5 +25,23 @@ describe("AddMusicForm", () => {
         await userEvent.click(screen.getByTestId("add-music-button"));
 
         expect(mockAddMusic).toHaveBeenCalledWith([{ value: "song 1" }]);
+    });
+    it("allows the user to upload a file to add multiple music entries", async () => {
+        render(<AddMusicForm />);
+
+        await userEvent.upload(
+            screen.getByTestId("upload-file"),
+            new Blob([generateCSVExampleString()], {
+                type: "text/csv",
+            })
+        );
+        await userEvent.click(screen.getByTestId("add-music-button"));
+
+        expect(mockAddMusic).toHaveBeenCalledWith([
+            { value: "Song1" },
+            { value: "Song2" },
+            { value: "Song3" },
+            { value: "Song4" },
+        ]);
     });
 });
