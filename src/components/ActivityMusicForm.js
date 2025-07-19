@@ -5,7 +5,7 @@ import Panel from "./ui/Panel";
 import Button from "./ui/Button";
 import H1 from "./ui/H1";
 import { css } from "../../styled-system/css";
-import TextInputList from "./ui/TextInputList";
+import MusicField from "./MusicField";
 
 const ActivityMusicForm = ({
     onSubmit,
@@ -40,10 +40,7 @@ const ActivityMusicForm = ({
             </H1>
             <Panel>
                 <label>Music</label>
-                <TextInputList
-                    value={music}
-                    onChange={(value) => setMusic(value)}
-                />
+                <MusicField value={music} onChange={setMusic} />
                 <Button
                     data-testid="save-activity"
                     type="submit"

@@ -2,9 +2,19 @@ import { css } from "../../../styled-system/css";
 
 import Button from "./Button";
 import { usePrompt } from "./Prompt";
-import TextInput from "./TextInput";
 
-const TextInputList = ({ value = [], onChange, ...props }) => {
+
+/**
+ * A component that renders a list of inputs. It facilitates management of a
+ * list, allowing the user to add, remove, edit, and reorder items.
+ * 
+ * Uses usePrompt, so it must be wrapped in a PromptProvider.
+ *
+ * @param {String[]} [value] The initial array of values.
+ * @param {function} onChange Called when the value changes.
+ * @param {function} inputRender A function that renders a single input. Provided {index, item, onChange} as an argument.
+ */
+const InputList = ({ value = [], onChange, inputRender, ...props }) => {
     const { openPrompt } = usePrompt();
 
     function handleChange(singleValue, index) {
@@ -58,12 +68,13 @@ const TextInputList = ({ value = [], onChange, ...props }) => {
                     <p className={css({ width: "25px", marginRight: "8px" })}>
                         {index + 1}.
                     </p>
-                    <TextInput
-                        data-testid={`input-item-${index}`}
-                        type="text"
-                        value={item}
-                        onChange={(e) => handleChange(e.target.value, index)}
-                    />
+                    {inputRender({
+                        index,
+                        item,
+                        onChange(newValue) {
+                            handleChange(newValue, index);
+                        },
+                    })}
                     {index !== 0 && (
                         <Button
                             type="button"
@@ -105,4 +116,4 @@ const TextInputList = ({ value = [], onChange, ...props }) => {
     );
 };
 
-export default TextInputList;
+export default InputList;

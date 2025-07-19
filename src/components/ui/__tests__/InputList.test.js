@@ -1,11 +1,17 @@
 import { render, screen } from "@testing-library/react";
-import TextInputList from "../TextInputList";
+import InputList from "../InputList";
 import userEvent from "@testing-library/user-event";
 import { PromptProvider } from "../Prompt";
 
-describe("TextInputList", () => {
+describe("InputList", () => {
+    let inputRender;
+    beforeEach(() => {
+        inputRender = ({ index, item, onChange }) => (
+            <input data-testid={`input-item-${index}`} value={item} onChange={(e) => onChange(e.target.value)} />
+        );
+    })
     it("should render", () => {
-        render(<TextInputList data-testid="target" />);
+        render(<InputList data-testid="target" inputRender={inputRender} />);
         expect(screen.getByTestId("target")).toBeInTheDocument();
     });
 
@@ -14,10 +20,11 @@ describe("TextInputList", () => {
         const changeHandler = jest.fn();
         render(
             <PromptProvider>
-                <TextInputList
+                <InputList
                     data-testid="target"
                     value={startValue}
                     onChange={changeHandler}
+                    inputRender={inputRender}
                 />
             </PromptProvider>,
         );
@@ -29,10 +36,11 @@ describe("TextInputList", () => {
         const changeHandler = jest.fn();
         render(
             <PromptProvider>
-                <TextInputList
+                <InputList
                     data-testid="target"
                     value={startValue}
                     onChange={changeHandler}
+                    inputRender={inputRender}
                 />
             </PromptProvider>,
         );
@@ -45,10 +53,11 @@ describe("TextInputList", () => {
         const changeHandler = jest.fn();
         render(
             <PromptProvider>
-                <TextInputList
+                <InputList
                     data-testid="target"
                     value={startValue}
                     onChange={changeHandler}
+                    inputRender={inputRender}
                 />
             </PromptProvider>,
         );
@@ -62,10 +71,11 @@ describe("TextInputList", () => {
         const changeHandler = jest.fn();
         render(
             <PromptProvider>
-                <TextInputList
+                <InputList
                     data-testid="target"
                     value={startValue}
                     onChange={changeHandler}
+                    inputRender={inputRender}
                 />
             </PromptProvider>,
         );
@@ -78,10 +88,11 @@ describe("TextInputList", () => {
         const changeHandler = jest.fn();
         render(
             <PromptProvider>
-                <TextInputList
+                <InputList
                     data-testid="target"
                     value={startValue}
                     onChange={changeHandler}
+                    inputRender={inputRender}
                 />
             </PromptProvider>,
         );
@@ -94,10 +105,11 @@ describe("TextInputList", () => {
         const changeHandler = jest.fn();
         render(
             <PromptProvider>
-                <TextInputList
+                <InputList
                     data-testid="target"
                     value={startValue}
                     onChange={changeHandler}
+                    inputRender={inputRender}
                 />
             </PromptProvider>,
         );
@@ -110,10 +122,11 @@ describe("TextInputList", () => {
         const changeHandler = jest.fn();
         render(
             <PromptProvider>
-                <TextInputList
+                <InputList
                     data-testid="target"
                     value={startValue}
                     onChange={changeHandler}
+                    inputRender={inputRender}
                 />
             </PromptProvider>,
         );
