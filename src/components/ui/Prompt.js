@@ -15,12 +15,14 @@ export const PromptProvider = ({ children }) => {
     const [isPromptOpen, setIsPromptOpen] = useState(false);
     const [prompt, setPrompt] = useState(null);
     const [promptType, setPromptType] = useState("text");
+    const [promptValue, setPromptValue] = useState("");
 
-    async function openPrompt(prompt, promptType = "text") {
+    async function openPrompt(prompt, promptType = "text", defaultValue = "") {
         return new Promise((resolve, reject) => {
-            setIsPromptOpen(true);
             setPrompt(prompt);
             setPromptType(promptType);
+            setPromptValue(defaultValue);
+            setIsPromptOpen(true);
             window.kf_prompt_resolve = resolve;
             window.kf_prompt_reject = reject;
         });
@@ -46,6 +48,7 @@ export const PromptProvider = ({ children }) => {
                 <Prompt
                     prompt={prompt}
                     promptType={promptType}
+                    promptValue={promptValue}
                     onSubmit={submitPrompt}
                     onCancel={cancelPrompt}
                 />
@@ -56,8 +59,14 @@ export const PromptProvider = ({ children }) => {
 
 export const TEXT_INPUT_TYPES = ["text", "password", "email", "number", "tel"];
 
-export const Prompt = ({ prompt, promptType, onSubmit, onCancel }) => {
-    const [value, setValue] = useState("");
+export const Prompt = ({
+    prompt,
+    promptType,
+    promptValue,
+    onSubmit,
+    onCancel,
+}) => {
+    const [value, setValue] = useState(promptValue);
     return (
         <>
             <div

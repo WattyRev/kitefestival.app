@@ -4,7 +4,7 @@ import { sql } from "@vercel/postgres";
 export const revalidate = 10;
 export default async function Home() {
     const activitiesPromise = sql`SELECT * FROM activities ORDER BY scheduleIndex ASC, sortIndex ASC`;
-    const musicLibraryPromise = sql`SELECT * FROM musiclibrary`;
+    const musicLibraryPromise = sql`SELECT * FROM musiclibrary ORDER BY id ASC`;
     const [activitiesResponse, musicLibraryResponse] = await Promise.all([
         activitiesPromise,
         musicLibraryPromise,
