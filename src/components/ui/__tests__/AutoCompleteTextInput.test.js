@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import AutoCompleteTextInput from "../AutocompleteTextInput";
+import AutoCompleteTextInput from "../AutoCompleteTextInput";
 import userEvent from "@testing-library/user-event";
 
 describe("AutoCompleteTextInput", () => {

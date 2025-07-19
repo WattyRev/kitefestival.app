@@ -1,5 +1,5 @@
 import { useMusicLibrary } from "./MusicLibraryContainer";
-import AutoCompleteTextInput from "./ui/AutocompleteTextInput";
+import AutoCompleteTextInput from "./ui/AutoCompleteTextInput";
 import InputList from "./ui/InputList";
 
 /**
