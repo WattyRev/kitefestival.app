@@ -7,9 +7,13 @@ describe("InputList", () => {
     let inputRender;
     beforeEach(() => {
         inputRender = ({ index, item, onChange }) => (
-            <input data-testid={`input-item-${index}`} value={item} onChange={(e) => onChange(e.target.value)} />
+            <input
+                data-testid={`input-item-${index}`}
+                value={item}
+                onChange={(e) => onChange(e.target.value)}
+            />
         );
-    })
+    });
     it("should render", () => {
         render(<InputList data-testid="target" inputRender={inputRender} />);
         expect(screen.getByTestId("target")).toBeInTheDocument();
