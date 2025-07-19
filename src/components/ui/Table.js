@@ -6,6 +6,7 @@ export const Table = ({ className, children, ...props }) => {
             className={`${className} ${css({
                 margin: "8px",
                 width: "calc(100% - 16px)",
+                tableLayout: "fixed",
             })}`}
             {...props}
         >

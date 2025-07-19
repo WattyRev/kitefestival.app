@@ -51,7 +51,7 @@ describe("MusicLibraryList", () => {
         expect(actions).toHaveLength(0);
         expect(actionsHeader).not.toBeInTheDocument();
     });
-    it('allows the user to search the music library', async () => {
+    it("allows the user to search the music library", async () => {
         useMusicLibrary.mockReturnValue({
             musicLibrary: [
                 { value: "hasb", id: "0" },
@@ -67,7 +67,7 @@ describe("MusicLibraryList", () => {
         await userEvent.type(searchInput, "hasb");
         expect(screen.getAllByRole("row")).toHaveLength(3);
     });
-    it('allows the user to easily clear their search', async () => {
+    it("allows the user to easily clear their search", async () => {
         useMusicLibrary.mockReturnValue({
             musicLibrary: [
                 { value: "hasb", id: "0" },
