@@ -33,7 +33,7 @@ describe("AddMusicForm", () => {
             screen.getByTestId("upload-file"),
             new Blob([generateCSVExampleString()], {
                 type: "text/csv",
-            })
+            }),
         );
         await userEvent.click(screen.getByTestId("add-music-button"));
 
