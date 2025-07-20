@@ -53,18 +53,20 @@ describe("/api/music-library", () => {
         beforeEach(() => {
             validatePasscode.mockResolvedValue();
             randomUUID.mockReturnValue("uuid");
+            sql.query = jest.fn().mockResolvedValue({
+                rows: [],
+            });
         });
         it("creates a new music item", async () => {
-            sql.mockResolvedValue({ rows: [] });
             const mockReq = {
                 json: jest.fn().mockResolvedValue({
                     musicLibrary: [{ value: "boogers" }],
                 }),
             };
             await POST(mockReq);
-            expect(sql).toHaveBeenCalledWith(
-                ["INSERT INTO musiclibrary (value) VALUES (", ")"],
-                "boogers",
+            expect(sql.query).toHaveBeenCalledWith(
+                "INSERT INTO musiclibrary (value) VALUES ($1)",
+                ["boogers"],
             );
             expect(logUpdateByTableName).toHaveBeenCalledWith("musiclibrary");
         });
@@ -79,7 +81,11 @@ describe("/api/music-library", () => {
                 }),
             };
             await POST(mockReq);
-            expect(sql).toHaveBeenCalledTimes(2);
+            expect(sql.query).toHaveBeenCalledWith(
+                "INSERT INTO musiclibrary (value) VALUES ($1),($2)",
+                ["boogers1", "boogers2"],
+            );
+            expect(logUpdateByTableName).toHaveBeenCalledWith("musiclibrary");
         });
         it("returns a 401 if no passcode is provided", async () => {
             mockGetCookie.mockReturnValue(undefined);

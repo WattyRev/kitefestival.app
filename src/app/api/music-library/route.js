@@ -68,16 +68,19 @@ export async function POST(req) {
         throw error;
     }
 
-    const writePromises = musicLibrary.map(async ({ value }) => {
-        await Promise.all([
-            sql`INSERT INTO musiclibrary (value) VALUES (${value})`,
-            logUpdateByTableName("musiclibrary"),
-        ]);
-        return { value };
+    const response = await sql.query(
+        `INSERT INTO musiclibrary (value) VALUES ${musicLibrary.map((_, index) => `($${index + 1})`).join(",")}`,
+        musicLibrary.map((music) => music.value),
+    );
+    await logUpdateByTableName("musiclibrary");
+
+    const savedLibrary = response.rows.map((music) => {
+        const { id, value } = music;
+        return {
+            id,
+            value,
+        };
     });
-
-    const savedLibrary = await Promise.all(writePromises);
-
     return NextResponse.json({ musicLibrary: savedLibrary });
 }
 
