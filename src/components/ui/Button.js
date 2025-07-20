@@ -8,7 +8,7 @@ export const buttonStyles = css({
     cursor: "pointer",
     margin: "4px",
     display: "inline-block",
-    minWidth: "40px",
+    minWidth: "48px",
     minHeight: { base: "44px", sm: "auto" }, // Minimum touch target for mobile
     fontSize: { base: "16px", sm: "14px" },
     border: "none",
