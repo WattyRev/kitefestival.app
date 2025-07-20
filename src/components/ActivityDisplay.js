@@ -342,6 +342,16 @@ const ActivityDisplay = ({
                                             flexGrow: 1,
                                         })}
                                     >
+                                        {isMusicMissing(activity.music) && (
+                                            <p
+                                                className={css({
+                                                    color: "danger",
+                                                    fontWeight: "bold",
+                                                })}
+                                            >
+                                                Missing music!
+                                            </p>
+                                        )}
                                         {activity.music &&
                                             activity.music?.map(
                                                 (music, index) => (
