@@ -382,6 +382,7 @@ export default function EventsManagement() {
                                 display: "block",
                                 marginBottom: "4px",
                                 fontWeight: "500",
+                                color: "var(--text-color)",
                             })}
                         >
                             Event Name *
@@ -399,9 +400,16 @@ export default function EventsManagement() {
                             className={css({
                                 width: "100%",
                                 padding: "8px 12px",
-                                border: "1px solid gray.300",
+                                border: "2px solid var(--input-border)",
                                 borderRadius: "4px",
                                 fontSize: "14px",
+                                backgroundColor: "var(--input-bg)",
+                                color: "var(--text-color)",
+                                "&:focus": {
+                                    borderColor: "var(--input-focus-border)",
+                                    outline: "none",
+                                    boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)"
+                                }
                             })}
                         />
                     </div>
@@ -428,10 +436,17 @@ export default function EventsManagement() {
                             className={css({
                                 width: "100%",
                                 padding: "8px 12px",
-                                border: "1px solid gray.300",
+                                border: "2px solid var(--input-border)",
                                 borderRadius: "4px",
                                 fontSize: "14px",
                                 resize: "vertical",
+                                backgroundColor: "var(--input-bg)",
+                                color: "var(--text-color)",
+                                "&:focus": {
+                                    borderColor: "var(--input-focus-border)",
+                                    outline: "none",
+                                    boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)"
+                                }
                             })}
                         />
                     </div>
@@ -466,9 +481,16 @@ export default function EventsManagement() {
                                 className={css({
                                     width: "100%",
                                     padding: "8px 12px",
-                                    border: "1px solid gray.300",
+                                    border: "2px solid var(--input-border)",
                                     borderRadius: "4px",
                                     fontSize: "14px",
+                                    backgroundColor: "var(--input-bg)",
+                                    color: "var(--text-color)",
+                                    "&:focus": {
+                                        borderColor: "var(--input-focus-border)",
+                                        outline: "none",
+                                        boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)"
+                                    }
                                 })}
                             />
                         </div>
@@ -495,9 +517,16 @@ export default function EventsManagement() {
                                 className={css({
                                     width: "100%",
                                     padding: "8px 12px",
-                                    border: "1px solid gray.300",
+                                    border: "2px solid var(--input-border)",
                                     borderRadius: "4px",
                                     fontSize: "14px",
+                                    backgroundColor: "var(--input-bg)",
+                                    color: "var(--text-color)",
+                                    "&:focus": {
+                                        borderColor: "var(--input-focus-border)",
+                                        outline: "none",
+                                        boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)"
+                                    }
                                 })}
                             />
                         </div>
@@ -525,9 +554,16 @@ export default function EventsManagement() {
                             className={css({
                                 width: "100%",
                                 padding: "8px 12px",
-                                border: "1px solid gray.300",
+                                border: "2px solid var(--input-border)",
                                 borderRadius: "4px",
                                 fontSize: "14px",
+                                backgroundColor: "var(--input-bg)",
+                                color: "var(--text-color)",
+                                "&:focus": {
+                                    borderColor: "var(--input-focus-border)",
+                                    outline: "none",
+                                    boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)"
+                                }
                             })}
                         />
                     </div>
