@@ -15,6 +15,17 @@ jest.mock("../[activityId]/patchActivity");
 jest.mock("../../logUpdate");
 jest.mock("next/headers");
 
+// Mock NextResponse to return a compatible response
+jest.mock("next/server", () => ({
+    NextResponse: {
+        json: (data, options = {}) => ({
+            json: async () => data,
+            status: options.status || 200,
+            ...data
+        }),
+    },
+}));
+
 describe("activities/route", () => {
     let mockGetCookie;
     beforeEach(() => {
@@ -27,7 +38,10 @@ describe("activities/route", () => {
     });
     describe("GET", () => {
         it("should return a list of activities", async () => {
-            sql.mockResolvedValue({
+            // Mock the active event check and activities query
+            sql.mockResolvedValueOnce({
+                rows: [{ id: "event-1" }], // Active event
+            }).mockResolvedValueOnce({
                 rows: [
                     {
                         id: "1",
@@ -36,23 +50,30 @@ describe("activities/route", () => {
                         music: '["song1","song2"]',
                         sortindex: 1,
                         scheduleindex: null,
+                        event_id: "event-1",
                     },
                 ],
             });
-            const response = await GET();
-            expect(response).toEqual({
-                data: {
-                    activities: [
-                        {
-                            id: "1",
-                            title: "boogers",
-                            description: "green things",
-                            music: ["song1", "song2"],
-                            sortIndex: 1,
-                            scheduleIndex: null,
-                        },
-                    ],
-                },
+            
+            const mockRequest = {
+                url: "http://localhost:3000/api/activities"
+            };
+            
+            const response = await GET(mockRequest);
+            const responseData = await response.json();
+            
+            expect(responseData).toEqual({
+                activities: [
+                    {
+                        id: "1",
+                        title: "boogers",
+                        description: "green things",
+                        music: ["song1", "song2"],
+                        sortIndex: 1,
+                        scheduleIndex: null,
+                        eventId: "event-1",
+                    },
+                ],
             });
         });
     });
@@ -71,12 +92,13 @@ describe("activities/route", () => {
                 }),
             };
             const response = await POST(mockReq);
+            const responseData = await response.json();
             expect(validatePasscode).toHaveBeenCalledWith(undefined, [
                 "editor",
             ]);
-            expect(response).toEqual({
-                data: { message: "No passcode provided" },
-                status: 401,
+            expect(response.status).toBe(401);
+            expect(responseData).toEqual({
+                message: "No passcode provided",
             });
         });
         it("returns a 403 if the provided passcode does not match the editor passcode", async () => {
@@ -89,12 +111,13 @@ describe("activities/route", () => {
                 }),
             };
             const response = await POST(mockReq);
+            const responseData = await response.json();
             expect(validatePasscode).toHaveBeenCalledWith("boogers", [
                 "editor",
             ]);
-            expect(response).toEqual({
-                data: { message: "Provided passcode is invalid" },
-                status: 403,
+            expect(response.status).toBe(403);
+            expect(responseData).toEqual({
+                message: "Provided passcode is invalid",
             });
         });
         it("returns a 400 if no title was provided", async () => {
@@ -104,13 +127,49 @@ describe("activities/route", () => {
                 }),
             };
             const response = await POST(mockReq);
-            expect(response).toEqual({
-                data: { message: "No title provided" },
-                status: 400,
+            const responseData = await response.json();
+            expect(response.status).toBe(400);
+            expect(responseData).toEqual({
+                message: "No title provided",
+            });
+        });
+
+        it("returns a 400 if no active event and no eventId provided", async () => {
+            // Mock no active event
+            sql.mockResolvedValueOnce({
+                rows: [], // No active event
+            });
+
+            const mockReq = {
+                json: jest.fn().mockResolvedValue({
+                    title: "boogers",
+                    description: "green things",
+                }),
+            };
+            
+            const response = await POST(mockReq);
+            const responseData = await response.json();
+            expect(response.status).toBe(400);
+            expect(responseData).toEqual({
+                message: "No active event found. Please create an event first or specify an eventId.",
             });
         });
         it("inserts the activity and returns it", async () => {
-            sql.mockResolvedValue({ rows: [] });
+            // Mock active event check
+            sql.mockResolvedValueOnce({
+                rows: [{ id: "event-1" }], // Active event
+            })
+            // Mock table creation
+            .mockResolvedValueOnce({ rows: [] })
+            // Mock column additions
+            .mockResolvedValueOnce({ rows: [] })
+            .mockResolvedValueOnce({ rows: [] })
+            .mockResolvedValueOnce({ rows: [] })
+            // Mock highest sort index check
+            .mockResolvedValueOnce({ rows: [] })
+            // Mock activity insertion
+            .mockResolvedValueOnce({ rows: [] });
+
             const mockReq = {
                 json: jest.fn().mockResolvedValue({
                     title: "boogers",
@@ -118,26 +177,40 @@ describe("activities/route", () => {
                     music: ["song1", "song2"],
                 }),
             };
-            await POST(mockReq);
-            expect(sql).toHaveBeenCalledWith(
-                [
-                    "INSERT INTO activities (id, title, description, music, sortIndex, scheduleIndex) VALUES (",
-                    ", ",
-                    ", ",
-                    ", ",
-                    ", ",
-                    ", null)",
+            
+            const response = await POST(mockReq);
+            const responseData = await response.json();
+            
+            expect(responseData).toMatchObject({
+                activities: [
+                    expect.objectContaining({
+                        title: "boogers",
+                        description: "green things",
+                        music: ["song1", "song2"],
+                        sortIndex: 0,
+                        scheduleIndex: null,
+                        eventId: "event-1",
+                    }),
                 ],
-                expect.anything(),
-                "boogers",
-                "green things",
-                '["song1","song2"]',
-                0,
-            );
+            });
         });
 
         it("sets the sort index based on what already exists in the table", async () => {
-            sql.mockResolvedValue({ rows: [{ sortindex: 5 }] });
+            // Mock active event check
+            sql.mockResolvedValueOnce({
+                rows: [{ id: "event-1" }], // Active event
+            })
+            // Mock table creation
+            .mockResolvedValueOnce({ rows: [] })
+            // Mock column additions
+            .mockResolvedValueOnce({ rows: [] })
+            .mockResolvedValueOnce({ rows: [] })
+            .mockResolvedValueOnce({ rows: [] })
+            // Mock highest sort index check (existing activity with index 5)
+            .mockResolvedValueOnce({ rows: [{ sortindex: 5 }] })
+            // Mock activity insertion
+            .mockResolvedValueOnce({ rows: [] });
+
             const mockReq = {
                 json: jest.fn().mockResolvedValue({
                     title: "boogers",
@@ -145,22 +218,22 @@ describe("activities/route", () => {
                     music: ["song1", "song2"],
                 }),
             };
-            await POST(mockReq);
-            expect(sql).toHaveBeenCalledWith(
-                [
-                    "INSERT INTO activities (id, title, description, music, sortIndex, scheduleIndex) VALUES (",
-                    ", ",
-                    ", ",
-                    ", ",
-                    ", ",
-                    ", null)",
+            
+            const response = await POST(mockReq);
+            const responseData = await response.json();
+            
+            expect(responseData).toMatchObject({
+                activities: [
+                    expect.objectContaining({
+                        title: "boogers",
+                        description: "green things",
+                        music: ["song1", "song2"],
+                        sortIndex: 6,
+                        scheduleIndex: null,
+                        eventId: "event-1",
+                    }),
                 ],
-                expect.anything(),
-                "boogers",
-                "green things",
-                '["song1","song2"]',
-                6,
-            );
+            });
         });
     });
     describe("PATCH", () => {
@@ -177,12 +250,13 @@ describe("activities/route", () => {
                 }),
             };
             const response = await PATCH(mockReq);
+            const responseData = await response.json();
             expect(validatePasscode).toHaveBeenCalledWith(undefined, [
                 "editor",
             ]);
-            expect(response).toEqual({
-                data: { message: "No passcode provided" },
-                status: 401,
+            expect(response.status).toBe(401);
+            expect(responseData).toEqual({
+                message: "No passcode provided",
             });
         });
         it("should return a 403 if the provided passcode does not match the editor or user passcode", async () => {
@@ -194,12 +268,13 @@ describe("activities/route", () => {
                 }),
             };
             const response = await PATCH(mockReq);
+            const responseData = await response.json();
             expect(validatePasscode).toHaveBeenCalledWith("boogers", [
                 "editor",
             ]);
-            expect(response).toEqual({
-                data: { message: "Provided passcode is invalid" },
-                status: 403,
+            expect(response.status).toBe(403);
+            expect(responseData).toEqual({
+                message: "Provided passcode is invalid",
             });
         });
         it("should call patchActivity for each activity and log the update", async () => {
@@ -212,7 +287,9 @@ describe("activities/route", () => {
                     ],
                 }),
             };
-            await PATCH(mockReq);
+            const response = await PATCH(mockReq);
+            const responseData = await response.json();
+            
             expect(patchActivity).toHaveBeenCalledTimes(2);
             expect(patchActivity).toHaveBeenCalledWith(
                 "1",
@@ -231,6 +308,7 @@ describe("activities/route", () => {
                 "editor",
             );
             expect(logUpdateByTableName).toHaveBeenCalledWith("activities");
+            expect(responseData).toEqual({});
         });
     });
 });

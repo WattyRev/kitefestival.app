@@ -5,6 +5,8 @@ import TopNav from "../components/global/TopNav";
 import { AuthProvider } from "../components/global/Auth";
 import { PromptProvider } from "../components/ui/Prompt";
 import { AlertProvider } from "../components/ui/Alert";
+import { EventsProvider } from "../components/EventsContext";
+import EventSelector from "../components/EventSelector";
 import Script from "next/script";
 import { css } from "../../styled-system/css";
 
@@ -33,16 +35,19 @@ export default function RootLayout({ children }) {
                 <AuthProvider>
                     <PromptProvider>
                         <AlertProvider>
-                            <TopNav />
-                            <div
-                                className={`main-container ${css({
-                                    padding: "0 8px",
-                                    maxWidth: "100vw",
-                                    overflowX: "hidden",
-                                })}`}
-                            >
-                                {children}
-                            </div>
+                            <EventsProvider>
+                                <TopNav />
+                                <EventSelector />
+                                <div
+                                    className={`main-container ${css({
+                                        padding: "0 8px",
+                                        maxWidth: "100vw",
+                                        overflowX: "hidden",
+                                    })}`}
+                                >
+                                    {children}
+                                </div>
+                            </EventsProvider>
                         </AlertProvider>
                     </PromptProvider>
                 </AuthProvider>
