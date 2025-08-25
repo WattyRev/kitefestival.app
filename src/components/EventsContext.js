@@ -29,7 +29,7 @@ export function EventsProvider({ children }) {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await fetch("/api/events");
+            const response = await fetch("/api/events", { credentials: "include" });
             if (!response.ok) {
                 throw new Error("Failed to fetch events");
             }
@@ -56,6 +56,7 @@ export function EventsProvider({ children }) {
         try {
             const response = await fetch(`/api/events/${eventId}/activate`, {
                 method: "POST",
+                credentials: "include",
             });
 
             if (!response.ok) {
