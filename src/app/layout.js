@@ -6,9 +6,6 @@ import { AuthProvider } from "../components/global/Auth";
 import { PromptProvider } from "../components/ui/Prompt";
 import { AlertProvider } from "../components/ui/Alert";
 import { EventsProvider } from "../components/EventsContext";
-import EventSelector from "../components/EventSelector";
-import { ThemeProvider } from "../components/ThemeProvider";
-import ThemeToggle from "../components/ThemeToggle";
 import Script from "next/script";
 import { css } from "../../styled-system/css";
 
@@ -27,7 +24,6 @@ export default function RootLayout({ children }) {
                     name="viewport"
                     content="width=device-width, initial-scale=1.0"
                 />
-                <meta name="darkreader-lock" />
                 <Script
                     src="https://kit.fontawesome.com/f870624930.js"
                     crossorigin="anonymous"
@@ -35,15 +31,12 @@ export default function RootLayout({ children }) {
             </head>
             <body className={inter.className}>
                 <SpeedInsights />
-                <ThemeProvider>
-                    <AuthProvider>
-                        <PromptProvider>
-                            <AlertProvider>
-                                <EventsProvider>
-                                    <TopNav />
-                                    <EventSelector />
-                                    <ThemeToggle />
-                                    <div
+                <AuthProvider>
+                    <PromptProvider>
+                        <AlertProvider>
+                            <EventsProvider>
+                                <TopNav />
+                                <div
                                         className={`main-container ${css({
                                             padding: "0 8px",
                                             maxWidth: "100vw",
@@ -56,7 +49,6 @@ export default function RootLayout({ children }) {
                             </AlertProvider>
                         </PromptProvider>
                     </AuthProvider>
-                </ThemeProvider>
             </body>
         </html>
     );

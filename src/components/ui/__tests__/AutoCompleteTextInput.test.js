@@ -26,10 +26,13 @@ describe("AutoCompleteTextInput", () => {
         render(<AutoCompleteTextInput value="p" options={options} />);
         expect(screen.queryByTestId("suggestions")).not.toBeInTheDocument();
     });
-    it("does not display the options while focused when there is no value", async () => {
+    it("displays the first few options while focused when there is no value", async () => {
         render(<AutoCompleteTextInput options={options} />);
         await userEvent.click(screen.getByRole("textbox"));
-        expect(screen.queryByTestId("suggestions")).not.toBeInTheDocument();
+        // Suggestions should be visible and show the first few options
+        expect(screen.getByTestId("suggestions")).toBeInTheDocument();
+        expect(screen.getByTestId("suggestion-0")).toHaveTextContent("boogers");
+        expect(screen.getByTestId("suggestion-1")).toHaveTextContent("Paint it Black");
     });
     it("displays relevant options when there is a value", async () => {
         render(<AutoCompleteTextInput value="p" options={options} />);

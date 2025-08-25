@@ -193,8 +193,8 @@ describe("passcodes/route", () => {
             await POST(mockReq);
             expect(mockSetCookie).toHaveBeenCalledWith("userId", "uuid", {
                 expires: expect.any(Date),
-                sameSite: "strict",
-                secure: true,
+                sameSite: "lax",
+                secure: false,
             });
         });
         it("sets a userName cookie if a name is provided", async () => {
@@ -207,8 +207,8 @@ describe("passcodes/route", () => {
             await POST(mockReq);
             expect(mockSetCookie).toHaveBeenCalledWith("userName", "Stubby", {
                 expires: expect.any(Date),
-                sameSite: "strict",
-                secure: true,
+                sameSite: "lax",
+                secure: false,
             });
         });
         it("sets a passcode cookie if the passcode was valid", async () => {
@@ -220,8 +220,8 @@ describe("passcodes/route", () => {
             await POST(mockReq);
             expect(mockSetCookie).toHaveBeenCalledWith("passcode", "boogers", {
                 expires: expect.any(Date),
-                sameSite: "strict",
-                secure: true,
+                sameSite: "lax",
+                secure: false,
             });
         });
         it("does not set a passcode cookie if the passcode was not valid", async () => {
@@ -236,8 +236,8 @@ describe("passcodes/route", () => {
                 "boogers",
                 {
                     expires: expect.any(Date),
-                    sameSite: "strict",
-                    secure: true,
+                    sameSite: "lax",
+                    secure: false,
                 },
             );
         });
@@ -250,8 +250,8 @@ describe("passcodes/route", () => {
             await POST(mockReq);
             expect(mockSetCookie).toHaveBeenCalledWith("userType", "editor", {
                 expires: expect.any(Date),
-                sameSite: "strict",
-                secure: true,
+                sameSite: "lax",
+                secure: false,
             });
         });
         it("sets a userType to user if the passcode validated as a user", async () => {
@@ -263,8 +263,8 @@ describe("passcodes/route", () => {
             await POST(mockReq);
             expect(mockSetCookie).toHaveBeenCalledWith("userType", "user", {
                 expires: expect.any(Date),
-                sameSite: "strict",
-                secure: true,
+                sameSite: "lax",
+                secure: false,
             });
         });
     });

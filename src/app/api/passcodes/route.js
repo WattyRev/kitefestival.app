@@ -67,6 +67,28 @@ export async function PUT(req) {
 }
 
 /**
+ * Get all user types
+ *
+ * GET /api/passcodes
+ *
+ * Response:
+ * {
+ *   users: Array<{name: string}>
+ * }
+ */
+export async function GET() {
+    try {
+        const result = await sql`SELECT name FROM passcodes ORDER BY name`;
+        return NextResponse.json({ users: result.rows });
+    } catch (error) {
+        return NextResponse.json(
+            { message: "Failed to fetch user types" },
+            { status: 500 }
+        );
+    }
+}
+
+/**
  * Validate a passcode
  *
  * POST /api/passcodes
@@ -81,6 +103,7 @@ export async function PUT(req) {
  * }
  */
 export async function POST(req) {
+    const isProd = process.env.NODE_ENV === "production";
     const identifyCookieExpiration = new Date(
         Date.now() + 1000 * 60 * 60 * 24 * 365,
     );
@@ -89,8 +112,8 @@ export async function POST(req) {
         const userId = randomUUID();
         cookieStore.set("userId", userId, {
             expires: identifyCookieExpiration,
-            sameSite: "strict",
-            secure: true,
+            sameSite: "lax",
+            secure: isProd,
         });
     }
     const { passcode, name } = await req.json();
@@ -98,8 +121,8 @@ export async function POST(req) {
     if (name) {
         cookieStore.set("userName", name, {
             expires: identifyCookieExpiration,
-            sameSite: "strict",
-            secure: true,
+            sameSite: "lax",
+            secure: isProd,
         });
     }
 
@@ -114,13 +137,13 @@ export async function POST(req) {
     if (passcode === editorPasscode) {
         cookieStore.set("passcode", passcode, {
             expires: authCookieExpiration,
-            sameSite: "strict",
-            secure: true,
+            sameSite: "lax",
+            secure: isProd,
         });
         cookieStore.set("userType", "editor", {
             expires: authCookieExpiration,
-            sameSite: "strict",
-            secure: true,
+            sameSite: "lax",
+            secure: isProd,
         });
         return NextResponse.json({ userType: "editor" });
     }
@@ -128,13 +151,13 @@ export async function POST(req) {
     if (passcode === userPasscode) {
         cookieStore.set("passcode", passcode, {
             expires: authCookieExpiration,
-            sameSite: "strict",
-            secure: true,
+            sameSite: "lax",
+            secure: isProd,
         });
         cookieStore.set("userType", "user", {
             expires: authCookieExpiration,
-            sameSite: "strict",
-            secure: true,
+            sameSite: "lax",
+            secure: isProd,
         });
         return NextResponse.json({ userType: "user" });
     }

@@ -11,8 +11,9 @@ import { css } from "../../../styled-system/css";
  */
 const AutoCompleteTextInput = ({ value, options = [], onChange, ...props }) => {
     const relevantOptions = useMemo(() => {
+        // When empty, show the first few library items so users immediately see suggestions
         if (!value) {
-            return [];
+            return options.slice(0, 5);
         }
         return options
             .filter(

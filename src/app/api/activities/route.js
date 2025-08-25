@@ -57,20 +57,34 @@ export async function GET(req) {
             }
         }
 
+        const normalizeMusic = (val) => {
+            if (val == null) return [];
+            if (Array.isArray(val)) return val;
+            if (typeof val === "object") {
+                // If it's a JSON object but not an array, ignore
+                return [];
+            }
+            if (typeof val === "string") {
+                const s = val.trim();
+                if (!s) return [];
+                // Try to parse JSON; if that fails, treat as a single entry string
+                try {
+                    const parsed = JSON.parse(s);
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch (_) {
+                    return [s];
+                }
+            }
+            return [];
+        };
+
         const activities = activitiesResponse.rows.map((activity) => {
-            const {
-                id,
-                title,
-                description,
-                sortindex,
-                scheduleindex,
-                event_id,
-            } = activity;
+            const { id, title, description, sortindex, scheduleindex, event_id } = activity;
             return {
                 id,
                 title,
                 description,
-                music: JSON.parse(activity.music || "[]"),
+                music: normalizeMusic(activity.music),
                 sortIndex: sortindex,
                 scheduleIndex: scheduleindex,
                 eventId: event_id,
@@ -111,12 +125,18 @@ export async function POST(req) {
         await validatePasscode(passcode, ["editor"]);
     } catch (error) {
         if (error instanceof NoPasscodeError) {
+            if (process.env.NODE_ENV !== "production") {
+                console.warn("[activities POST] 401: No passcode cookie present");
+            }
             return NextResponse.json(
                 { message: "No passcode provided" },
                 { status: 401 },
             );
         }
         if (error instanceof InvalidPasscodeError) {
+            if (process.env.NODE_ENV !== "production") {
+                console.warn("[activities POST] 403: Invalid passcode for editor scope");
+            }
             return NextResponse.json(
                 { message: "Provided passcode is invalid" },
                 { status: 403 },

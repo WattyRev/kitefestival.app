@@ -8,6 +8,7 @@ import {
 import fetch from "../util/fetch";
 import { useAlert } from "./ui/Alert";
 import { useChangePolling } from "./ChangePollingContainer";
+import { useEvents } from "./EventsContext";
 
 export const ActivitiesContext = createContext({
     activities: [],
@@ -138,7 +139,16 @@ function reindexActivities(activities) {
     return { changedActivities, newActivities };
 }
 
-const ActivitiesContainer = ({ children, initialActivities }) => {
+const ActivitiesContainer = ({ children, initialActivities, eventId }) => {
+    // Fall back to active event from context when eventId not provided; handle absence in tests/pages.
+    let activeEventId;
+    try {
+        const { activeEvent } = useEvents();
+        activeEventId = activeEvent?.id;
+    } catch (_) {
+        activeEventId = undefined;
+    }
+    const scopedEventId = eventId || activeEventId || undefined;
     const [activitiesData, dispatch] = useReducer(ActivitiesReducer, {
         activities: initialActivities,
         scheduledActivities: initialActivities.filter(
@@ -155,7 +165,8 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
 
     const fetchActivities = useCallback(async () => {
         setIsLoading(true);
-        const activitiesResponse = await fetch("/api/activities");
+        const query = scopedEventId ? `?eventId=${encodeURIComponent(scopedEventId)}` : "";
+        const activitiesResponse = await fetch(`/api/activities${query}`);
         const activitiesJson = await activitiesResponse.json();
         const { activities } = activitiesJson;
         dispatch({
@@ -171,7 +182,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             },
         });
         setIsLoading(false);
-    }, []);
+    }, [scopedEventId]);
 
     const checkForUpdates = useCallback(async () => {
         const newerChanges = changes.filter(
@@ -201,10 +212,29 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ title, description, music }),
+                body: JSON.stringify({
+                    title,
+                    description,
+                    music,
+                    // Associate new activities with the scoped event when available
+                    ...(scopedEventId ? { eventId: scopedEventId } : {}),
+                }),
             });
             if (!response.ok) {
-                openAlert("Failed to create activity", "error");
+                let msg = "Failed to create activity";
+                if (response.status === 401) {
+                    msg = "Please sign in to create activities.";
+                } else if (response.status === 403) {
+                    msg = "You must be an editor to create activities. Please re-enter the editor passcode.";
+                } else {
+                    try {
+                        const err = await response.json();
+                        if (err?.message) msg = err.message;
+                    } catch (_) {
+                        // ignore parse errors
+                    }
+                }
+                openAlert(msg, "error");
                 return;
             }
             const updatedActivityJson = await response.json();
