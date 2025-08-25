@@ -1,12 +1,6 @@
 "use client";
 
-import {
-    createContext,
-    useContext,
-    useEffect,
-    useState,
-    useCallback,
-} from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 
 export const EventsContext = createContext({
     events: [],
@@ -91,14 +85,17 @@ export function EventsProvider({ children }) {
         refreshEvents();
     }, [refreshEvents]);
 
-    const value = {
-        events,
-        activeEvent,
-        isLoading,
-        error,
-        refreshEvents,
-        setActiveEvent,
-    };
+    const value = useMemo(
+        () => ({
+            events,
+            activeEvent,
+            isLoading,
+            error,
+            refreshEvents,
+            setActiveEvent,
+        }),
+        [events, activeEvent, isLoading, error, refreshEvents, setActiveEvent],
+    );
 
     return (
         <EventsContext.Provider value={value}>

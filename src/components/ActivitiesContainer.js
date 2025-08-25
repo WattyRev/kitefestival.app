@@ -4,11 +4,11 @@ import {
     useReducer,
     useState,
     useCallback,
+    useContext,
 } from "react";
 import fetch from "../util/fetch";
 import { useAlert } from "./ui/Alert";
 import { useChangePolling } from "./ChangePollingContainer";
-import { useContext } from "react";
 import { EventsContext } from "./EventsContext";
 
 export const ActivitiesContext = createContext({
@@ -20,7 +20,6 @@ export const ActivitiesContext = createContext({
 export const ActivitiesDispatchContext = createContext(null);
 
 let lastUpdate = new Date().getTime() - 15000;
-
 function sortActivities(activities) {
     const sortedActivities = [...activities];
     const aBeforeB = -1;
