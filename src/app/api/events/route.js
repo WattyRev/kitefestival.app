@@ -106,10 +106,22 @@ export async function POST(req) {
         const {
             name,
             description = "",
-            startDate = null,
-            endDate = null,
+            startDate: rawStartDate = null,
+            endDate: rawEndDate = null,
             location = "",
         } = await req.json();
+
+        const toDateOnly = (val) => {
+            if (!val) return null;
+            const s = String(val).trim();
+            if (!s) return null;
+            // Accept ISO strings, cut off any time portion
+            if (s.includes("T")) return s.split("T")[0];
+            if (s.length > 10) return s.slice(0, 10);
+            return s; // expected YYYY-MM-DD
+        };
+        const startDate = toDateOnly(rawStartDate);
+        const endDate = toDateOnly(rawEndDate);
 
         if (!name || name.trim() === "") {
             return NextResponse.json(
@@ -132,7 +144,7 @@ export async function POST(req) {
 
         const id = randomUUID();
 
-        // Create the events table if it doesn't exist
+    // Create the events table if it doesn't exist
         await sql`
             CREATE TABLE IF NOT EXISTS events (
                 id VARCHAR(36) PRIMARY KEY,
@@ -147,7 +159,16 @@ export async function POST(req) {
             )
         `;
 
-        await sql`
+    // Patch existing events table to include any missing columns (for older schemas)
+    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS description TEXT`;
+    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS start_date TIMESTAMP`;
+    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS end_date TIMESTAMP`;
+    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS location VARCHAR(255)`;
+    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT false`;
+    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`;
+    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`;
+
+    await sql`
             INSERT INTO events (
                 id, name, description, start_date, end_date, location, is_active
             ) VALUES (
@@ -222,6 +243,15 @@ export async function PATCH(req) {
             );
         }
 
+        const toDateOnly = (val) => {
+            if (!val) return null;
+            const s = String(val).trim();
+            if (!s) return null;
+            if (s.includes("T")) return s.split("T")[0];
+            if (s.length > 10) return s.slice(0, 10);
+            return s;
+        };
+
         await Promise.all(
             events.map(async (event) => {
                 if (!event.id) {
@@ -244,12 +274,12 @@ export async function PATCH(req) {
                 }
                 if (event.startDate !== undefined) {
                     updateFields.push(`start_date = $${paramIndex}`);
-                    updateValues.push(event.startDate);
+                    updateValues.push(toDateOnly(event.startDate));
                     paramIndex++;
                 }
                 if (event.endDate !== undefined) {
                     updateFields.push(`end_date = $${paramIndex}`);
-                    updateValues.push(event.endDate);
+                    updateValues.push(toDateOnly(event.endDate));
                     paramIndex++;
                 }
                 if (event.location !== undefined) {

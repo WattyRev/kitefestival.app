@@ -32,6 +32,7 @@ import MusicLibraryContainer from "./MusicLibraryContainer";
 const HomePageContainer = ({
     activities: initialActivities,
     musicLibrary: initialMusicLibrary,
+    eventId,
 }) => {
     const { isEditor } = useAuth();
     const [activelyDraggedId, setActivelyDraggedId] = useState(null);
@@ -43,7 +44,7 @@ const HomePageContainer = ({
     return (
         <ChangePollingContainer>
             <MusicLibraryContainer initialMusicLibrary={initialMusicLibrary}>
-                <ActivitiesContainer initialActivities={initialActivities}>
+                <ActivitiesContainer initialActivities={initialActivities} eventId={eventId}>
                     {({
                         activities,
                         scheduledActivities,

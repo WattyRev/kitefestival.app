@@ -16,7 +16,12 @@ import Button from "./ui/Button";
 import ActivityMusicForm from "./ActivityMusicForm";
 
 function isMusicMissing(music) {
-    return !!(!music?.length || music.every((m) => !m.trim()));
+    if (!Array.isArray(music) || music.length === 0) return true;
+    return music.every((m) => {
+        if (m == null) return true;
+        const s = typeof m === "string" ? m : String(m);
+        return s.trim().length === 0;
+    });
 }
 
 const ActivityDisplay = ({
@@ -42,12 +47,16 @@ const ActivityDisplay = ({
     const [isEditingActivity, setIsEditingActivity] = useState(false);
     const [isEditingMusic, setIsEditingMusic] = useState(false);
     const [scheduleIndex, setScheduleIndex] = useState(
-        activity.scheduleIndex !== null ? activity.scheduleIndex + 1 : null,
+        activity.scheduleIndex != null && Number.isFinite(activity.scheduleIndex)
+            ? String(activity.scheduleIndex + 1)
+            : null,
     );
 
     useEffect(() => {
         setScheduleIndex(
-            activity.scheduleIndex !== null ? activity.scheduleIndex + 1 : null,
+            activity.scheduleIndex != null && Number.isFinite(activity.scheduleIndex)
+                ? String(activity.scheduleIndex + 1)
+                : null,
         );
     }, [activity.scheduleIndex]);
 
@@ -148,7 +157,7 @@ const ActivityDisplay = ({
                                     display: "flex",
                                 })}
                             >
-                                {isEditor() && scheduleIndex !== null && (
+                {isEditor() && scheduleIndex !== null && (
                                     <input
                                         data-testid="schedule-index"
                                         className={css({
@@ -158,7 +167,7 @@ const ActivityDisplay = ({
                                             textAlign: "center",
                                             marginRight: "4px",
                                         })}
-                                        value={scheduleIndex}
+                    value={scheduleIndex ?? ""}
                                         onChange={(e) => {
                                             setScheduleIndex(e.target.value);
                                             const number = parseInt(

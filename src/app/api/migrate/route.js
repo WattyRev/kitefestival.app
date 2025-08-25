@@ -126,7 +126,7 @@ export async function POST() {
             migrationResults.defaultEvent = `Error: ${error.message}`;
         }
 
-        // Step 5: Add foreign key constraint if not exists
+    // Add foreign key constraint if not exists
         try {
             await sql`
                 DO $$ 

@@ -5,6 +5,7 @@ import { css } from "../../../styled-system/css";
 import AuthSelection from "./TopNav/AuthSelection";
 import { useAuth } from "./Auth";
 import Link from "next/link";
+import { useEvents } from "../EventsContext";
 
 const NavItem = ({ children, ...props }) => (
     <Link
@@ -25,6 +26,7 @@ const NavItem = ({ children, ...props }) => (
 
 const TopNav = ({ ...props }) => {
     const { isPublic } = useAuth();
+    const { activeEvent } = useEvents();
     return (
         <nav
             data-testid="top-nav"
@@ -40,8 +42,8 @@ const TopNav = ({ ...props }) => {
             {...props}
         >
             <div className={css({ display: "flex", gap: "8px" })}>
-                <NavItem href="/" title="Home">
-                    <i className="fa-solid fa-house"></i>
+                <NavItem href="/" title="Events">
+                    <i className="fa-solid fa-calendar-days"></i>
                 </NavItem>
                 {!isPublic() && (
                     <NavItem href="/music-library" title="Music Library">

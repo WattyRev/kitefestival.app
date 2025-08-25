@@ -110,6 +110,14 @@ export async function PATCH(req, { params }) {
         }
 
         const updateData = await req.json();
+        const toDateOnly = (val) => {
+            if (!val) return null;
+            const s = String(val).trim();
+            if (!s) return null;
+            if (s.includes("T")) return s.split("T")[0];
+            if (s.length > 10) return s.slice(0, 10);
+            return s;
+        };
         const updateFields = [];
         const updateValues = [];
         let paramIndex = 1;
@@ -149,13 +157,13 @@ export async function PATCH(req, { params }) {
 
         if (updateData.startDate !== undefined) {
             updateFields.push(`start_date = $${paramIndex}`);
-            updateValues.push(updateData.startDate);
+            updateValues.push(toDateOnly(updateData.startDate));
             paramIndex++;
         }
 
         if (updateData.endDate !== undefined) {
             updateFields.push(`end_date = $${paramIndex}`);
-            updateValues.push(updateData.endDate);
+            updateValues.push(toDateOnly(updateData.endDate));
             paramIndex++;
         }
 
@@ -278,6 +286,27 @@ export async function DELETE(_, { params }) {
             `,
         ]);
 
+        const normalizeMusic = (val) => {
+            if (val == null) return [];
+            if (Array.isArray(val)) return val;
+            if (typeof val === "object") {
+                // If it's a JSON object but not an array, ignore
+                return [];
+            }
+            if (typeof val === "string") {
+                const s = val.trim();
+                if (!s) return [];
+                try {
+                    const parsed = JSON.parse(s);
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch (_) {
+                    // Treat non-JSON string as a single music entry
+                    return [s];
+                }
+            }
+            return [];
+        };
+
         const deletedData = {
             event: {
                 id: eventResponse.rows[0].id,
@@ -294,7 +323,7 @@ export async function DELETE(_, { params }) {
                 id: activity.id,
                 title: activity.title,
                 description: activity.description,
-                music: JSON.parse(activity.music || "[]"),
+                music: normalizeMusic(activity.music),
                 sortIndex: activity.sortindex,
                 scheduleIndex: activity.scheduleindex,
                 eventId: activity.event_id,

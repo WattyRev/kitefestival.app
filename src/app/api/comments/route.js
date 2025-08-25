@@ -17,12 +17,18 @@ export async function GET() {
         await validatePasscode(passcode, ["editor", "user"]);
     } catch (error) {
         if (error instanceof NoPasscodeError) {
+            if (process.env.NODE_ENV !== "production") {
+                console.warn("[comments GET] 401: No passcode cookie present");
+            }
             return NextResponse.json(
                 { message: "No passcode provided" },
                 { status: 401 },
             );
         }
         if (error instanceof InvalidPasscodeError) {
+            if (process.env.NODE_ENV !== "production") {
+                console.warn("[comments GET] 403: Invalid passcode");
+            }
             return NextResponse.json(
                 { message: "Provided passcode is invalid" },
                 { status: 403 },
@@ -63,12 +69,18 @@ export async function POST(req) {
         await validatePasscode(passcode, ["editor", "user"]);
     } catch (error) {
         if (error instanceof NoPasscodeError) {
+            if (process.env.NODE_ENV !== "production") {
+                console.warn("[comments POST] 401: No passcode cookie present");
+            }
             return NextResponse.json(
                 { message: "No passcode provided" },
                 { status: 401 },
             );
         }
         if (error instanceof InvalidPasscodeError) {
+            if (process.env.NODE_ENV !== "production") {
+                console.warn("[comments POST] 403: Invalid passcode");
+            }
             return NextResponse.json(
                 { message: "Provided passcode is invalid" },
                 { status: 403 },

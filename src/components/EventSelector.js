@@ -6,8 +6,9 @@ import { css } from "../../styled-system/css";
 export default function EventSelector() {
     const { events, activeEvent, setActiveEvent, isLoading } = useEvents();
 
+
     if (events.length === 0) {
-        return null; // Don't show if no events exist
+        return null;
     }
 
     return (
@@ -26,18 +27,6 @@ export default function EventSelector() {
                 minWidth: "200px",
             })}
         >
-            <div
-                className={css({
-                    fontSize: "12px",
-                    fontWeight: "600",
-                    color: "gray.600",
-                    marginBottom: "8px",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                })}
-            >
-                Current Event
-            </div>
 
             {activeEvent ? (
                 <div>
@@ -63,18 +52,7 @@ export default function EventSelector() {
                         </div>
                     )}
                 </div>
-            ) : (
-                <div
-                    className={css({
-                        fontSize: "14px",
-                        color: "gray.500",
-                        fontStyle: "italic",
-                        marginBottom: "8px",
-                    })}
-                >
-                    No active event
-                </div>
-            )}
+            ) : null}
 
             {events.length > 1 && (
                 <select
@@ -89,6 +67,7 @@ export default function EventSelector() {
                         borderColor: "gray.300",
                         borderRadius: "4px",
                         backgroundColor: "white",
+                        color: "black",
                         cursor: "pointer",
                         "&:disabled": {
                             opacity: 0.6,

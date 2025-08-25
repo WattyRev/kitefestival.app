@@ -12,7 +12,11 @@ describe("Table", () => {
 
     describe("Thead", () => {
         it("renders", async () => {
-            render(<Thead className="test" data-testid="target" />);
+            render(
+                <Table>
+                    <Thead className="test" data-testid="target" />
+                </Table>,
+            );
 
             const thead = screen.getByTestId("target");
             expect(thead).toHaveClass("test");
@@ -22,7 +26,11 @@ describe("Table", () => {
 
     describe("Tbody", () => {
         it("renders", async () => {
-            render(<Tbody className="test" data-testid="target" />);
+            render(
+                <Table>
+                    <Tbody className="test" data-testid="target" />
+                </Table>,
+            );
 
             const tbody = screen.getByTestId("target");
             expect(tbody).toHaveClass("test");
@@ -32,7 +40,13 @@ describe("Table", () => {
 
     describe("Tr", () => {
         it("renders", async () => {
-            render(<Tr className="test" data-testid="target" />);
+            render(
+                <Table>
+                    <Tbody>
+                        <Tr className="test" data-testid="target" />
+                    </Tbody>
+                </Table>,
+            );
 
             const tr = screen.getByTestId("target");
             expect(tr).toHaveClass("test");
@@ -42,7 +56,15 @@ describe("Table", () => {
 
     describe("Td", () => {
         it("renders", async () => {
-            render(<Td className="test" data-testid="target" />);
+            render(
+                <Table>
+                    <Tbody>
+                        <Tr>
+                            <Td className="test" data-testid="target" />
+                        </Tr>
+                    </Tbody>
+                </Table>,
+            );
 
             const td = screen.getByTestId("target");
             expect(td).toHaveClass("test");
@@ -52,7 +74,15 @@ describe("Table", () => {
 
     describe("Th", () => {
         it("renders", async () => {
-            render(<Th className="test" data-testid="target" />);
+            render(
+                <Table>
+                    <Thead>
+                        <Tr>
+                            <Th className="test" data-testid="target" />
+                        </Tr>
+                    </Thead>
+                </Table>,
+            );
 
             const th = screen.getByTestId("target");
             expect(th).toHaveClass("test");

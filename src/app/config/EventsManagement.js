@@ -63,9 +63,22 @@ export default function EventsManagement() {
         clearMessages();
 
         try {
+            // Prompt for admin passcode (required by API)
+            const passcode = window.prompt(
+                "Enter the ADMIN passcode to create the event:",
+            );
+            if (!passcode) {
+                setError("Creation cancelled: No passcode provided.");
+                setLoading(false);
+                return;
+            }
+            // Set short-lived passcode cookie (5 minutes)
+            document.cookie = `passcode=${encodeURIComponent(passcode)}; path=/; max-age=300`;
+
             const res = await fetch("/api/events", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify(formData),
             });
 
@@ -223,15 +236,20 @@ export default function EventsManagement() {
     };
 
     const startEdit = (event) => {
+        const toDateInput = (value) => {
+            if (!value) return "";
+            const d = new Date(value);
+            if (isNaN(d.getTime())) return "";
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        };
         setFormData({
             name: event.name,
             description: event.description || "",
-            startDate: event.startDate
-                ? new Date(event.startDate).toISOString().slice(0, 16)
-                : "",
-            endDate: event.endDate
-                ? new Date(event.endDate).toISOString().slice(0, 16)
-                : "",
+            startDate: toDateInput(event.startDate),
+            endDate: toDateInput(event.endDate),
             location: event.location || "",
         });
         setEditingEvent(event);
@@ -258,7 +276,7 @@ export default function EventsManagement() {
                     className={css({
                         fontSize: "24px",
                         fontWeight: "bold",
-                        color: "primary",
+                        color: "black",
                     })}
                 >
                     Events Management
@@ -268,13 +286,13 @@ export default function EventsManagement() {
                     disabled={loading}
                     className={css({
                         padding: "10px 16px",
-                        backgroundColor: "primary",
+                        backgroundColor: "blue.600",
                         color: "white",
                         border: "none",
                         borderRadius: "6px",
                         cursor: "pointer",
                         fontWeight: "500",
-                        "&:hover": { backgroundColor: "primaryHover" },
+                        "&:hover": { backgroundColor: "blue.700" },
                         "&:disabled": { opacity: 0.6, cursor: "not-allowed" },
                     })}
                 >
@@ -328,14 +346,14 @@ export default function EventsManagement() {
                         className={css({
                             fontSize: "18px",
                             fontWeight: "600",
-                            color: "blue.800",
+                            color: "black",
                             marginBottom: "8px",
                         })}
                     >
                         🎪 Active Event: {activeEvent.name}
                     </h3>
                     <p className={css({ color: "blue.700" })}>
-                        {activeEvent.description || "No description"}
+                        <span style={{ color: 'black' }}>{activeEvent.description || "No description"}</span>
                     </p>
                     {activeEvent.location && (
                         <p
@@ -382,7 +400,7 @@ export default function EventsManagement() {
                                 display: "block",
                                 marginBottom: "4px",
                                 fontWeight: "500",
-                                color: "var(--text-color)",
+                                color: "black",
                             })}
                         >
                             Event Name *
@@ -400,13 +418,13 @@ export default function EventsManagement() {
                             className={css({
                                 width: "100%",
                                 padding: "8px 12px",
-                                border: "2px solid var(--input-border)",
+                                border: "2px solid #e2e8f0",
                                 borderRadius: "4px",
                                 fontSize: "14px",
-                                backgroundColor: "var(--input-bg)",
-                                color: "var(--text-color)",
+                                backgroundColor: "white",
+                                color: "black",
                                 "&:focus": {
-                                    borderColor: "var(--input-focus-border)",
+                                    borderColor: "#3182ce",
                                     outline: "none",
                                     boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)"
                                 }
@@ -420,6 +438,7 @@ export default function EventsManagement() {
                                 display: "block",
                                 marginBottom: "4px",
                                 fontWeight: "500",
+                                color: "black",
                             })}
                         >
                             Description
@@ -436,14 +455,14 @@ export default function EventsManagement() {
                             className={css({
                                 width: "100%",
                                 padding: "8px 12px",
-                                border: "2px solid var(--input-border)",
+                                border: "2px solid #e2e8f0",
                                 borderRadius: "4px",
                                 fontSize: "14px",
                                 resize: "vertical",
-                                backgroundColor: "var(--input-bg)",
-                                color: "var(--text-color)",
+                                backgroundColor: "white",
+                                color: "black",
                                 "&:focus": {
-                                    borderColor: "var(--input-focus-border)",
+                                    borderColor: "#3182ce",
                                     outline: "none",
                                     boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)"
                                 }
@@ -465,12 +484,13 @@ export default function EventsManagement() {
                                     display: "block",
                                     marginBottom: "4px",
                                     fontWeight: "500",
+                                    color: "black",
                                 })}
                             >
-                                Start Date & Time
+                                Start Date
                             </label>
                             <input
-                                type="datetime-local"
+                                type="date"
                                 value={formData.startDate}
                                 onChange={(e) =>
                                     setFormData((prev) => ({
@@ -481,13 +501,13 @@ export default function EventsManagement() {
                                 className={css({
                                     width: "100%",
                                     padding: "8px 12px",
-                                    border: "2px solid var(--input-border)",
+                                    border: "2px solid #e2e8f0",
                                     borderRadius: "4px",
                                     fontSize: "14px",
-                                    backgroundColor: "var(--input-bg)",
-                                    color: "var(--text-color)",
+                                    backgroundColor: "white",
+                                    color: "black",
                                     "&:focus": {
-                                        borderColor: "var(--input-focus-border)",
+                                        borderColor: "#3182ce",
                                         outline: "none",
                                         boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)"
                                     }
@@ -501,12 +521,13 @@ export default function EventsManagement() {
                                     display: "block",
                                     marginBottom: "4px",
                                     fontWeight: "500",
+                                    color: "black",
                                 })}
                             >
-                                End Date & Time
+                                End Date
                             </label>
                             <input
-                                type="datetime-local"
+                                type="date"
                                 value={formData.endDate}
                                 onChange={(e) =>
                                     setFormData((prev) => ({
@@ -517,13 +538,13 @@ export default function EventsManagement() {
                                 className={css({
                                     width: "100%",
                                     padding: "8px 12px",
-                                    border: "2px solid var(--input-border)",
+                                    border: "2px solid #e2e8f0",
                                     borderRadius: "4px",
                                     fontSize: "14px",
-                                    backgroundColor: "var(--input-bg)",
-                                    color: "var(--text-color)",
+                                    backgroundColor: "white",
+                                    color: "black",
                                     "&:focus": {
-                                        borderColor: "var(--input-focus-border)",
+                                        borderColor: "#3182ce",
                                         outline: "none",
                                         boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)"
                                     }
@@ -538,6 +559,7 @@ export default function EventsManagement() {
                                 display: "block",
                                 marginBottom: "4px",
                                 fontWeight: "500",
+                                color: "black",
                             })}
                         >
                             Location
@@ -554,13 +576,13 @@ export default function EventsManagement() {
                             className={css({
                                 width: "100%",
                                 padding: "8px 12px",
-                                border: "2px solid var(--input-border)",
+                                border: "2px solid #e2e8f0",
                                 borderRadius: "4px",
                                 fontSize: "14px",
-                                backgroundColor: "var(--input-bg)",
-                                color: "var(--text-color)",
+                                backgroundColor: "white",
+                                color: "black",
                                 "&:focus": {
-                                    borderColor: "var(--input-focus-border)",
+                                    borderColor: "#3182ce",
                                     outline: "none",
                                     boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)"
                                 }
@@ -574,13 +596,13 @@ export default function EventsManagement() {
                             disabled={loading || !formData.name.trim()}
                             className={css({
                                 padding: "10px 16px",
-                                backgroundColor: "primary",
+                                backgroundColor: "blue.600",
                                 color: "white",
                                 border: "none",
                                 borderRadius: "6px",
                                 cursor: "pointer",
                                 fontWeight: "500",
-                                "&:hover": { backgroundColor: "primaryHover" },
+                                "&:hover": { backgroundColor: "blue.700" },
                                 "&:disabled": {
                                     opacity: 0.6,
                                     cursor: "not-allowed",
@@ -708,18 +730,12 @@ export default function EventsManagement() {
                                             )}
                                             {event.startDate && (
                                                 <span>
-                                                    🗓️{" "}
-                                                    {new Date(
-                                                        event.startDate,
-                                                    ).toLocaleString()}
+                                                    🗓️ {new Date(event.startDate).toLocaleDateString()}
                                                 </span>
                                             )}
                                             {event.endDate && (
                                                 <span>
-                                                    ⏰ Ends{" "}
-                                                    {new Date(
-                                                        event.endDate,
-                                                    ).toLocaleString()}
+                                                    ⏰ Ends {new Date(event.endDate).toLocaleDateString()}
                                                 </span>
                                             )}
                                         </div>
