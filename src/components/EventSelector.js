@@ -6,7 +6,6 @@ import { css } from "../../styled-system/css";
 export default function EventSelector() {
     const { events, activeEvent, setActiveEvent, isLoading } = useEvents();
 
-
     if (events.length === 0) {
         return null;
     }
@@ -27,7 +26,6 @@ export default function EventSelector() {
                 minWidth: "200px",
             })}
         >
-
             {activeEvent ? (
                 <div>
                     <div

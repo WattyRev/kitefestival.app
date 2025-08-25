@@ -9,9 +9,9 @@ input[type="date"],
 input[type="time"],
 textarea,
 select {
-  background-color: white !important;
-  color: black !important;
-  border: 2px solid #e2e8f0 !important;
+    background-color: white !important;
+    color: black !important;
+    border: 2px solid #e2e8f0 !important;
 }
 
 input[type="text"]:focus,
@@ -22,15 +22,13 @@ input[type="date"]:focus,
 input[type="time"]:focus,
 textarea:focus,
 select:focus {
-  border-color: #3182ce !important;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+    border-color: #3182ce !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
 }
 
 /* Label styling */
 label {
-  color: black !important;
-  font-weight: 500;
+    color: black !important;
+    font-weight: 500;
 }
-
-

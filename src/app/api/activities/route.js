@@ -79,7 +79,14 @@ export async function GET(req) {
         };
 
         const activities = activitiesResponse.rows.map((activity) => {
-            const { id, title, description, sortindex, scheduleindex, event_id } = activity;
+            const {
+                id,
+                title,
+                description,
+                sortindex,
+                scheduleindex,
+                event_id,
+            } = activity;
             return {
                 id,
                 title,
@@ -126,7 +133,9 @@ export async function POST(req) {
     } catch (error) {
         if (error instanceof NoPasscodeError) {
             if (process.env.NODE_ENV !== "production") {
-                console.warn("[activities POST] 401: No passcode cookie present");
+                console.warn(
+                    "[activities POST] 401: No passcode cookie present",
+                );
             }
             return NextResponse.json(
                 { message: "No passcode provided" },
@@ -135,7 +144,9 @@ export async function POST(req) {
         }
         if (error instanceof InvalidPasscodeError) {
             if (process.env.NODE_ENV !== "production") {
-                console.warn("[activities POST] 403: Invalid passcode for editor scope");
+                console.warn(
+                    "[activities POST] 403: Invalid passcode for editor scope",
+                );
             }
             return NextResponse.json(
                 { message: "Provided passcode is invalid" },

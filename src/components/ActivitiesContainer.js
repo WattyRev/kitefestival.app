@@ -8,7 +8,8 @@ import {
 import fetch from "../util/fetch";
 import { useAlert } from "./ui/Alert";
 import { useChangePolling } from "./ChangePollingContainer";
-import { useEvents } from "./EventsContext";
+import { useContext } from "react";
+import { EventsContext } from "./EventsContext";
 
 export const ActivitiesContext = createContext({
     activities: [],
@@ -140,14 +141,10 @@ function reindexActivities(activities) {
 }
 
 const ActivitiesContainer = ({ children, initialActivities, eventId }) => {
-    // Fall back to active event from context when eventId not provided; handle absence in tests/pages.
-    let activeEventId;
-    try {
-        const { activeEvent } = useEvents();
-        activeEventId = activeEvent?.id;
-    } catch (_) {
-        activeEventId = undefined;
-    }
+    // Fall back to active event from context when eventId not provided.
+    // Using useContext directly avoids conditional hook calls if provider is absent.
+    const eventsCtx = useContext(EventsContext);
+    const activeEventId = eventsCtx?.activeEvent?.id;
     const scopedEventId = eventId || activeEventId || undefined;
     const [activitiesData, dispatch] = useReducer(ActivitiesReducer, {
         activities: initialActivities,
@@ -165,7 +162,9 @@ const ActivitiesContainer = ({ children, initialActivities, eventId }) => {
 
     const fetchActivities = useCallback(async () => {
         setIsLoading(true);
-        const query = scopedEventId ? `?eventId=${encodeURIComponent(scopedEventId)}` : "";
+        const query = scopedEventId
+            ? `?eventId=${encodeURIComponent(scopedEventId)}`
+            : "";
         const activitiesResponse = await fetch(`/api/activities${query}`);
         const activitiesJson = await activitiesResponse.json();
         const { activities } = activitiesJson;
@@ -225,7 +224,8 @@ const ActivitiesContainer = ({ children, initialActivities, eventId }) => {
                 if (response.status === 401) {
                     msg = "Please sign in to create activities.";
                 } else if (response.status === 403) {
-                    msg = "You must be an editor to create activities. Please re-enter the editor passcode.";
+                    msg =
+                        "You must be an editor to create activities. Please re-enter the editor passcode.";
                 } else {
                     try {
                         const err = await response.json();

@@ -44,7 +44,10 @@ const HomePageContainer = ({
     return (
         <ChangePollingContainer>
             <MusicLibraryContainer initialMusicLibrary={initialMusicLibrary}>
-                <ActivitiesContainer initialActivities={initialActivities} eventId={eventId}>
+                <ActivitiesContainer
+                    initialActivities={initialActivities}
+                    eventId={eventId}
+                >
                     {({
                         activities,
                         scheduledActivities,

@@ -123,26 +123,42 @@ export default function ConfigPage() {
                     onClick={() => setActiveTab("passcodes")}
                     className={css({
                         padding: "12px 24px",
-                            backgroundColor:
-                                activeTab === "passcodes"
-                                    ? "blue.100"
-                                    : "transparent",
-                            color: activeTab === "passcodes" ? "#1a365d" : "gray.600",
-                            border: activeTab === "passcodes" ? "2px solid #3182ce" : "none",
-                        borderBottom: activeTab === "passcodes" ? "none" : undefined,
+                        backgroundColor:
+                            activeTab === "passcodes"
+                                ? "blue.100"
+                                : "transparent",
+                        color:
+                            activeTab === "passcodes" ? "#1a365d" : "gray.600",
+                        border:
+                            activeTab === "passcodes"
+                                ? "2px solid #3182ce"
+                                : "none",
+                        borderBottom:
+                            activeTab === "passcodes" ? "none" : undefined,
                         borderRadius: "100px",
                         cursor: "pointer",
                         fontWeight: "600",
                         marginRight: "4px",
                         marginBottom: activeTab === "passcodes" ? "-2px" : "0",
-                        boxShadow: activeTab === "passcodes" ? "0 6px 24px rgba(49,130,206,0.25), 0 1.5px 6px rgba(49,130,206,0.15)" : undefined,
+                        boxShadow:
+                            activeTab === "passcodes"
+                                ? "0 6px 24px rgba(49,130,206,0.25), 0 1.5px 6px rgba(49,130,206,0.15)"
+                                : undefined,
                         zIndex: activeTab === "passcodes" ? 10 : 1,
-                        transform: activeTab === "passcodes" ? "scale(1.08)" : undefined,
+                        transform:
+                            activeTab === "passcodes"
+                                ? "scale(1.08)"
+                                : undefined,
                         transition: "all 0.2s cubic-bezier(.4,0,.2,1)",
                         "&:hover": {
                             backgroundColor:
-                                activeTab === "passcodes" ? "blue.200" : "gray.100",
-                            color: activeTab === "passcodes" ? "#1a365d" : undefined,
+                                activeTab === "passcodes"
+                                    ? "blue.200"
+                                    : "gray.100",
+                            color:
+                                activeTab === "passcodes"
+                                    ? "#1a365d"
+                                    : undefined,
                         },
                     })}
                 >
@@ -152,24 +168,35 @@ export default function ConfigPage() {
                     onClick={() => setActiveTab("events")}
                     className={css({
                         padding: "12px 24px",
-                            backgroundColor:
-                                activeTab === "events" ? "blue.100" : "transparent",
-                            color: activeTab === "events" ? "#1a365d" : "gray.600",
-                            border: activeTab === "events" ? "2px solid #3182ce" : "none",
-                        borderBottom: activeTab === "events" ? "none" : undefined,
+                        backgroundColor:
+                            activeTab === "events" ? "blue.100" : "transparent",
+                        color: activeTab === "events" ? "#1a365d" : "gray.600",
+                        border:
+                            activeTab === "events"
+                                ? "2px solid #3182ce"
+                                : "none",
+                        borderBottom:
+                            activeTab === "events" ? "none" : undefined,
                         borderRadius: "100px",
                         cursor: "pointer",
                         fontWeight: "600",
                         marginRight: "4px",
                         marginBottom: activeTab === "events" ? "-2px" : "0",
-                        boxShadow: activeTab === "events" ? "0 6px 24px rgba(49,130,206,0.25), 0 1.5px 6px rgba(49,130,206,0.15)" : undefined,
+                        boxShadow:
+                            activeTab === "events"
+                                ? "0 6px 24px rgba(49,130,206,0.25), 0 1.5px 6px rgba(49,130,206,0.15)"
+                                : undefined,
                         zIndex: activeTab === "events" ? 10 : 1,
-                        transform: activeTab === "events" ? "scale(1.08)" : undefined,
+                        transform:
+                            activeTab === "events" ? "scale(1.08)" : undefined,
                         transition: "all 0.2s cubic-bezier(.4,0,.2,1)",
                         "&:hover": {
                             backgroundColor:
-                                activeTab === "events" ? "blue.200" : "gray.100",
-                            color: activeTab === "events" ? "#1a365d" : undefined,
+                                activeTab === "events"
+                                    ? "blue.200"
+                                    : "gray.100",
+                            color:
+                                activeTab === "events" ? "#1a365d" : undefined,
                         },
                     })}
                 >
@@ -179,18 +206,23 @@ export default function ConfigPage() {
                     onClick={() => setActiveTab("data")}
                     className={css({
                         padding: "12px 24px",
-                            backgroundColor:
-                                activeTab === "data" ? "blue.100" : "transparent",
-                            color: activeTab === "data" ? "#1a365d" : "gray.600",
-                            border: activeTab === "data" ? "2px solid #3182ce" : "none",
+                        backgroundColor:
+                            activeTab === "data" ? "blue.100" : "transparent",
+                        color: activeTab === "data" ? "#1a365d" : "gray.600",
+                        border:
+                            activeTab === "data" ? "2px solid #3182ce" : "none",
                         borderBottom: activeTab === "data" ? "none" : undefined,
                         borderRadius: "100px",
                         cursor: "pointer",
                         fontWeight: "600",
                         marginBottom: activeTab === "data" ? "-2px" : "0",
-                        boxShadow: activeTab === "data" ? "0 6px 24px rgba(49,130,206,0.25), 0 1.5px 6px rgba(49,130,206,0.15)" : undefined,
+                        boxShadow:
+                            activeTab === "data"
+                                ? "0 6px 24px rgba(49,130,206,0.25), 0 1.5px 6px rgba(49,130,206,0.15)"
+                                : undefined,
                         zIndex: activeTab === "data" ? 10 : 1,
-                        transform: activeTab === "data" ? "scale(1.08)" : undefined,
+                        transform:
+                            activeTab === "data" ? "scale(1.08)" : undefined,
                         transition: "all 0.2s cubic-bezier(.4,0,.2,1)",
                         "&:hover": {
                             backgroundColor:

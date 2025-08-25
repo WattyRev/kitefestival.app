@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import { act } from "react";
 import { AlertProvider, useAlert } from "../Alert";
 import userEvent from "@testing-library/user-event";
 import setTimeout from "../../../util/setTimeout";
@@ -102,7 +103,9 @@ describe("Alert", () => {
 
         await userEvent.click(screen.getByTestId("open-alert"));
         expect(screen.queryAllByTestId("alert-container")).toHaveLength(1);
-        await finishTimer();
+        await act(async () => {
+            await finishTimer();
+        });
         await waitFor(() =>
             expect(screen.queryAllByTestId("alert-container")).toHaveLength(0),
         );

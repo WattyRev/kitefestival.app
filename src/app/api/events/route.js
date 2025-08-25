@@ -144,7 +144,7 @@ export async function POST(req) {
 
         const id = randomUUID();
 
-    // Create the events table if it doesn't exist
+        // Create the events table if it doesn't exist
         await sql`
             CREATE TABLE IF NOT EXISTS events (
                 id VARCHAR(36) PRIMARY KEY,
@@ -159,16 +159,16 @@ export async function POST(req) {
             )
         `;
 
-    // Patch existing events table to include any missing columns (for older schemas)
-    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS description TEXT`;
-    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS start_date TIMESTAMP`;
-    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS end_date TIMESTAMP`;
-    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS location VARCHAR(255)`;
-    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT false`;
-    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`;
-    await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`;
+        // Patch existing events table to include any missing columns (for older schemas)
+        await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS description TEXT`;
+        await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS start_date TIMESTAMP`;
+        await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS end_date TIMESTAMP`;
+        await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS location VARCHAR(255)`;
+        await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT false`;
+        await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`;
+        await sql`ALTER TABLE events ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`;
 
-    await sql`
+        await sql`
             INSERT INTO events (
                 id, name, description, start_date, end_date, location, is_active
             ) VALUES (
