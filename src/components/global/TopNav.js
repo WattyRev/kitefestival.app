@@ -5,7 +5,6 @@ import { css } from "../../../styled-system/css";
 import AuthSelection from "./TopNav/AuthSelection";
 import { useAuth } from "./Auth";
 import Link from "next/link";
-import { useEvents } from "../EventsContext";
 
 const NavItem = ({ children, ...props }) => (
     <Link
@@ -26,7 +25,6 @@ const NavItem = ({ children, ...props }) => (
 
 const TopNav = ({ ...props }) => {
     const { isPublic } = useAuth();
-    const { activeEvent } = useEvents();
     return (
         <nav
             data-testid="top-nav"

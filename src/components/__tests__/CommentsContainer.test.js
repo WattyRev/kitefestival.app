@@ -27,19 +27,19 @@ describe("components/CommentsContainer", () => {
         fetch.mockResolvedValue({
             ok: true,
             json: jest.fn().mockResolvedValue({
-                comments: [
+        comments: [
                     {
-                        id: 1,
+            id: 101,
                         message: "boogers",
                         activityId: "activity-1",
                     },
                     {
-                        id: 2,
+            id: 102,
                         message: "more boogers",
                         activityId: "activity-1",
                     },
                     {
-                        id: 3,
+            id: 103,
                         message: "something else",
                         activityId: "activity-2",
                     },
@@ -105,19 +105,19 @@ describe("components/CommentsContainer", () => {
         resolveFetch({
             ok: true,
             json: jest.fn().mockResolvedValue({
-                comments: [
+        comments: [
                     {
-                        id: 1,
+            id: 101,
                         message: "boogers",
                         activityId: "activity-1",
                     },
                     {
-                        id: 2,
+            id: 102,
                         message: "more boogers",
                         activityId: "activity-1",
                     },
                     {
-                        id: 3,
+            id: 103,
                         message: "something else",
                         activityId: "activity-2",
                     },
@@ -207,7 +207,7 @@ describe("components/CommentsContainer", () => {
                         )}
                         <button
                             data-testid="delete-comment"
-                            onClick={() => deleteComment(1)}
+                            onClick={() => deleteComment(101)}
                         >
                             delete comment
                         </button>
@@ -244,7 +244,7 @@ describe("components/CommentsContainer", () => {
                         <div data-testid="comment">{comments[0]?.message}</div>)
                         <button
                             data-testid="edit-comment"
-                            onClick={() => editComment(1, "edited boogers")}
+                            onClick={() => editComment(101, "edited boogers")}
                         >
                             edit comment
                         </button>

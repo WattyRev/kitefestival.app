@@ -8,7 +8,7 @@ import {
     useCallback,
 } from "react";
 
-const EventsContext = createContext({
+export const EventsContext = createContext({
     events: [],
     activeEvent: null,
     isLoading: false,

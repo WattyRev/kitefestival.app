@@ -47,14 +47,16 @@ const ActivityDisplay = ({
     const [isEditingActivity, setIsEditingActivity] = useState(false);
     const [isEditingMusic, setIsEditingMusic] = useState(false);
     const [scheduleIndex, setScheduleIndex] = useState(
-        activity.scheduleIndex != null && Number.isFinite(activity.scheduleIndex)
+        activity.scheduleIndex != null &&
+            Number.isFinite(activity.scheduleIndex)
             ? String(activity.scheduleIndex + 1)
             : null,
     );
 
     useEffect(() => {
         setScheduleIndex(
-            activity.scheduleIndex != null && Number.isFinite(activity.scheduleIndex)
+            activity.scheduleIndex != null &&
+                Number.isFinite(activity.scheduleIndex)
                 ? String(activity.scheduleIndex + 1)
                 : null,
         );
@@ -157,7 +159,7 @@ const ActivityDisplay = ({
                                     display: "flex",
                                 })}
                             >
-                {isEditor() && scheduleIndex !== null && (
+                                {isEditor() && scheduleIndex !== null && (
                                     <input
                                         data-testid="schedule-index"
                                         className={css({
@@ -167,7 +169,7 @@ const ActivityDisplay = ({
                                             textAlign: "center",
                                             marginRight: "4px",
                                         })}
-                    value={scheduleIndex ?? ""}
+                                        value={scheduleIndex ?? ""}
                                         onChange={(e) => {
                                             setScheduleIndex(e.target.value);
                                             const number = parseInt(

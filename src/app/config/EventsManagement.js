@@ -353,7 +353,9 @@ export default function EventsManagement() {
                         🎪 Active Event: {activeEvent.name}
                     </h3>
                     <p className={css({ color: "blue.700" })}>
-                        <span style={{ color: 'black' }}>{activeEvent.description || "No description"}</span>
+                        <span style={{ color: "black" }}>
+                            {activeEvent.description || "No description"}
+                        </span>
                     </p>
                     {activeEvent.location && (
                         <p
@@ -426,8 +428,9 @@ export default function EventsManagement() {
                                 "&:focus": {
                                     borderColor: "#3182ce",
                                     outline: "none",
-                                    boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)"
-                                }
+                                    boxShadow:
+                                        "0 0 0 3px rgba(49, 130, 206, 0.1)",
+                                },
                             })}
                         />
                     </div>
@@ -464,8 +467,9 @@ export default function EventsManagement() {
                                 "&:focus": {
                                     borderColor: "#3182ce",
                                     outline: "none",
-                                    boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)"
-                                }
+                                    boxShadow:
+                                        "0 0 0 3px rgba(49, 130, 206, 0.1)",
+                                },
                             })}
                         />
                     </div>
@@ -509,8 +513,9 @@ export default function EventsManagement() {
                                     "&:focus": {
                                         borderColor: "#3182ce",
                                         outline: "none",
-                                        boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)"
-                                    }
+                                        boxShadow:
+                                            "0 0 0 3px rgba(49, 130, 206, 0.1)",
+                                    },
                                 })}
                             />
                         </div>
@@ -546,8 +551,9 @@ export default function EventsManagement() {
                                     "&:focus": {
                                         borderColor: "#3182ce",
                                         outline: "none",
-                                        boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)"
-                                    }
+                                        boxShadow:
+                                            "0 0 0 3px rgba(49, 130, 206, 0.1)",
+                                    },
                                 })}
                             />
                         </div>
@@ -584,8 +590,9 @@ export default function EventsManagement() {
                                 "&:focus": {
                                     borderColor: "#3182ce",
                                     outline: "none",
-                                    boxShadow: "0 0 0 3px rgba(49, 130, 206, 0.1)"
-                                }
+                                    boxShadow:
+                                        "0 0 0 3px rgba(49, 130, 206, 0.1)",
+                                },
                             })}
                         />
                     </div>
@@ -730,12 +737,18 @@ export default function EventsManagement() {
                                             )}
                                             {event.startDate && (
                                                 <span>
-                                                    🗓️ {new Date(event.startDate).toLocaleDateString()}
+                                                    🗓️{" "}
+                                                    {new Date(
+                                                        event.startDate,
+                                                    ).toLocaleDateString()}
                                                 </span>
                                             )}
                                             {event.endDate && (
                                                 <span>
-                                                    ⏰ Ends {new Date(event.endDate).toLocaleDateString()}
+                                                    ⏰ Ends{" "}
+                                                    {new Date(
+                                                        event.endDate,
+                                                    ).toLocaleDateString()}
                                                 </span>
                                             )}
                                         </div>

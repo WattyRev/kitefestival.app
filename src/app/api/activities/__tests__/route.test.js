@@ -21,7 +21,7 @@ jest.mock("next/server", () => ({
         json: (data, options = {}) => ({
             json: async () => data,
             status: options.status || 200,
-            ...data
+            ...data,
         }),
     },
 }));
@@ -54,14 +54,14 @@ describe("activities/route", () => {
                     },
                 ],
             });
-            
+
             const mockRequest = {
-                url: "http://localhost:3000/api/activities"
+                url: "http://localhost:3000/api/activities",
             };
-            
+
             const response = await GET(mockRequest);
             const responseData = await response.json();
-            
+
             expect(responseData).toEqual({
                 activities: [
                     {
@@ -146,12 +146,13 @@ describe("activities/route", () => {
                     description: "green things",
                 }),
             };
-            
+
             const response = await POST(mockReq);
             const responseData = await response.json();
             expect(response.status).toBe(400);
             expect(responseData).toEqual({
-                message: "No active event found. Please create an event first or specify an eventId.",
+                message:
+                    "No active event found. Please create an event first or specify an eventId.",
             });
         });
         it("inserts the activity and returns it", async () => {
@@ -159,16 +160,16 @@ describe("activities/route", () => {
             sql.mockResolvedValueOnce({
                 rows: [{ id: "event-1" }], // Active event
             })
-            // Mock table creation
-            .mockResolvedValueOnce({ rows: [] })
-            // Mock column additions
-            .mockResolvedValueOnce({ rows: [] })
-            .mockResolvedValueOnce({ rows: [] })
-            .mockResolvedValueOnce({ rows: [] })
-            // Mock highest sort index check
-            .mockResolvedValueOnce({ rows: [] })
-            // Mock activity insertion
-            .mockResolvedValueOnce({ rows: [] });
+                // Mock table creation
+                .mockResolvedValueOnce({ rows: [] })
+                // Mock column additions
+                .mockResolvedValueOnce({ rows: [] })
+                .mockResolvedValueOnce({ rows: [] })
+                .mockResolvedValueOnce({ rows: [] })
+                // Mock highest sort index check
+                .mockResolvedValueOnce({ rows: [] })
+                // Mock activity insertion
+                .mockResolvedValueOnce({ rows: [] });
 
             const mockReq = {
                 json: jest.fn().mockResolvedValue({
@@ -177,10 +178,10 @@ describe("activities/route", () => {
                     music: ["song1", "song2"],
                 }),
             };
-            
+
             const response = await POST(mockReq);
             const responseData = await response.json();
-            
+
             expect(responseData).toMatchObject({
                 activities: [
                     expect.objectContaining({
@@ -200,16 +201,16 @@ describe("activities/route", () => {
             sql.mockResolvedValueOnce({
                 rows: [{ id: "event-1" }], // Active event
             })
-            // Mock table creation
-            .mockResolvedValueOnce({ rows: [] })
-            // Mock column additions
-            .mockResolvedValueOnce({ rows: [] })
-            .mockResolvedValueOnce({ rows: [] })
-            .mockResolvedValueOnce({ rows: [] })
-            // Mock highest sort index check (existing activity with index 5)
-            .mockResolvedValueOnce({ rows: [{ sortindex: 5 }] })
-            // Mock activity insertion
-            .mockResolvedValueOnce({ rows: [] });
+                // Mock table creation
+                .mockResolvedValueOnce({ rows: [] })
+                // Mock column additions
+                .mockResolvedValueOnce({ rows: [] })
+                .mockResolvedValueOnce({ rows: [] })
+                .mockResolvedValueOnce({ rows: [] })
+                // Mock highest sort index check (existing activity with index 5)
+                .mockResolvedValueOnce({ rows: [{ sortindex: 5 }] })
+                // Mock activity insertion
+                .mockResolvedValueOnce({ rows: [] });
 
             const mockReq = {
                 json: jest.fn().mockResolvedValue({
@@ -218,10 +219,10 @@ describe("activities/route", () => {
                     music: ["song1", "song2"],
                 }),
             };
-            
+
             const response = await POST(mockReq);
             const responseData = await response.json();
-            
+
             expect(responseData).toMatchObject({
                 activities: [
                     expect.objectContaining({
@@ -289,7 +290,7 @@ describe("activities/route", () => {
             };
             const response = await PATCH(mockReq);
             const responseData = await response.json();
-            
+
             expect(patchActivity).toHaveBeenCalledTimes(2);
             expect(patchActivity).toHaveBeenCalledWith(
                 "1",

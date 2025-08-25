@@ -111,7 +111,8 @@ const CommentsContainer = ({ children }) => {
     const [lastUpdate, setLastUpdate] = useState(null);
     const { auth } = useAuth();
     // Fallback userType from document.cookie to reduce transient unauth states on cold load
-    const computedUserType = auth.userType ||
+    const computedUserType =
+        auth.userType ||
         (typeof document !== "undefined"
             ? /(?:^|; )userType=([^;]+)/.exec(document.cookie)?.[1]
             : undefined);
@@ -121,7 +122,7 @@ const CommentsContainer = ({ children }) => {
     const [nextAllowedFetchAt, setNextAllowedFetchAt] = useState(0);
 
     const fetchComments = useCallback(async () => {
-    if (!["editor", "user"].includes(computedUserType)) {
+        if (!["editor", "user"].includes(computedUserType)) {
             return;
         }
         const now = Date.now();
@@ -131,7 +132,10 @@ const CommentsContainer = ({ children }) => {
         setIsLoading(true);
         try {
             const commentsResponse = await fetch("/api/comments");
-            if (commentsResponse.status === 401 || commentsResponse.status === 403) {
+            if (
+                commentsResponse.status === 401 ||
+                commentsResponse.status === 403
+            ) {
                 // Not authorized to view comments; don't keep polling until auth changes
                 dispatch({ type: "refresh", newState: buildCommentsState([]) });
                 setLastUpdate(new Date().getTime());
@@ -195,9 +199,11 @@ const CommentsContainer = ({ children }) => {
             if (!response.ok) {
                 let msg = "Failed to create comment";
                 if (response.status === 401) {
-                    msg = "Please sign in to comment (enter editor or user passcode).";
+                    msg =
+                        "Please sign in to comment (enter editor or user passcode).";
                 } else if (response.status === 403) {
-                    msg = "Your passcode is invalid or expired. Please re-enter it.";
+                    msg =
+                        "Your passcode is invalid or expired. Please re-enter it.";
                 } else {
                     try {
                         const err = await response.json();

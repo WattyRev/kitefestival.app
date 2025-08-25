@@ -37,18 +37,18 @@ export default function RootLayout({ children }) {
                             <EventsProvider>
                                 <TopNav />
                                 <div
-                                        className={`main-container ${css({
-                                            padding: "0 8px",
-                                            maxWidth: "100vw",
-                                            overflowX: "hidden",
-                                        })}`}
-                                    >
-                                        {children}
-                                    </div>
-                                </EventsProvider>
-                            </AlertProvider>
-                        </PromptProvider>
-                    </AuthProvider>
+                                    className={`main-container ${css({
+                                        padding: "0 8px",
+                                        maxWidth: "100vw",
+                                        overflowX: "hidden",
+                                    })}`}
+                                >
+                                    {children}
+                                </div>
+                            </EventsProvider>
+                        </AlertProvider>
+                    </PromptProvider>
+                </AuthProvider>
             </body>
         </html>
     );

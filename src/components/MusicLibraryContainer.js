@@ -24,11 +24,11 @@ const MusicLibraryContainer = ({ children, initialMusicLibrary }) => {
     const { openAlert } = useAlert();
     const [musicLibrary, setMusicLibrary] = useState(initialMusicLibrary);
 
-    async function refresh() {
+    const refresh = useCallback(async () => {
         const response = await fetch("/api/music-library");
         const { musicLibrary } = await response.json();
         setMusicLibrary(musicLibrary);
-    }
+    }, []);
 
     async function addMusic(musicItems) {
         const response = await fetch("/api/music-library", {
