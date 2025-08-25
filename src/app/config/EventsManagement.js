@@ -665,8 +665,7 @@ export default function EventsManagement() {
                             color: "gray.600",
                         })}
                     >
-                        No events created yet. Create your first event to get
-                        started!
+                        No events created yet. 
                     </div>
                 ) : (
                     <div

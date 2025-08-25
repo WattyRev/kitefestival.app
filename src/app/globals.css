@@ -1,6 +1,5 @@
 @layer reset, base, tokens, recipes, utilities;
 
-/* Input field visibility fixes */
 input[type="text"],
 input[type="email"],
 input[type="password"],

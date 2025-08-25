@@ -1,9 +1,7 @@
 import "@testing-library/jest-dom";
 
-// Provide a conservative default global.fetch for components that fetch on mount in tests.
-// Individual tests can override this as needed.
 if (!global.fetch) {
-	global.fetch = jest.fn((url, _options) => {
+	global.fetch = jest.fn((url) => {
 		const ok = true;
 		if (typeof url === "string") {
 			if (url.startsWith("/api/events")) {

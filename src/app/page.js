@@ -36,7 +36,7 @@ export default async function EventsHome() {
             </h1>
 
             {events.length === 0 ? (
-                <p>No events yet. Create one in Configuration → Events.</p>
+                <p>No events yet. Feel free to check back in later.</p>
             ) : (
                 <div
                     className={css({
