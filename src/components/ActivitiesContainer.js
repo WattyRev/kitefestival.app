@@ -164,7 +164,7 @@ const ActivitiesContainer = ({ children, initialActivities, eventId }) => {
         const query = scopedEventId
             ? `?eventId=${encodeURIComponent(scopedEventId)}`
             : "";
-        const activitiesResponse = await fetch(`/api/activities${query}`);
+    const activitiesResponse = await fetch(`/api/activities${query}`);
         const activitiesJson = await activitiesResponse.json();
         const { activities } = activitiesJson;
         dispatch({

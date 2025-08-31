@@ -26,9 +26,19 @@ const ChangePollingContainer = ({ children }) => {
 
     useEffect(() => {
         checkForUpdates();
+        // Adaptive interval based on Network Information API if available
+        const conn = typeof navigator !== "undefined" && navigator.connection;
+        // Defaults to 7.5s; increase on slow/2g
+        let pollingMs = 7500;
+        if (conn) {
+            const type = conn.effectiveType || "";
+            if (type.includes("2g")) pollingMs = 20000;
+            else if (type === "slow-2g") pollingMs = 25000;
+            else if (type === "3g") pollingMs = 12000;
+        }
         const interval = setInterval(() => {
             checkForUpdates();
-        }, 5000);
+        }, pollingMs);
         return () => clearInterval(interval);
     }, []);
 
