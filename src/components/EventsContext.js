@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
+import fetch from "../util/fetch";
 
 export const EventsContext = createContext({
     events: [],
@@ -29,7 +30,7 @@ export function EventsProvider({ children }) {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await fetch("/api/events", { credentials: "include" });
+            const response = await fetch("/api/events");
             if (!response.ok) {
                 throw new Error("Failed to fetch events");
             }
@@ -56,7 +57,6 @@ export function EventsProvider({ children }) {
         try {
             const response = await fetch(`/api/events/${eventId}/activate`, {
                 method: "POST",
-                credentials: "include",
             });
 
             if (!response.ok) {

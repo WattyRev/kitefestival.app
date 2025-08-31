@@ -1,6 +1,68 @@
-const fetchWrapper = (input, init = {}) => {
-    // Always send cookies for App Router API routes; allow callers to override
-    return fetch(input, { credentials: "include", ...init });
+// Simple in-memory cache for GET requests keyed by URL
+const etagCache = new Map(); // url -> { etag, bodyText, headers }
+
+const toUrlKey = (input) => {
+    try {
+        if (typeof input === "string") return input;
+        if (input && typeof input.url === "string") return input.url;
+    } catch {}
+    return String(input || "");
+};
+
+const mergeHeaders = (base = {}, extra = {}) => {
+    const h = new Headers(base);
+    for (const [k, v] of Object.entries(extra)) h.set(k, v);
+    return h;
+};
+
+const fetchWrapper = async (input, init = {}) => {
+    const method = (init.method || (typeof input !== "string" && input?.method) || "GET").toUpperCase();
+    const urlKey = toUrlKey(input);
+
+    // Default credentials include to send cookies for auth-protected APIs
+    const baseInit = { credentials: "include", ...init };
+
+    // Only apply ETag flow for GET requests to same-origin API routes
+    let finalInit = baseInit;
+    if (method === "GET" && urlKey.startsWith("/")) {
+        const cached = etagCache.get(urlKey);
+        if (cached?.etag) {
+            finalInit = {
+                ...baseInit,
+                headers: mergeHeaders(baseInit.headers, { "If-None-Match": cached.etag }),
+            };
+        }
+    }
+
+    const res = await fetch(input, finalInit);
+
+    if (method === "GET" && urlKey.startsWith("/")) {
+        // If 304 and we have a cached body, synthesize a 200 Response with cached content
+        const cached = etagCache.get(urlKey);
+        if (res.status === 304 && cached?.bodyText) {
+            return new Response(cached.bodyText, {
+                status: 200,
+                headers: mergeHeaders({ "Content-Type": cached.headers?.get?.("Content-Type") || cached.headers?.get?.("content-type") || "application/json" }, {
+                    ETag: cached.etag,
+                    "X-Cache": "HIT",
+                }),
+            });
+        }
+
+        // On 200, store ETag and body for future conditional requests
+        const etag = res.headers.get("ETag") || res.headers.get("etag");
+        if (etag) {
+            try {
+                const clone = res.clone();
+                const bodyText = await clone.text();
+                etagCache.set(urlKey, { etag, bodyText, headers: res.headers });
+            } catch {
+                // ignore caching errors
+            }
+        }
+    }
+
+    return res;
 };
 
 export default fetchWrapper;

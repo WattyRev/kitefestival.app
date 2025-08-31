@@ -17,7 +17,8 @@ const NavItem = ({ children, ...props }) => (
             justifyContent: "center",
             fontSize: { base: "16px", sm: "18px" },
         })}
-        {...props}
+    prefetch={false}
+    {...props}
     >
         {children}
     </Link>

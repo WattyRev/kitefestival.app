@@ -19,7 +19,7 @@ export const revalidate = 0;
  *   musicLibrary: MusicItem[]
  * }
  */
-export async function GET() {
+export async function GET(req) {
     const musicResponse = await sql`SELECT * FROM musiclibrary ORDER BY id ASC`;
     const musicLibrary = musicResponse.rows.map((music) => {
         const { id, value } = music;
@@ -28,7 +28,13 @@ export async function GET() {
             value,
         };
     });
-    return NextResponse.json({ musicLibrary });
+    const latest = musicLibrary[musicLibrary.length - 1]?.id || "0";
+    const etag = `W/"lib-${Buffer.from(String(latest)).toString("base64").slice(0, 16)}"`;
+    const ifNoneMatch = req.headers.get("if-none-match");
+    if (ifNoneMatch && ifNoneMatch === etag) {
+        return new NextResponse(null, { status: 304, headers: { ETag: etag } });
+    }
+    return NextResponse.json({ musicLibrary }, { headers: { ETag: etag } });
 }
 
 /**

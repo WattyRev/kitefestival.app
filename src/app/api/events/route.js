@@ -20,7 +20,7 @@ export const revalidate = 0;
  *   events: Event[]
  * }
  */
-export async function GET() {
+export async function GET(req) {
     try {
         const eventsResponse = await sql`
             SELECT * FROM events 
@@ -53,7 +53,13 @@ export async function GET() {
             };
         });
 
-        return NextResponse.json({ events });
+        const latest = events[0]?.updatedAt || events[0]?.id || "0"; // created_at desc; first is latest
+        const etag = `W/"evt-${Buffer.from(String(latest)).toString("base64").slice(0, 16)}"`;
+        const ifNoneMatch = req.headers.get("if-none-match");
+        if (ifNoneMatch && ifNoneMatch === etag) {
+            return new NextResponse(null, { status: 304, headers: { ETag: etag } });
+        }
+        return NextResponse.json({ events }, { headers: { ETag: etag } });
     } catch (error) {
         console.error("Error fetching events:", error);
         return NextResponse.json(

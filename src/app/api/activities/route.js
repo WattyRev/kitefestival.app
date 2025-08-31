@@ -78,7 +78,7 @@ export async function GET(req) {
             return [];
         };
 
-        const activities = activitiesResponse.rows.map((activity) => {
+    const activities = activitiesResponse.rows.map((activity) => {
             const {
                 id,
                 title,
@@ -98,7 +98,14 @@ export async function GET(req) {
             };
         });
 
-        return NextResponse.json({ activities });
+        // Build weak ETag from count + last row id + event scope
+        const etagSeed = `${activities.length}:${activities[activities.length - 1]?.id || "none"}:${eventId || "active"}`;
+        const etag = `W/"act-${Buffer.from(etagSeed).toString("base64").slice(0, 16)}"`;
+        const ifNoneMatch = req.headers.get("if-none-match");
+        if (ifNoneMatch && ifNoneMatch === etag) {
+            return new NextResponse(null, { status: 304, headers: { ETag: etag } });
+        }
+        return NextResponse.json({ activities }, { headers: { ETag: etag } });
     } catch (error) {
         console.error("Error fetching activities:", error);
         return NextResponse.json(

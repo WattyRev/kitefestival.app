@@ -49,6 +49,7 @@ export default async function EventsHome() {
                         <Link
                             key={event.id}
                             href={`/events/${event.id}`}
+                            prefetch={false}
                             className={css({
                                 display: "block",
                                 padding: "16px",
