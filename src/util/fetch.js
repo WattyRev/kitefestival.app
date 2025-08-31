@@ -15,6 +15,23 @@ const mergeHeaders = (base = {}, extra = {}) => {
     return h;
 };
 
+// Safe header getter that supports both Headers objects and plain objects
+const getHeader = (headers, name) => {
+    if (!headers) return undefined;
+    const target = String(name);
+    if (typeof headers.get === "function") {
+        return headers.get(target) || headers.get(target.toLowerCase()) || undefined;
+    }
+    if (typeof headers === "object") {
+        // case-insensitive lookup on plain objects
+        const lower = target.toLowerCase();
+        for (const [k, v] of Object.entries(headers)) {
+            if (k === target || k.toLowerCase() === lower) return v;
+        }
+    }
+    return undefined;
+};
+
 const fetchWrapper = async (input, init = {}) => {
     const method = (init.method || (typeof input !== "string" && input?.method) || "GET").toUpperCase();
     const urlKey = toUrlKey(input);
@@ -42,7 +59,7 @@ const fetchWrapper = async (input, init = {}) => {
         if (res.status === 304 && cached?.bodyText) {
             return new Response(cached.bodyText, {
                 status: 200,
-                headers: mergeHeaders({ "Content-Type": cached.headers?.get?.("Content-Type") || cached.headers?.get?.("content-type") || "application/json" }, {
+                headers: mergeHeaders({ "Content-Type": getHeader(cached.headers, "Content-Type") || "application/json" }, {
                     ETag: cached.etag,
                     "X-Cache": "HIT",
                 }),
@@ -50,7 +67,7 @@ const fetchWrapper = async (input, init = {}) => {
         }
 
         // On 200, store ETag and body for future conditional requests
-        const etag = res.headers.get("ETag") || res.headers.get("etag");
+        const etag = getHeader(res.headers, "ETag");
         if (etag) {
             try {
                 const clone = res.clone();

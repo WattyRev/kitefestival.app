@@ -101,7 +101,7 @@ export async function GET(req) {
         // Build weak ETag from count + last row id + event scope
         const etagSeed = `${activities.length}:${activities[activities.length - 1]?.id || "none"}:${eventId || "active"}`;
         const etag = `W/"act-${Buffer.from(etagSeed).toString("base64").slice(0, 16)}"`;
-        const ifNoneMatch = req.headers.get("if-none-match");
+    const ifNoneMatch = req?.headers?.get?.("if-none-match");
         if (ifNoneMatch && ifNoneMatch === etag) {
             return new NextResponse(null, { status: 304, headers: { ETag: etag } });
         }

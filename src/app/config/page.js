@@ -13,9 +13,10 @@ import { useAlert } from "../../components/ui/Alert";
 import { css } from "../../../styled-system/css";
 
 // Dynamic imports for management components
-const DataManagement = dynamic(() => import("./DataManagement"), {
-    ssr: false,
-});
+// Temporarily disabled: Data Management panel
+// const DataManagement = dynamic(() => import("./DataManagement"), {
+//     ssr: false,
+// });
 const EventsManagement = dynamic(() => import("./EventsManagement"), {
     ssr: false,
 });
@@ -202,6 +203,7 @@ export default function ConfigPage() {
                 >
                     🎪 Events
                 </button>
+                {/*
                 <button
                     onClick={() => setActiveTab("data")}
                     className={css({
@@ -233,6 +235,7 @@ export default function ConfigPage() {
                 >
                     💾 Data Management
                 </button>
+                */}
             </div>
 
             {/* Tab Content */}
@@ -299,7 +302,7 @@ export default function ConfigPage() {
 
             {activeTab === "events" && <EventsManagement />}
 
-            {activeTab === "data" && <DataManagement />}
+            {/* {activeTab === "data" && <DataManagement />} */}
         </div>
     );
 }

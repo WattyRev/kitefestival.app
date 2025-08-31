@@ -55,7 +55,7 @@ export async function GET(req) {
 
         const latest = events[0]?.updatedAt || events[0]?.id || "0"; // created_at desc; first is latest
         const etag = `W/"evt-${Buffer.from(String(latest)).toString("base64").slice(0, 16)}"`;
-        const ifNoneMatch = req.headers.get("if-none-match");
+    const ifNoneMatch = req?.headers?.get?.("if-none-match");
         if (ifNoneMatch && ifNoneMatch === etag) {
             return new NextResponse(null, { status: 304, headers: { ETag: etag } });
         }
