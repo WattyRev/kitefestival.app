@@ -6,7 +6,7 @@ import ActivityDisplay from "../ActivityDisplay";
 import Comments from "../Comments";
 import ActivityForm from "../ActivityForm";
 import { useAuth } from "../global/Auth";
-import HomePage from "../HomePage";
+import EventPage from "../EventPage";
 import MusicLibraryContainer from "../MusicLibraryContainer";
 
 jest.mock("../ActivitiesContainer");
@@ -18,7 +18,7 @@ jest.mock("../Comments");
 jest.mock("../ActivityForm");
 jest.mock("../global/Auth");
 
-describe("HomePage", () => {
+describe("EventPage", () => {
     beforeEach(() => {
         ChangePollingContainer.mockImplementation(({ children }) => (
             <>{children}</>
@@ -97,11 +97,11 @@ describe("HomePage", () => {
         });
     });
     it("renders", async () => {
-        render(<HomePage />);
+        render(<EventPage />);
         expect(screen.getByTestId("home-page")).toBeInTheDocument();
     });
     it("renders an empty state when there are no unscheduledActivities", async () => {
-        render(<HomePage />);
+        render(<EventPage />);
         expect(screen.getByTestId("empty-unscheduled")).toBeInTheDocument();
         expect(
             screen.queryByTestId("activity-display"),
@@ -156,7 +156,7 @@ describe("HomePage", () => {
             return <div data-testid="activities-container">{children}</div>;
         });
 
-        render(<HomePage />);
+        render(<EventPage />);
 
         expect(screen.getAllByTestId("activity-display")).toHaveLength(2);
         expect(screen.getAllByTestId("comments")).toHaveLength(2);
@@ -210,7 +210,7 @@ describe("HomePage", () => {
             return <div data-testid="activities-container">{children}</div>;
         });
 
-        render(<HomePage />);
+        render(<EventPage />);
 
         expect(screen.getAllByTestId("activity-display")).toHaveLength(2);
         expect(screen.getAllByTestId("comments")).toHaveLength(2);
@@ -282,22 +282,22 @@ describe("HomePage", () => {
             });
         });
         it("provides the moveUp function to activities in the schedule", async () => {
-            render(<HomePage />);
+            render(<EventPage />);
             const activities = await screen.findAllByTestId("hasMoveUp");
             expect(activities[1]).toHaveTextContent("has move up");
         });
         it("does not provide the moveUp function to activities at the top of the schedule", async () => {
-            render(<HomePage />);
+            render(<EventPage />);
             const activities = await screen.findAllByTestId("hasMoveUp");
             expect(activities[0]).toHaveTextContent("no move up");
         });
         it("provides the moveUp function to unscheduled activities", async () => {
-            render(<HomePage />);
+            render(<EventPage />);
             const activities = await screen.findAllByTestId("hasMoveUp");
             expect(activities[3]).toHaveTextContent("has move up");
         });
         it("does not provide the moveUp function to activities at the top of the unscheduled activities", async () => {
-            render(<HomePage />);
+            render(<EventPage />);
             const activities = await screen.findAllByTestId("hasMoveUp");
             expect(activities[2]).toHaveTextContent("no move up");
         });
@@ -370,22 +370,22 @@ describe("HomePage", () => {
             });
         });
         it("provides the moveDown function to activities in the schedule", async () => {
-            render(<HomePage />);
+            render(<EventPage />);
             const activities = await screen.findAllByTestId("hasMoveDown");
             expect(activities[0]).toHaveTextContent("has move down");
         });
         it("does not provide the moveDown function to activities at the bottom of the schedule", async () => {
-            render(<HomePage />);
+            render(<EventPage />);
             const activities = await screen.findAllByTestId("hasMoveDown");
             expect(activities[1]).toHaveTextContent("no move down");
         });
         it("provides the moveDown function to unscheduled activities", async () => {
-            render(<HomePage />);
+            render(<EventPage />);
             const activities = await screen.findAllByTestId("hasMoveDown");
             expect(activities[2]).toHaveTextContent("has move down");
         });
         it("does not provide the moveDown function to activities at the botto of the unscheduled activities", async () => {
-            render(<HomePage />);
+            render(<EventPage />);
             const activities = await screen.findAllByTestId("hasMoveDown");
             expect(activities[3]).toHaveTextContent("no move down");
         });
