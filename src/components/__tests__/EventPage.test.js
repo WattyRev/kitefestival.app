@@ -19,7 +19,13 @@ jest.mock("../ActivityForm");
 jest.mock("../global/Auth");
 
 describe("EventPage", () => {
+    let mockEvent;
     beforeEach(() => {
+        mockEvent = {
+            id: 3,
+            name: 'My Event',
+            slug: 'my_event'
+        };
         ChangePollingContainer.mockImplementation(({ children }) => (
             <>{children}</>
         ));
@@ -97,11 +103,11 @@ describe("EventPage", () => {
         });
     });
     it("renders", async () => {
-        render(<EventPage />);
+        render(<EventPage event={mockEvent} />);
         expect(screen.getByTestId("home-page")).toBeInTheDocument();
     });
     it("renders an empty state when there are no unscheduledActivities", async () => {
-        render(<EventPage />);
+        render(<EventPage event={mockEvent} />);
         expect(screen.getByTestId("empty-unscheduled")).toBeInTheDocument();
         expect(
             screen.queryByTestId("activity-display"),
@@ -156,7 +162,7 @@ describe("EventPage", () => {
             return <div data-testid="activities-container">{children}</div>;
         });
 
-        render(<EventPage />);
+        render(<EventPage event={mockEvent} />);
 
         expect(screen.getAllByTestId("activity-display")).toHaveLength(2);
         expect(screen.getAllByTestId("comments")).toHaveLength(2);
@@ -210,7 +216,7 @@ describe("EventPage", () => {
             return <div data-testid="activities-container">{children}</div>;
         });
 
-        render(<EventPage />);
+        render(<EventPage event={mockEvent} />);
 
         expect(screen.getAllByTestId("activity-display")).toHaveLength(2);
         expect(screen.getAllByTestId("comments")).toHaveLength(2);
@@ -282,22 +288,22 @@ describe("EventPage", () => {
             });
         });
         it("provides the moveUp function to activities in the schedule", async () => {
-            render(<EventPage />);
+            render(<EventPage event={mockEvent} />);
             const activities = await screen.findAllByTestId("hasMoveUp");
             expect(activities[1]).toHaveTextContent("has move up");
         });
         it("does not provide the moveUp function to activities at the top of the schedule", async () => {
-            render(<EventPage />);
+            render(<EventPage event={mockEvent} />);
             const activities = await screen.findAllByTestId("hasMoveUp");
             expect(activities[0]).toHaveTextContent("no move up");
         });
         it("provides the moveUp function to unscheduled activities", async () => {
-            render(<EventPage />);
+            render(<EventPage event={mockEvent} />);
             const activities = await screen.findAllByTestId("hasMoveUp");
             expect(activities[3]).toHaveTextContent("has move up");
         });
         it("does not provide the moveUp function to activities at the top of the unscheduled activities", async () => {
-            render(<EventPage />);
+            render(<EventPage event={mockEvent} />);
             const activities = await screen.findAllByTestId("hasMoveUp");
             expect(activities[2]).toHaveTextContent("no move up");
         });
@@ -370,22 +376,22 @@ describe("EventPage", () => {
             });
         });
         it("provides the moveDown function to activities in the schedule", async () => {
-            render(<EventPage />);
+            render(<EventPage event={mockEvent} />);
             const activities = await screen.findAllByTestId("hasMoveDown");
             expect(activities[0]).toHaveTextContent("has move down");
         });
         it("does not provide the moveDown function to activities at the bottom of the schedule", async () => {
-            render(<EventPage />);
+            render(<EventPage event={mockEvent} />);
             const activities = await screen.findAllByTestId("hasMoveDown");
             expect(activities[1]).toHaveTextContent("no move down");
         });
         it("provides the moveDown function to unscheduled activities", async () => {
-            render(<EventPage />);
+            render(<EventPage event={mockEvent} />);
             const activities = await screen.findAllByTestId("hasMoveDown");
             expect(activities[2]).toHaveTextContent("has move down");
         });
         it("does not provide the moveDown function to activities at the botto of the unscheduled activities", async () => {
-            render(<EventPage />);
+            render(<EventPage event={mockEvent} />);
             const activities = await screen.findAllByTestId("hasMoveDown");
             expect(activities[3]).toHaveTextContent("no move down");
         });

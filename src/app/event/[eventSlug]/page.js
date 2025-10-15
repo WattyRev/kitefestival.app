@@ -38,7 +38,7 @@ export default async function Event({ params }) {
         };
     });
 
-    return <EventPage activities={activities} musicLibrary={musicLibrary} />;
+    return <EventPage event={event} activities={activities} musicLibrary={musicLibrary} />;
 }
 
 function parseMusic(music) {

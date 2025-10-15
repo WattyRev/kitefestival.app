@@ -30,6 +30,7 @@ import UndoButton from "./ui/UndoButton";
 import MusicLibraryContainer from "./MusicLibraryContainer";
 
 const EventPageContainer = ({
+    event,
     activities: initialActivities,
     musicLibrary: initialMusicLibrary,
 }) => {
@@ -42,6 +43,7 @@ const EventPageContainer = ({
     );
     return (
         <ChangePollingContainer>
+            <H1>{event.name}</H1>
             <MusicLibraryContainer initialMusicLibrary={initialMusicLibrary}>
                 <ActivitiesContainer initialActivities={initialActivities}>
                     {({
@@ -535,6 +537,7 @@ const EventPageContainer = ({
                                                 )}{" "}
                                             </DndContext>
                                             <ActivityForm
+                                                eventId={event.id}
                                                 onSubmit={createActivity}
                                             />{" "}
                                             {isEditor() && hasUndo && (

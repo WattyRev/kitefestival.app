@@ -11,6 +11,7 @@ import { css } from "../../styled-system/css";
 import MusicField from "./MusicField";
 
 const ActivityForm = ({
+    eventId,
     isEdit = false,
     onSubmit,
     title: defaultTitle = "",
@@ -31,7 +32,7 @@ const ActivityForm = ({
 
     async function submit() {
         setPending(true);
-        await onSubmit({ title, description, music });
+        await onSubmit({ title, description, music, eventId });
         setTitle(defaultTitle);
         setDescription(defaultDescription);
         setPending(false);

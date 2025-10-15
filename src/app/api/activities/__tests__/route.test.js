@@ -116,23 +116,26 @@ describe("activities/route", () => {
                     title: "boogers",
                     description: "green things",
                     music: ["song1", "song2"],
+                    eventId: 3
                 }),
             };
             await POST(mockReq);
             expect(sql).toHaveBeenCalledWith(
                 [
-                    "INSERT INTO activities (id, title, description, music, sortIndex, scheduleIndex) VALUES (",
+                    "INSERT INTO activities (id, title, description, music, sortIndex, scheduleIndex, event_id) VALUES (",
                     ", ",
                     ", ",
                     ", ",
                     ", ",
-                    ", null)",
+                    ", null, ",
+                    ")",
                 ],
                 expect.anything(),
                 "boogers",
                 "green things",
                 '["song1","song2"]',
                 0,
+                3,
             );
         });
 
@@ -143,23 +146,26 @@ describe("activities/route", () => {
                     title: "boogers",
                     description: "green things",
                     music: ["song1", "song2"],
+                    eventId: 3,
                 }),
             };
             await POST(mockReq);
             expect(sql).toHaveBeenCalledWith(
                 [
-                    "INSERT INTO activities (id, title, description, music, sortIndex, scheduleIndex) VALUES (",
+                    "INSERT INTO activities (id, title, description, music, sortIndex, scheduleIndex, event_id) VALUES (",
                     ", ",
                     ", ",
                     ", ",
                     ", ",
-                    ", null)",
+                    ", null, ",
+                    ")",
                 ],
                 expect.anything(),
                 "boogers",
                 "green things",
                 '["song1","song2"]',
                 6,
+                3,
             );
         });
     });
