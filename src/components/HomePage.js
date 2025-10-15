@@ -1,4 +1,8 @@
+'use client'
+
+import { useState } from "react";
 import { css } from "../../styled-system/css";
+import EventForm from "./EventForm";
 import H1 from "./ui/H1";
 
 const listStyle = css({
@@ -7,7 +11,8 @@ const listStyle = css({
     borderBottom: "1px solid"
 })
 
-function HomePage({events}) {
+function HomePage({initialEvents}) {
+    const [events, setEvents] = useState(initialEvents);
     if (!events.length) {
         <p
             className={css({
@@ -27,6 +32,7 @@ function HomePage({events}) {
             {events.map((event) => (
                 <a key={event.id} className={listStyle} href={`/event/${event.slug}`}>{event.name}</a>
             ))}
+            <EventForm onSubmit={event => setEvents([...events, event])}/>
         </div>
     );
 }

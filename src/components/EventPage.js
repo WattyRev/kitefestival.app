@@ -29,7 +29,7 @@ import {
 import UndoButton from "./ui/UndoButton";
 import MusicLibraryContainer from "./MusicLibraryContainer";
 
-const HomePageContainer = ({
+const EventPageContainer = ({
     activities: initialActivities,
     musicLibrary: initialMusicLibrary,
 }) => {
@@ -555,4 +555,4 @@ const HomePageContainer = ({
     );
 };
 
-export default HomePageContainer;
+export default EventPageContainer;

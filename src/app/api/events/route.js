@@ -68,7 +68,7 @@ export async function POST(req) {
     const passcode = cookieStore.get("passcode")?.value;
 
     try {
-        await validatePasscode(passcode, ["admin"]);
+        await validatePasscode(passcode, ["admin", "editor"]);
     } catch (error) {
         if (error instanceof NoPasscodeError) {
             return NextResponse.json(
@@ -87,9 +87,10 @@ export async function POST(req) {
 
     try {
         const {
-            name,
-            slug
+            event
         } = await req.json();
+
+        const { name, slug } = event;
 
         if (!name || name.trim() === "") {
             return NextResponse.json(
@@ -129,15 +130,17 @@ export async function POST(req) {
             );
         }
 
-        const response = await sql.query(`
+        await sql.query(`
             INSERT INTO events (
                 name, slug
             ) VALUES ($1, $2)`, [name.trim(), slug.trim()]);
 
+        const response = await sql`SELECT * FROM events WHERE name = ${name.trim()}`;
+
         const savedEvent = {
             id: response.rows[0].id,
-            name: name.trim(),
-            slug: slug.trim()
+            name: response.rows[0].name,
+            slug: response.rows[0].slug
         };
 
         return NextResponse.json({ event: savedEvent });

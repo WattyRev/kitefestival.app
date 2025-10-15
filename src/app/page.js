@@ -13,5 +13,5 @@ export default async function Home() {
         };
     })
 
-    return <HomePage events={events} />;
+    return <HomePage initialEvents={events} />;
 }
