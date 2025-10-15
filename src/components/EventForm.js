@@ -27,7 +27,7 @@ const EventForm = ({ isEdit = false, onSubmit = () => {}, onCancel }) => {
         return null;
     }
 
-    async function sumbit() {
+    async function submit() {
         setPending(true);
         let savedEvent;
         let errorMessage;
@@ -62,7 +62,7 @@ const EventForm = ({ isEdit = false, onSubmit = () => {}, onCancel }) => {
             data-testid="create-event-form"
             onSubmit={(e) => {
                 e.preventDefault();
-                sumbit();
+                submit();
             }}
         >
             <H1>{isEdit ? "Edit Event" : "Create Event"}</H1>

@@ -43,9 +43,10 @@ export async function GET() {
  *
  * POST /api/activities
  * {
- *   title: string
+ *   title: string,
  *   description: string,
- *   music: string[]
+ *   music: string[],
+ *   eventId: string
  * }
  *
  * Response:
@@ -54,7 +55,7 @@ export async function GET() {
  * }
  */
 export async function POST(req) {
-    const { title, description = "", music = [] } = await req.json();
+    const { title, description = "", music = [], eventId } = await req.json();
     const cookieStore = cookies();
     const passcode = cookieStore.get("passcode")?.value;
     try {
@@ -82,6 +83,13 @@ export async function POST(req) {
         );
     }
 
+    if (!eventId) {
+        return NextResponse.json(
+            { message: "No eventId provided" },
+            { status: 400 },
+        ); 
+    }
+
     const id = randomUUID();
     const highestSortIndexResponse =
         await sql`SELECT (sortIndex) FROM activities WHERE sortIndex IS NOT NULL ORDER BY sortIndex DESC LIMIT 1`;
@@ -92,7 +100,7 @@ export async function POST(req) {
         sortIndex = highestSortIndexResponse.rows[0].sortindex + 1;
     }
     await Promise.all([
-        sql`INSERT INTO activities (id, title, description, music, sortIndex, scheduleIndex) VALUES (${id}, ${title}, ${description}, ${JSON.stringify(music)}, ${sortIndex}, null)`,
+        sql`INSERT INTO activities (id, title, description, music, sortIndex, scheduleIndex, event_id) VALUES (${id}, ${title}, ${description}, ${JSON.stringify(music)}, ${sortIndex}, null, ${eventId})`,
         logUpdateByTableName("activities"),
     ]);
     const activities = [
