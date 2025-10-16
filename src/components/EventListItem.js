@@ -2,6 +2,7 @@ import { css } from "../../styled-system/css";
 import { useAuth } from "./global/Auth";
 import Button from "./ui/Button";
 import { usePrompt } from "./ui/Prompt";
+import fetch from "../util/fetch";
 
 const EventListItem = ({ event, onDelete = () => {} }) => {
     const { isEditor } = useAuth();

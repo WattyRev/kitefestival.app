@@ -6,6 +6,7 @@ import H1 from "./ui/H1";
 import TextInput from "./ui/TextInput";
 import Button from "./ui/Button";
 import { useAlert } from "./ui/Alert";
+import fetch from "../util/fetch";
 
 const makeSlugFromName = (name) => {
     return encodeURIComponent(
@@ -67,7 +68,7 @@ const EventForm = ({ isEdit = false, onSubmit = () => {}, onCancel }) => {
         >
             <H1>{isEdit ? "Edit Event" : "Create Event"}</H1>
             <TextInput
-                data-testid="name-input"
+                data-testid="event-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Event Name"
@@ -75,7 +76,7 @@ const EventForm = ({ isEdit = false, onSubmit = () => {}, onCancel }) => {
             <p>
                 <em>Slug: {makeSlugFromName(name)}</em>
             </p>
-            <Button data-testid="submit-event" type="submit" disabled={pending}>
+            <Button data-testid="save-event" type="submit" disabled={pending}>
                 Save
             </Button>
             {onCancel && (
