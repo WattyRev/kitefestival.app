@@ -52,11 +52,8 @@ export async function DELETE(_, { params }) {
         );
     }
 
-    console.log("got activities", activityIds);
-
     // Delete all comments
     if (activityIds.length) {
-        console.log("Deleting comments for activities:", activityIds);
         try {
             const inserts = activityIds.map((id, index) => `$${index + 1}`);
             sql.query(
