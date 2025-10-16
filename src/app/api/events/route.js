@@ -18,12 +18,9 @@ export const revalidate = 0;
  *   events: Event[]
  * }
  */
-export async function GET(req) {
+export async function GET() {
     try {
-        const eventsResponse = await sql`
-            SELECT * FROM events 
-            ORDER BY id ASC
-        `;
+        const eventsResponse = await sql`SELECT * FROM events ORDER BY id ASC`;
 
         const events = eventsResponse.rows.map((event) => {
             const {
@@ -68,7 +65,7 @@ export async function POST(req) {
     const passcode = cookieStore.get("passcode")?.value;
 
     try {
-        await validatePasscode(passcode, ["admin", "editor"]);
+        await validatePasscode(passcode, ["editor"]);
     } catch (error) {
         if (error instanceof NoPasscodeError) {
             return NextResponse.json(
@@ -107,9 +104,7 @@ export async function POST(req) {
         }
 
         // Check if an event with this name already exists
-        const existingEventName = await sql`
-            SELECT id FROM events WHERE LOWER(name) = LOWER(${name.trim()})
-        `;
+        const existingEventName = await sql`SELECT id FROM events WHERE LOWER(name) = LOWER(${name.trim()})`;
 
         if (existingEventName.rows.length > 0) {
             return NextResponse.json(
@@ -119,9 +114,7 @@ export async function POST(req) {
         }
 
         // Check if an event with this slug already exists
-        const existingEventSlug = await sql`
-            SELECT id FROM events WHERE LOWER(slug) = LOWER(${name.trim()})
-        `;
+        const existingEventSlug = await sql`SELECT id FROM events WHERE LOWER(slug) = LOWER(${name.trim()})`;
 
         if (existingEventSlug.rows.length > 0) {
             return NextResponse.json(
@@ -130,10 +123,10 @@ export async function POST(req) {
             );
         }
 
-        await sql.query(`
-            INSERT INTO events (
-                name, slug
-            ) VALUES ($1, $2)`, [name.trim(), slug.trim()]);
+        await sql.query(
+            `INSERT INTO events (name, slug) VALUES ($1, $2)`, 
+            [name.trim(), slug.trim()]
+        );
 
         const response = await sql`SELECT * FROM events WHERE name = ${name.trim()}`;
 
