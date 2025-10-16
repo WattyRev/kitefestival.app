@@ -41,11 +41,7 @@ export async function DELETE(_, { params }) {
     // Fetch activity IDs
     let activityIds = [];
     try {
-        const activityIdsRequest = await sql`
-            SELECT id
-            FROM activities
-            WHERE event_id = ${eventId}
-        `;
+        const activityIdsRequest = await sql`SELECT id FROM activities WHERE event_id = ${eventId}`;
 
         activityIds = activityIdsRequest.rows.map((row) => row.id);
     } catch (error) {
@@ -54,6 +50,8 @@ export async function DELETE(_, { params }) {
             { status: 500 },
         );
     }
+
+    console.log('got activities', activityIds);
 
     // Delete all comments
     if (activityIds.length) {
