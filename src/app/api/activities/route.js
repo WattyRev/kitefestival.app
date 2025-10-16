@@ -87,7 +87,7 @@ export async function POST(req) {
         return NextResponse.json(
             { message: "No eventId provided" },
             { status: 400 },
-        ); 
+        );
     }
 
     const id = randomUUID();

@@ -23,8 +23,8 @@ describe("EventPage", () => {
     beforeEach(() => {
         mockEvent = {
             id: 3,
-            name: 'My Event',
-            slug: 'my_event'
+            name: "My Event",
+            slug: "my_event",
         };
         ChangePollingContainer.mockImplementation(({ children }) => (
             <>{children}</>
