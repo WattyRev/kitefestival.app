@@ -4,21 +4,24 @@ import { useState } from "react";
 import EventForm from "./EventForm";
 import H1 from "./ui/H1";
 import EventListItem from "./EventListItem";
+import { css } from "../../styled-system/css";
 
 function HomePage({ initialEvents }) {
     const [events, setEvents] = useState(initialEvents);
     if (!events.length) {
-        <p
-            className={css({
-                paddingLeft: {
-                    base: "12px",
-                    sm: "16px",
-                },
-            })}
-            data-testid="empty-events"
-        >
-            There are no events right now
-        </p>;
+        return (
+            <p
+                className={css({
+                    paddingLeft: {
+                        base: "12px",
+                        sm: "16px",
+                    },
+                })}
+                data-testid="empty-events"
+            >
+                There are no events right now
+            </p>
+        );
     }
     return (
         <div>
