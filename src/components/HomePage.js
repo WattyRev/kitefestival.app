@@ -1,15 +1,9 @@
 'use client'
 
 import { useState } from "react";
-import { css } from "../../styled-system/css";
 import EventForm from "./EventForm";
 import H1 from "./ui/H1";
-
-const listStyle = css({
-    padding: "8px",
-    display: 'block',
-    borderBottom: "1px solid"
-})
+import EventListItem from "./EventListItem";
 
 function HomePage({initialEvents}) {
     const [events, setEvents] = useState(initialEvents);
@@ -30,7 +24,7 @@ function HomePage({initialEvents}) {
         <div>
             <H1>Events</H1>
             {events.map((event) => (
-                <a key={event.id} className={listStyle} href={`/event/${event.slug}`}>{event.name}</a>
+                <EventListItem key={event.id} event={event} onDelete={() => setEvents(events.filter(e => e.id !== event.id))} />
             ))}
             <EventForm onSubmit={event => setEvents([...events, event])}/>
         </div>
