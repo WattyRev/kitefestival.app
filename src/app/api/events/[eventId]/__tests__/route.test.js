@@ -62,7 +62,12 @@ describe("/api/events/eventId/route", () => {
                 ["DELETE FROM events WHERE id = ", ""],
                 1,
             );
-            expect(response).toEqual({ data: { message: "Event deleted along with all linked activities and comments" } });
+            expect(response).toEqual({
+                data: {
+                    message:
+                        "Event deleted along with all linked activities and comments",
+                },
+            });
         });
         it("returns a 401 if no passcode is provided", async () => {
             cookieValues.passcode = null;
@@ -71,9 +76,7 @@ describe("/api/events/eventId/route", () => {
                 params: { eventId: "abc" },
             });
 
-            expect(validatePasscode).toHaveBeenCalledWith(null, [
-                "editor",
-            ]);
+            expect(validatePasscode).toHaveBeenCalledWith(null, ["editor"]);
             expect(response).toEqual({
                 data: { message: "No passcode provided" },
                 status: 401,

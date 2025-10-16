@@ -23,16 +23,12 @@ export async function GET() {
         const eventsResponse = await sql`SELECT * FROM events ORDER BY id ASC`;
 
         const events = eventsResponse.rows.map((event) => {
-            const {
-                id,
-                name,
-                slug
-            } = event;
+            const { id, name, slug } = event;
 
             return {
                 id,
                 name,
-                slug
+                slug,
             };
         });
 
@@ -83,9 +79,7 @@ export async function POST(req) {
     }
 
     try {
-        const {
-            event
-        } = await req.json();
+        const { event } = await req.json();
 
         const { name, slug } = event;
 
@@ -104,7 +98,8 @@ export async function POST(req) {
         }
 
         // Check if an event with this name already exists
-        const existingEventName = await sql`SELECT id FROM events WHERE LOWER(name) = LOWER(${name.trim()})`;
+        const existingEventName =
+            await sql`SELECT id FROM events WHERE LOWER(name) = LOWER(${name.trim()})`;
 
         if (existingEventName.rows.length > 0) {
             return NextResponse.json(
@@ -114,7 +109,8 @@ export async function POST(req) {
         }
 
         // Check if an event with this slug already exists
-        const existingEventSlug = await sql`SELECT id FROM events WHERE LOWER(slug) = LOWER(${name.trim()})`;
+        const existingEventSlug =
+            await sql`SELECT id FROM events WHERE LOWER(slug) = LOWER(${name.trim()})`;
 
         if (existingEventSlug.rows.length > 0) {
             return NextResponse.json(
@@ -123,17 +119,18 @@ export async function POST(req) {
             );
         }
 
-        await sql.query(
-            `INSERT INTO events (name, slug) VALUES ($1, $2)`, 
-            [name.trim(), slug.trim()]
-        );
+        await sql.query(`INSERT INTO events (name, slug) VALUES ($1, $2)`, [
+            name.trim(),
+            slug.trim(),
+        ]);
 
-        const response = await sql`SELECT * FROM events WHERE name = ${name.trim()}`;
+        const response =
+            await sql`SELECT * FROM events WHERE name = ${name.trim()}`;
 
         const savedEvent = {
             id: response.rows[0].id,
             name: response.rows[0].name,
-            slug: response.rows[0].slug
+            slug: response.rows[0].slug,
         };
 
         return NextResponse.json({ event: savedEvent });

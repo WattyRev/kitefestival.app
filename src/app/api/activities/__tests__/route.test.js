@@ -116,7 +116,7 @@ describe("activities/route", () => {
                     title: "boogers",
                     description: "green things",
                     music: ["song1", "song2"],
-                    eventId: 3
+                    eventId: 3,
                 }),
             };
             await POST(mockReq);

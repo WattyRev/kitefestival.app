@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import { useAuth } from "./global/Auth";
@@ -7,13 +7,14 @@ import TextInput from "./ui/TextInput";
 import Button from "./ui/Button";
 import { useAlert } from "./ui/Alert";
 
-const makeSlugFromName = name => {
-    return encodeURIComponent(name
-        .toLowerCase()
-        .replace(/ /g, "_")
-        .replace(/[^\w-]+/g, "")
-    )
-}
+const makeSlugFromName = (name) => {
+    return encodeURIComponent(
+        name
+            .toLowerCase()
+            .replace(/ /g, "_")
+            .replace(/[^\w-]+/g, ""),
+    );
+};
 
 const EventForm = ({ isEdit = false, onSubmit = () => {}, onCancel }) => {
     const { isEditor } = useAuth();
@@ -21,8 +22,7 @@ const EventForm = ({ isEdit = false, onSubmit = () => {}, onCancel }) => {
     const [name, setName] = useState("");
 
     const { openAlert } = useAlert();
-    
-    
+
     if (!isEditor()) {
         return null;
     }
@@ -32,14 +32,14 @@ const EventForm = ({ isEdit = false, onSubmit = () => {}, onCancel }) => {
         let savedEvent;
         let errorMessage;
         try {
-            const response = await fetch('/api/events', {
-                method: 'POST',
+            const response = await fetch("/api/events", {
+                method: "POST",
                 body: JSON.stringify({
                     event: {
                         name,
-                        slug: makeSlugFromName(name)
-                    }
-                })
+                        slug: makeSlugFromName(name),
+                    },
+                }),
             });
             const json = await response.json();
             if (!response.ok) {
@@ -48,7 +48,7 @@ const EventForm = ({ isEdit = false, onSubmit = () => {}, onCancel }) => {
             }
             savedEvent = json.event;
         } catch (error) {
-            openAlert('Failed to save event. Reason: ' + errorMessage, 'error');
+            openAlert("Failed to save event. Reason: " + errorMessage, "error");
             setPending(false);
             return;
         }
@@ -72,15 +72,19 @@ const EventForm = ({ isEdit = false, onSubmit = () => {}, onCancel }) => {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Event Name"
             />
-            <p><em>Slug: {makeSlugFromName(name)}</em></p>
-            <Button
-                data-testid="submit-event"
-                type="submit"
-                disabled={pending}
-            >Save</Button>
-            {onCancel && <Button onClick={onCancel} className="secondary">Cancel</Button>}
+            <p>
+                <em>Slug: {makeSlugFromName(name)}</em>
+            </p>
+            <Button data-testid="submit-event" type="submit" disabled={pending}>
+                Save
+            </Button>
+            {onCancel && (
+                <Button onClick={onCancel} className="secondary">
+                    Cancel
+                </Button>
+            )}
         </form>
-    )
-}
+    );
+};
 
 export default EventForm;

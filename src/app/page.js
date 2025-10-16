@@ -9,9 +9,9 @@ export default async function Home() {
         return {
             id,
             name,
-            slug
+            slug,
         };
-    })
+    });
 
     return <HomePage initialEvents={events} />;
 }

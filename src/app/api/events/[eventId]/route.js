@@ -41,7 +41,8 @@ export async function DELETE(_, { params }) {
     // Fetch activity IDs
     let activityIds = [];
     try {
-        const activityIdsRequest = await sql`SELECT id FROM activities WHERE event_id = ${eventId}`;
+        const activityIdsRequest =
+            await sql`SELECT id FROM activities WHERE event_id = ${eventId}`;
 
         activityIds = activityIdsRequest.rows.map((row) => row.id);
     } catch (error) {
@@ -51,14 +52,17 @@ export async function DELETE(_, { params }) {
         );
     }
 
-    console.log('got activities', activityIds);
+    console.log("got activities", activityIds);
 
     // Delete all comments
     if (activityIds.length) {
-        console.log('Deleting comments for activities:', activityIds);
+        console.log("Deleting comments for activities:", activityIds);
         try {
             const inserts = activityIds.map((id, index) => `$${index + 1}`);
-            sql.query(`DELETE FROM comments WHERE activityid IN (${inserts.join(', ')})`, activityIds);
+            sql.query(
+                `DELETE FROM comments WHERE activityid IN (${inserts.join(", ")})`,
+                activityIds,
+            );
         } catch (error) {
             return NextResponse.json(
                 { message: "Failed to delete comments" },
@@ -87,5 +91,7 @@ export async function DELETE(_, { params }) {
         );
     }
 
-    return NextResponse.json({ message: "Event deleted along with all linked activities and comments" });
+    return NextResponse.json({
+        message: "Event deleted along with all linked activities and comments",
+    });
 }
