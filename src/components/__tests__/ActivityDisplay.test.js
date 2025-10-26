@@ -241,6 +241,34 @@ describe("ActivityDisplay", () => {
                 ).not.toHaveAttribute("disabled"),
             );
         });
+        it("allows an editor to complete an activity", async () => {
+            let resolveUnschedule;
+            const onComplete = jest.fn().mockImplementation(() => {
+                return new Promise((resolve) => {
+                    resolveUnschedule = resolve;
+                });
+            });
+            render(
+                <ActivityDisplay
+                    activity={mockActivity}
+                    onComplete={onComplete}
+                />,
+            );
+
+            await userEvent.click(screen.getByTestId("activity-dropdown"));
+            await userEvent.click(screen.getByTestId("complete-activity"));
+
+            expect(onComplete).toHaveBeenCalledWith(mockActivity.id);
+            expect(screen.getByTestId("complete-activity")).toHaveAttribute(
+                "disabled",
+            );
+            resolveUnschedule();
+            await waitFor(() =>
+                expect(
+                    screen.getByTestId("complete-activity"),
+                ).not.toHaveAttribute("disabled"),
+            );
+        });
         it("allows an editor to move an activity up", async () => {
             let doResolve;
             const onMoveUp = jest.fn().mockImplementation(() => {

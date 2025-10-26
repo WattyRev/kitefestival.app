@@ -21,6 +21,7 @@ function isMusicMissing(music) {
 const ActivityDisplay = ({
     activity,
     onDelete,
+    onComplete,
     onSchedule,
     onUnschedule,
     onMoveUp,
@@ -168,6 +169,21 @@ const ActivityDisplay = ({
                                 <Dropdown
                                     dropdownContent={() => (
                                         <>
+                                            {onComplete && (
+                                                <DropdownItem
+                                                    data-testid="complete-activity"
+                                                    onClick={() =>
+                                                        dispatch(onComplete, [
+                                                            activity.id,
+                                                        ])
+                                                    }
+                                                    disabled={pending}
+                                                    title="Complete Activity"
+                                                >
+                                                    <i className="fa-solid fa-check" />{" "}
+                                                    Complete Activity
+                                                </DropdownItem>
+                                            )}
                                             <DropdownItem
                                                 data-testid="edit-activity"
                                                 onClick={() =>
