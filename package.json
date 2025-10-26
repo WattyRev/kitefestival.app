@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint && npx prettier . --write",
     "test": "jest",
-    "pre-commit": "next lint"
+    "pre-commit": "next lint && npx prettier . --write"
   },
   "dependencies": {
     "@vercel/postgres": "^0.10.0",
