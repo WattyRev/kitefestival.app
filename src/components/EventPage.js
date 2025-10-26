@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import H1 from "./ui/H1";
 import ActivityDisplay from "./ActivityDisplay";
 import ActivitiesContainer from "./ActivitiesContainer";
@@ -27,7 +27,6 @@ const EventPageContainer = ({
             <MusicLibraryContainer initialMusicLibrary={initialMusicLibrary}>
                 <ActivitiesContainer initialActivities={initialActivities}>
                     {({
-                        activities,
                         scheduledActivities,
                         unscheduledActivities,
                         isLoading: isLoadingActivities,
@@ -77,47 +76,38 @@ const EventPageContainer = ({
                                                         {" "}
                                                         {index === 0 && (
                                                             <H1
-                                                                className={css(
-                                                                    {
-                                                                        paddingLeft:
-                                                                            {
-                                                                                base: "12px",
-                                                                                sm: "16px",
-                                                                            },
-                                                                    },
-                                                                )}
+                                                                className={css({
+                                                                    paddingLeft:
+                                                                        {
+                                                                            base: "12px",
+                                                                            sm: "16px",
+                                                                        },
+                                                                })}
                                                             >
-                                                                Happening
-                                                                Now
+                                                                Happening Now
                                                             </H1>
                                                         )}
                                                         {index === 1 && (
                                                             <H2
-                                                                className={css(
-                                                                    {
-                                                                        paddingLeft:
-                                                                            {
-                                                                                base: "12px",
-                                                                                sm: "16px",
-                                                                            },
-                                                                        paddingTop:
-                                                                            {
-                                                                                base: "12px",
-                                                                                sm: "16px",
-                                                                            },
-                                                                    },
-                                                                )}
+                                                                className={css({
+                                                                    paddingLeft:
+                                                                        {
+                                                                            base: "12px",
+                                                                            sm: "16px",
+                                                                        },
+                                                                    paddingTop:
+                                                                        {
+                                                                            base: "12px",
+                                                                            sm: "16px",
+                                                                        },
+                                                                })}
                                                             >
                                                                 Upcoming
                                                             </H2>
                                                         )}
                                                         <ActivityDisplay
-                                                            key={
-                                                                activity.id
-                                                            }
-                                                            activity={
-                                                                activity
-                                                            }
+                                                            key={activity.id}
+                                                            activity={activity}
                                                             onDelete={
                                                                 deleteActivity
                                                             }
@@ -135,61 +125,51 @@ const EventPageContainer = ({
                                                             }
                                                             onMoveUp={
                                                                 index !== 0
-                                                                    ? (
-                                                                            id,
-                                                                        ) =>
-                                                                            moveActivity(
-                                                                                id,
-                                                                                "schedule",
-                                                                                activity.scheduleIndex -
-                                                                                    1,
-                                                                            )
+                                                                    ? (id) =>
+                                                                          moveActivity(
+                                                                              id,
+                                                                              "schedule",
+                                                                              activity.scheduleIndex -
+                                                                                  1,
+                                                                          )
                                                                     : undefined
                                                             }
                                                             onMoveTop={
                                                                 index !== 0
-                                                                    ? (
-                                                                            id,
-                                                                        ) =>
-                                                                            moveActivity(
-                                                                                id,
-                                                                                "schedule",
-                                                                                0,
-                                                                            )
+                                                                    ? (id) =>
+                                                                          moveActivity(
+                                                                              id,
+                                                                              "schedule",
+                                                                              0,
+                                                                          )
                                                                     : undefined
                                                             }
                                                             onMoveDown={
                                                                 index !==
                                                                 scheduledActivities.length -
                                                                     1
-                                                                    ? (
-                                                                            id,
-                                                                        ) =>
-                                                                            moveActivity(
-                                                                                id,
-                                                                                "schedule",
-                                                                                activity.scheduleIndex +
-                                                                                    2,
-                                                                            )
+                                                                    ? (id) =>
+                                                                          moveActivity(
+                                                                              id,
+                                                                              "schedule",
+                                                                              activity.scheduleIndex +
+                                                                                  2,
+                                                                          )
                                                                     : undefined
                                                             }
                                                             onMoveBottom={
                                                                 index !==
                                                                 scheduledActivities.length -
                                                                     1
-                                                                    ? (
-                                                                            id,
-                                                                        ) =>
-                                                                            moveActivity(
-                                                                                id,
-                                                                                "schedule",
-                                                                                scheduledActivities.length,
-                                                                            )
+                                                                    ? (id) =>
+                                                                          moveActivity(
+                                                                              id,
+                                                                              "schedule",
+                                                                              scheduledActivities.length,
+                                                                          )
                                                                     : undefined
                                                             }
-                                                            onMoveTo={(
-                                                                index,
-                                                            ) =>
+                                                            onMoveTo={(index) =>
                                                                 moveActivity(
                                                                     activity.id,
                                                                     "schedule",
@@ -249,22 +229,19 @@ const EventPageContainer = ({
                                                             },
                                                         })}
                                                     >
-                                                        Unscheduled
-                                                        Activities
+                                                        Unscheduled Activities
                                                     </H1>
                                                     {!unscheduledActivities.length && (
                                                         <>
                                                             <p
                                                                 data-testid="empty-unscheduled"
-                                                                className={css(
-                                                                    {
-                                                                        paddingLeft:
-                                                                            {
-                                                                                base: "12px",
-                                                                                sm: "16px",
-                                                                            },
-                                                                    },
-                                                                )}
+                                                                className={css({
+                                                                    paddingLeft:
+                                                                        {
+                                                                            base: "12px",
+                                                                            sm: "16px",
+                                                                        },
+                                                                })}
                                                             >
                                                                 There are no
                                                                 unscheduled
@@ -273,10 +250,7 @@ const EventPageContainer = ({
                                                         </>
                                                     )}
                                                     {unscheduledActivities.map(
-                                                        (
-                                                            activity,
-                                                            index,
-                                                        ) => (
+                                                        (activity, index) => (
                                                             <div
                                                                 key={
                                                                     activity.id
@@ -306,27 +280,27 @@ const EventPageContainer = ({
                                                                         index !==
                                                                         0
                                                                             ? (
-                                                                                    id,
-                                                                                ) =>
-                                                                                    moveActivity(
-                                                                                        id,
-                                                                                        "unschedule",
-                                                                                        activity.sortIndex -
-                                                                                            1,
-                                                                                    )
+                                                                                  id,
+                                                                              ) =>
+                                                                                  moveActivity(
+                                                                                      id,
+                                                                                      "unschedule",
+                                                                                      activity.sortIndex -
+                                                                                          1,
+                                                                                  )
                                                                             : undefined
                                                                     }
                                                                     onMoveTop={
                                                                         index !==
                                                                         0
                                                                             ? (
-                                                                                    id,
-                                                                                ) =>
-                                                                                    moveActivity(
-                                                                                        id,
-                                                                                        "unschedule",
-                                                                                        0,
-                                                                                    )
+                                                                                  id,
+                                                                              ) =>
+                                                                                  moveActivity(
+                                                                                      id,
+                                                                                      "unschedule",
+                                                                                      0,
+                                                                                  )
                                                                             : undefined
                                                                     }
                                                                     onMoveDown={
@@ -334,14 +308,14 @@ const EventPageContainer = ({
                                                                         unscheduledActivities.length -
                                                                             1
                                                                             ? (
-                                                                                    id,
-                                                                                ) =>
-                                                                                    moveActivity(
-                                                                                        id,
-                                                                                        "unschedule",
-                                                                                        activity.sortIndex +
-                                                                                            2,
-                                                                                    )
+                                                                                  id,
+                                                                              ) =>
+                                                                                  moveActivity(
+                                                                                      id,
+                                                                                      "unschedule",
+                                                                                      activity.sortIndex +
+                                                                                          2,
+                                                                                  )
                                                                             : undefined
                                                                     }
                                                                     onMoveBottom={
@@ -349,13 +323,13 @@ const EventPageContainer = ({
                                                                         unscheduledActivities.length -
                                                                             1
                                                                             ? (
-                                                                                    id,
-                                                                                ) =>
-                                                                                    moveActivity(
-                                                                                        id,
-                                                                                        "unschedule",
-                                                                                        unscheduledActivities.length,
-                                                                                    )
+                                                                                  id,
+                                                                              ) =>
+                                                                                  moveActivity(
+                                                                                      id,
+                                                                                      "unschedule",
+                                                                                      unscheduledActivities.length,
+                                                                                  )
                                                                             : undefined
                                                                     }
                                                                 >

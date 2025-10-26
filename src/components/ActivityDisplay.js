@@ -333,7 +333,8 @@ const ActivityDisplay = ({
                                                 (music, index) => (
                                                     <li
                                                         className={css({
-                                                            overflowWrap: "anywhere",
+                                                            overflowWrap:
+                                                                "anywhere",
                                                         })}
                                                         key={`${music}${index}`}
                                                     >
