@@ -356,6 +356,9 @@ const ActivityDisplay = ({
                                             activity.music?.map(
                                                 (music, index) => (
                                                     <li
+                                                        className={css({
+                                                            overflowWrap: "anywhere",
+                                                        })}
                                                         key={`${music}${index}`}
                                                     >
                                                         <span
