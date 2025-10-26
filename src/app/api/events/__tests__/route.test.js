@@ -29,7 +29,7 @@ describe("/api/events/route", () => {
         beforeEach(() => {
             sql.mockResolvedValue({
                 rows: [
-                    { id: 1, name: "Event 1", slug: "event-1" },
+                    { id: 1, name: "Event 1", slug: "event-1", description: "stuff" },
                     { id: 2, name: "Event 2", slug: "event-2" },
                 ],
             });
@@ -42,8 +42,8 @@ describe("/api/events/route", () => {
             expect(response).toEqual({
                 data: {
                     events: [
-                        { id: 1, name: "Event 1", slug: "event-1" },
-                        { id: 2, name: "Event 2", slug: "event-2" },
+                        { id: 1, name: "Event 1", slug: "event-1", description: "stuff" },
+                        { id: 2, name: "Event 2", slug: "event-2", description: ""},
                     ],
                 },
             });
@@ -81,6 +81,7 @@ describe("/api/events/route", () => {
                     event: {
                         name: "New Event",
                         slug: "new-event",
+                        description: "Event description",
                     },
                 }),
             };
@@ -94,8 +95,8 @@ describe("/api/events/route", () => {
                 "editor",
             ]);
             expect(sql.query).toHaveBeenCalledWith(
-                "INSERT INTO events (name, slug) VALUES ($1, $2)",
-                ["New Event", "new-event"],
+                "INSERT INTO events (name, slug, description) VALUES ($1, $2, $3)",
+                ["New Event", "new-event", "Event description"],
             );
             expect(response).toEqual({
                 data: { event: { id: 1, name: "Event 1", slug: "event-1" } },

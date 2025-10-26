@@ -29,6 +29,7 @@ export async function GET() {
                 id,
                 name,
                 slug,
+                description: event.description || "",
             };
         });
 
@@ -49,6 +50,7 @@ export async function GET() {
  * {
  *   name: string
  *   slug: string
+ *   description?: string
  * }
  *
  * Response:
@@ -81,7 +83,7 @@ export async function POST(req) {
     try {
         const { event } = await req.json();
 
-        const { name, slug } = event;
+        const { name, slug, description } = event;
 
         if (!name || name.trim() === "") {
             return NextResponse.json(
@@ -119,9 +121,10 @@ export async function POST(req) {
             );
         }
 
-        await sql.query(`INSERT INTO events (name, slug) VALUES ($1, $2)`, [
+        await sql.query(`INSERT INTO events (name, slug, description) VALUES ($1, $2, $3)`, [
             name.trim(),
             slug.trim(),
+            description,
         ]);
 
         const response =

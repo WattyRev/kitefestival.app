@@ -7,6 +7,8 @@ import TextInput from "./ui/TextInput";
 import Button from "./ui/Button";
 import { useAlert } from "./ui/Alert";
 import fetch from "../util/fetch";
+import Textarea from "./ui/Textarea";
+import { css } from "../../styled-system/css";
 
 const makeSlugFromName = (name) => {
     return encodeURIComponent(
@@ -21,6 +23,7 @@ const EventForm = ({ isEdit = false, onSubmit = () => {}, onCancel }) => {
     const { isEditor } = useAuth();
     const [pending, setPending] = useState(false);
     const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
 
     const { openAlert } = useAlert();
 
@@ -39,6 +42,7 @@ const EventForm = ({ isEdit = false, onSubmit = () => {}, onCancel }) => {
                     event: {
                         name,
                         slug: makeSlugFromName(name),
+                        description,
                     },
                 }),
             });
@@ -55,6 +59,7 @@ const EventForm = ({ isEdit = false, onSubmit = () => {}, onCancel }) => {
         }
         onSubmit(savedEvent);
         setName("");
+        setDescription("");
         setPending(false);
     }
 
@@ -72,15 +77,22 @@ const EventForm = ({ isEdit = false, onSubmit = () => {}, onCancel }) => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Event Name"
+                required
             />
-            <p>
-                <em>Slug: {makeSlugFromName(name)}</em>
+            <p className={css({ marginBottom: "16px", fontStyle: "italic", fontSize: "14px" })}>
+                <em>URL Slug: {makeSlugFromName(name)}</em>
             </p>
+            <Textarea
+                data-testid="event-description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Event Description"
+            />
             <Button data-testid="save-event" type="submit" disabled={pending}>
                 Save
             </Button>
             {onCancel && (
-                <Button onClick={onCancel} className="secondary">
+                <Button onClick={onCancel} className="secondary" disabled={pending}>
                     Cancel
                 </Button>
             )}

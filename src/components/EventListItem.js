@@ -3,6 +3,8 @@ import { useAuth } from "./global/Auth";
 import Button from "./ui/Button";
 import { usePrompt } from "./ui/Prompt";
 import fetch from "../util/fetch";
+import H2 from "./ui/H2";
+import StyledLink from "./ui/StyledLink";
 
 const EventListItem = ({ event, onDelete = () => {} }) => {
     const { isEditor } = useAuth();
@@ -20,30 +22,38 @@ const EventListItem = ({ event, onDelete = () => {} }) => {
 
         onDelete(event.id);
     }
-
+    console.log('event des', event.description);
     return (
-        <div
-            className={css({
-                borderBottom: "1px solid",
-                display: "flex",
-            })}
-        >
-            <a
-                key={event.id}
+        <div className={css({ 
+            borderBottom: "1px solid", 
+            padding: "16px",
+            marginBottom: "16px",
+        })}>
+            <div
                 className={css({
-                    padding: "16px",
-                    display: "block",
-                    flexGrow: 1,
+                    display: "flex",
+                    alignItems: "center",
                 })}
-                href={`/event/${event.slug}`}
             >
-                {event.name}
-            </a>
-            {isEditor() && (
-                <Button title="Delete" className="danger" onClick={deleteEvent}>
-                    <i className="fa-solid fa-trash"></i>
-                </Button>
-            )}
+                <StyledLink
+                    key={event.id}
+                    className={css({
+                        display: "block",
+                        flexGrow: 1,
+                    })}
+                    href={`/event/${event.slug}`}
+                >
+                    <H2>{event.name}</H2>
+                </StyledLink>
+                {isEditor() && (
+                    <Button title="Delete" className="danger" onClick={deleteEvent}>
+                        <i className="fa-solid fa-trash"></i>
+                    </Button>
+                )}
+            </div>
+            {event.description && event.description.split("\n").map((line, index) => (
+                <p key={`${line}${index}`}>{line}</p>
+            ))}
         </div>
     );
 };
