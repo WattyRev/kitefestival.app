@@ -114,6 +114,17 @@ const EventPageContainer = ({
                                                             onEdit={
                                                                 editActivity
                                                             }
+                                                            onComplete={
+                                                                activity.scheduleIndex ===
+                                                                0
+                                                                    ? (id) =>
+                                                                          moveActivity(
+                                                                              id,
+                                                                              "unschedule",
+                                                                              unscheduledActivities.length,
+                                                                          )
+                                                                    : null
+                                                            }
                                                             onUnschedule={(
                                                                 id,
                                                             ) =>
