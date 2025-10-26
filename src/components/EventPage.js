@@ -12,20 +12,6 @@ import CommentsContainer from "./CommentsContainer";
 import Comments from "./Comments";
 import H2 from "./ui/H2";
 import { PaneProvider } from "./ui/Pane";
-import {
-    closestCenter,
-    DndContext,
-    MouseSensor,
-    TouchSensor,
-    useSensor,
-    useSensors,
-} from "@dnd-kit/core";
-import ActivityDrop from "./ActivityDrop";
-import ActivityDropZone from "./ActivityDropZone";
-import {
-    restrictToVerticalAxis,
-    restrictToWindowEdges,
-} from "@dnd-kit/modifiers";
 import UndoButton from "./ui/UndoButton";
 import MusicLibraryContainer from "./MusicLibraryContainer";
 
@@ -35,12 +21,6 @@ const EventPageContainer = ({
     musicLibrary: initialMusicLibrary,
 }) => {
     const { isEditor } = useAuth();
-    const [activelyDraggedId, setActivelyDraggedId] = useState(null);
-    const activationConstraint = { delay: 250, tolerance: 5 };
-    const sensors = useSensors(
-        useSensor(TouchSensor, { activationConstraint }),
-        useSensor(MouseSensor, { activationConstraint }),
-    );
     return (
         <ChangePollingContainer>
             <H1>{event.name}</H1>
@@ -75,467 +55,344 @@ const EventPageContainer = ({
                                             }
                                         />
                                         <div data-testid="home-page">
-                                            <DndContext
-                                                sensors={sensors}
-                                                collisionDetection={
-                                                    closestCenter
-                                                }
-                                                onDragStart={(event) => {
-                                                    if (!isEditor()) {
-                                                        return;
-                                                    }
-                                                    setActivelyDraggedId(
-                                                        event.active.id,
-                                                    );
-                                                }}
-                                                onDragEnd={(event) => {
-                                                    if (!isEditor()) {
-                                                        return;
-                                                    }
-                                                    setActivelyDraggedId(null);
-                                                    const { active, over } =
-                                                        event;
-                                                    const activityId =
-                                                        active.id;
-                                                    const { bucket, index } =
-                                                        over.data.current;
-                                                    moveActivity(
-                                                        activityId,
-                                                        bucket,
-                                                        index,
-                                                    );
-                                                }}
-                                                modifiers={[
-                                                    restrictToVerticalAxis,
-                                                    restrictToWindowEdges,
-                                                ]}
-                                            >
-                                                {!scheduledActivities.length && (
-                                                    <>
-                                                        <p
-                                                            className={css({
-                                                                paddingLeft: {
-                                                                    base: "12px",
-                                                                    sm: "16px",
-                                                                },
-                                                            })}
-                                                            data-testid="empty-schedule"
-                                                        >
-                                                            There&apos;s nothing
-                                                            happening right now
-                                                        </p>
-                                                        {isEditor() &&
-                                                            !!activities.length && (
-                                                                <ActivityDropZone
-                                                                    bucket="schedule"
-                                                                    index={0}
-                                                                    id="schedule-empty"
-                                                                    text="Drag activities here to schedule them"
-                                                                />
-                                                            )}
-                                                    </>
-                                                )}
-                                                {scheduledActivities.map(
-                                                    (activity, index) => (
-                                                        <div key={activity.id}>
-                                                            {" "}
-                                                            {index === 0 && (
-                                                                <H1
-                                                                    className={css(
-                                                                        {
-                                                                            paddingLeft:
-                                                                                {
-                                                                                    base: "12px",
-                                                                                    sm: "16px",
-                                                                                },
-                                                                        },
-                                                                    )}
-                                                                >
-                                                                    Happening
-                                                                    Now
-                                                                </H1>
-                                                            )}
-                                                            {index === 1 && (
-                                                                <H2
-                                                                    className={css(
-                                                                        {
-                                                                            paddingLeft:
-                                                                                {
-                                                                                    base: "12px",
-                                                                                    sm: "16px",
-                                                                                },
-                                                                            paddingTop:
-                                                                                {
-                                                                                    base: "12px",
-                                                                                    sm: "16px",
-                                                                                },
-                                                                        },
-                                                                    )}
-                                                                >
-                                                                    Upcoming
-                                                                </H2>
-                                                            )}
-                                                            {isEditor() &&
-                                                                activelyDraggedId !==
-                                                                    scheduledActivities[
-                                                                        index -
-                                                                            1
-                                                                    ]?.id && (
-                                                                    <ActivityDrop
-                                                                        bucket="schedule"
-                                                                        index={
-                                                                            activity.scheduleIndex
-                                                                        }
-                                                                        id={`schedule-${activity.id}-top`}
-                                                                    />
-                                                                )}
-                                                            <ActivityDisplay
-                                                                key={
-                                                                    activity.id
-                                                                }
-                                                                activity={
-                                                                    activity
-                                                                }
-                                                                onDelete={
-                                                                    deleteActivity
-                                                                }
-                                                                onEdit={
-                                                                    editActivity
-                                                                }
-                                                                onUnschedule={(
-                                                                    id,
-                                                                ) =>
-                                                                    moveActivity(
-                                                                        id,
-                                                                        "unschedule",
-                                                                        0,
-                                                                    )
-                                                                }
-                                                                onMoveUp={
-                                                                    index !== 0
-                                                                        ? (
-                                                                              id,
-                                                                          ) =>
-                                                                              moveActivity(
-                                                                                  id,
-                                                                                  "schedule",
-                                                                                  activity.scheduleIndex -
-                                                                                      1,
-                                                                              )
-                                                                        : undefined
-                                                                }
-                                                                onMoveTop={
-                                                                    index !== 0
-                                                                        ? (
-                                                                              id,
-                                                                          ) =>
-                                                                              moveActivity(
-                                                                                  id,
-                                                                                  "schedule",
-                                                                                  0,
-                                                                              )
-                                                                        : undefined
-                                                                }
-                                                                onMoveDown={
-                                                                    index !==
-                                                                    scheduledActivities.length -
-                                                                        1
-                                                                        ? (
-                                                                              id,
-                                                                          ) =>
-                                                                              moveActivity(
-                                                                                  id,
-                                                                                  "schedule",
-                                                                                  activity.scheduleIndex +
-                                                                                      2,
-                                                                              )
-                                                                        : undefined
-                                                                }
-                                                                onMoveBottom={
-                                                                    index !==
-                                                                    scheduledActivities.length -
-                                                                        1
-                                                                        ? (
-                                                                              id,
-                                                                          ) =>
-                                                                              moveActivity(
-                                                                                  id,
-                                                                                  "schedule",
-                                                                                  scheduledActivities.length,
-                                                                              )
-                                                                        : undefined
-                                                                }
-                                                                onMoveTo={(
-                                                                    index,
-                                                                ) =>
-                                                                    moveActivity(
-                                                                        activity.id,
-                                                                        "schedule",
-                                                                        parseInt(
-                                                                            index,
-                                                                        ),
-                                                                    )
-                                                                }
-                                                                allowHideDescription={
-                                                                    index !== 0
-                                                                }
-                                                                isGlobalDragging={
-                                                                    !!activelyDraggedId
-                                                                }
-                                                            >
-                                                                <Comments
-                                                                    activity={
-                                                                        activity
-                                                                    }
-                                                                    comments={
-                                                                        commentsByActivityId[
-                                                                            activity
-                                                                                .id
-                                                                        ]
-                                                                    }
-                                                                    onCreate={(
-                                                                        message,
-                                                                    ) =>
-                                                                        createComment(
+                                            {!scheduledActivities.length && (
+                                                <>
+                                                    <p
+                                                        className={css({
+                                                            paddingLeft: {
+                                                                base: "12px",
+                                                                sm: "16px",
+                                                            },
+                                                        })}
+                                                        data-testid="empty-schedule"
+                                                    >
+                                                        There&apos;s nothing
+                                                        happening right now
+                                                    </p>
+                                                </>
+                                            )}
+                                            {scheduledActivities.map(
+                                                (activity, index) => (
+                                                    <div key={activity.id}>
+                                                        {" "}
+                                                        {index === 0 && (
+                                                            <H1
+                                                                className={css(
+                                                                    {
+                                                                        paddingLeft:
                                                                             {
-                                                                                message,
-                                                                                activityId:
-                                                                                    activity.id,
+                                                                                base: "12px",
+                                                                                sm: "16px",
                                                                             },
-                                                                        )
-                                                                    }
-                                                                    onDelete={
-                                                                        deleteComment
-                                                                    }
-                                                                    onEdit={
-                                                                        editComment
-                                                                    }
-                                                                />
-                                                            </ActivityDisplay>
-                                                            {index ===
-                                                                scheduledActivities.length -
-                                                                    1 &&
-                                                                activity.id !==
-                                                                    activelyDraggedId &&
-                                                                isEditor() && (
-                                                                    <ActivityDrop
-                                                                        bucket="schedule"
-                                                                        index={
-                                                                            activity.scheduleIndex +
-                                                                            1
-                                                                        }
-                                                                        id={`schedule-${activity.id}-bottom`}
-                                                                    />
+                                                                    },
                                                                 )}
-                                                        </div>
-                                                    ),
-                                                )}
-                                                {isEditor() && (
-                                                    <>
-                                                        <H1
-                                                            data-testid="unscheduled"
-                                                            className={css({
-                                                                paddingLeft: {
-                                                                    base: "12px",
-                                                                    sm: "16px",
-                                                                },
-                                                                paddingTop: {
-                                                                    base: "16px",
-                                                                    sm: "32px",
-                                                                },
-                                                            })}
-                                                        >
-                                                            Unscheduled
-                                                            Activities
-                                                        </H1>
-                                                        {!unscheduledActivities.length && (
-                                                            <>
-                                                                <p
-                                                                    data-testid="empty-unscheduled"
-                                                                    className={css(
-                                                                        {
-                                                                            paddingLeft:
-                                                                                {
-                                                                                    base: "12px",
-                                                                                    sm: "16px",
-                                                                                },
-                                                                        },
-                                                                    )}
-                                                                >
-                                                                    There are no
-                                                                    unscheduled
-                                                                    activities
-                                                                </p>
-                                                                {isEditor() &&
-                                                                    !!activities.length && (
-                                                                        <ActivityDropZone
-                                                                            bucket="unschedule"
-                                                                            index={
-                                                                                0
-                                                                            }
-                                                                            id={
-                                                                                "unschedule-empty"
-                                                                            }
-                                                                            text="Drag activities here to unschedule them"
-                                                                        />
-                                                                    )}
-                                                            </>
+                                                            >
+                                                                Happening
+                                                                Now
+                                                            </H1>
                                                         )}
-                                                        {unscheduledActivities.map(
-                                                            (
-                                                                activity,
-                                                                index,
-                                                            ) => (
-                                                                <div
-                                                                    key={
-                                                                        activity.id
-                                                                    }
-                                                                >
-                                                                    {isEditor() &&
-                                                                        activelyDraggedId !==
-                                                                            unscheduledActivities[
-                                                                                index -
-                                                                                    1
-                                                                            ]
-                                                                                ?.id && (
-                                                                            <ActivityDrop
-                                                                                bucket="unschedule"
-                                                                                index={
-                                                                                    activity.sortIndex
-                                                                                }
-                                                                                id={`unschedule-${activity.id}-top`}
-                                                                            />
-                                                                        )}
-                                                                    <ActivityDisplay
-                                                                        activity={
-                                                                            activity
-                                                                        }
-                                                                        onDelete={
-                                                                            deleteActivity
-                                                                        }
-                                                                        onSchedule={(
+                                                        {index === 1 && (
+                                                            <H2
+                                                                className={css(
+                                                                    {
+                                                                        paddingLeft:
+                                                                            {
+                                                                                base: "12px",
+                                                                                sm: "16px",
+                                                                            },
+                                                                        paddingTop:
+                                                                            {
+                                                                                base: "12px",
+                                                                                sm: "16px",
+                                                                            },
+                                                                    },
+                                                                )}
+                                                            >
+                                                                Upcoming
+                                                            </H2>
+                                                        )}
+                                                        <ActivityDisplay
+                                                            key={
+                                                                activity.id
+                                                            }
+                                                            activity={
+                                                                activity
+                                                            }
+                                                            onDelete={
+                                                                deleteActivity
+                                                            }
+                                                            onEdit={
+                                                                editActivity
+                                                            }
+                                                            onUnschedule={(
+                                                                id,
+                                                            ) =>
+                                                                moveActivity(
+                                                                    id,
+                                                                    "unschedule",
+                                                                    0,
+                                                                )
+                                                            }
+                                                            onMoveUp={
+                                                                index !== 0
+                                                                    ? (
                                                                             id,
                                                                         ) =>
                                                                             moveActivity(
                                                                                 id,
                                                                                 "schedule",
-                                                                                scheduledActivities.length ||
-                                                                                    0,
+                                                                                activity.scheduleIndex -
+                                                                                    1,
+                                                                            )
+                                                                    : undefined
+                                                            }
+                                                            onMoveTop={
+                                                                index !== 0
+                                                                    ? (
+                                                                            id,
+                                                                        ) =>
+                                                                            moveActivity(
+                                                                                id,
+                                                                                "schedule",
+                                                                                0,
+                                                                            )
+                                                                    : undefined
+                                                            }
+                                                            onMoveDown={
+                                                                index !==
+                                                                scheduledActivities.length -
+                                                                    1
+                                                                    ? (
+                                                                            id,
+                                                                        ) =>
+                                                                            moveActivity(
+                                                                                id,
+                                                                                "schedule",
+                                                                                activity.scheduleIndex +
+                                                                                    2,
+                                                                            )
+                                                                    : undefined
+                                                            }
+                                                            onMoveBottom={
+                                                                index !==
+                                                                scheduledActivities.length -
+                                                                    1
+                                                                    ? (
+                                                                            id,
+                                                                        ) =>
+                                                                            moveActivity(
+                                                                                id,
+                                                                                "schedule",
+                                                                                scheduledActivities.length,
+                                                                            )
+                                                                    : undefined
+                                                            }
+                                                            onMoveTo={(
+                                                                index,
+                                                            ) =>
+                                                                moveActivity(
+                                                                    activity.id,
+                                                                    "schedule",
+                                                                    parseInt(
+                                                                        index,
+                                                                    ),
+                                                                )
+                                                            }
+                                                            allowHideDescription={
+                                                                index !== 0
+                                                            }
+                                                        >
+                                                            <Comments
+                                                                activity={
+                                                                    activity
+                                                                }
+                                                                comments={
+                                                                    commentsByActivityId[
+                                                                        activity
+                                                                            .id
+                                                                    ]
+                                                                }
+                                                                onCreate={(
+                                                                    message,
+                                                                ) =>
+                                                                    createComment(
+                                                                        {
+                                                                            message,
+                                                                            activityId:
+                                                                                activity.id,
+                                                                        },
+                                                                    )
+                                                                }
+                                                                onDelete={
+                                                                    deleteComment
+                                                                }
+                                                                onEdit={
+                                                                    editComment
+                                                                }
+                                                            />
+                                                        </ActivityDisplay>
+                                                    </div>
+                                                ),
+                                            )}
+                                            {isEditor() && (
+                                                <>
+                                                    <H1
+                                                        data-testid="unscheduled"
+                                                        className={css({
+                                                            paddingLeft: {
+                                                                base: "12px",
+                                                                sm: "16px",
+                                                            },
+                                                            paddingTop: {
+                                                                base: "16px",
+                                                                sm: "32px",
+                                                            },
+                                                        })}
+                                                    >
+                                                        Unscheduled
+                                                        Activities
+                                                    </H1>
+                                                    {!unscheduledActivities.length && (
+                                                        <>
+                                                            <p
+                                                                data-testid="empty-unscheduled"
+                                                                className={css(
+                                                                    {
+                                                                        paddingLeft:
+                                                                            {
+                                                                                base: "12px",
+                                                                                sm: "16px",
+                                                                            },
+                                                                    },
+                                                                )}
+                                                            >
+                                                                There are no
+                                                                unscheduled
+                                                                activities
+                                                            </p>
+                                                        </>
+                                                    )}
+                                                    {unscheduledActivities.map(
+                                                        (
+                                                            activity,
+                                                            index,
+                                                        ) => (
+                                                            <div
+                                                                key={
+                                                                    activity.id
+                                                                }
+                                                            >
+                                                                <ActivityDisplay
+                                                                    activity={
+                                                                        activity
+                                                                    }
+                                                                    onDelete={
+                                                                        deleteActivity
+                                                                    }
+                                                                    onSchedule={(
+                                                                        id,
+                                                                    ) =>
+                                                                        moveActivity(
+                                                                            id,
+                                                                            "schedule",
+                                                                            scheduledActivities.length ||
+                                                                                0,
+                                                                        )
+                                                                    }
+                                                                    onEdit={
+                                                                        editActivity
+                                                                    }
+                                                                    onMoveUp={
+                                                                        index !==
+                                                                        0
+                                                                            ? (
+                                                                                    id,
+                                                                                ) =>
+                                                                                    moveActivity(
+                                                                                        id,
+                                                                                        "unschedule",
+                                                                                        activity.sortIndex -
+                                                                                            1,
+                                                                                    )
+                                                                            : undefined
+                                                                    }
+                                                                    onMoveTop={
+                                                                        index !==
+                                                                        0
+                                                                            ? (
+                                                                                    id,
+                                                                                ) =>
+                                                                                    moveActivity(
+                                                                                        id,
+                                                                                        "unschedule",
+                                                                                        0,
+                                                                                    )
+                                                                            : undefined
+                                                                    }
+                                                                    onMoveDown={
+                                                                        index !==
+                                                                        unscheduledActivities.length -
+                                                                            1
+                                                                            ? (
+                                                                                    id,
+                                                                                ) =>
+                                                                                    moveActivity(
+                                                                                        id,
+                                                                                        "unschedule",
+                                                                                        activity.sortIndex +
+                                                                                            2,
+                                                                                    )
+                                                                            : undefined
+                                                                    }
+                                                                    onMoveBottom={
+                                                                        index !==
+                                                                        unscheduledActivities.length -
+                                                                            1
+                                                                            ? (
+                                                                                    id,
+                                                                                ) =>
+                                                                                    moveActivity(
+                                                                                        id,
+                                                                                        "unschedule",
+                                                                                        unscheduledActivities.length,
+                                                                                    )
+                                                                            : undefined
+                                                                    }
+                                                                >
+                                                                    <Comments
+                                                                        activity={
+                                                                            activity
+                                                                        }
+                                                                        comments={
+                                                                            commentsByActivityId[
+                                                                                activity
+                                                                                    .id
+                                                                            ]
+                                                                        }
+                                                                        onCreate={(
+                                                                            message,
+                                                                        ) =>
+                                                                            createComment(
+                                                                                {
+                                                                                    message,
+                                                                                    activityId:
+                                                                                        activity.id,
+                                                                                },
                                                                             )
                                                                         }
+                                                                        onDelete={
+                                                                            deleteComment
+                                                                        }
                                                                         onEdit={
-                                                                            editActivity
+                                                                            editComment
                                                                         }
-                                                                        onMoveUp={
-                                                                            index !==
-                                                                            0
-                                                                                ? (
-                                                                                      id,
-                                                                                  ) =>
-                                                                                      moveActivity(
-                                                                                          id,
-                                                                                          "unschedule",
-                                                                                          activity.sortIndex -
-                                                                                              1,
-                                                                                      )
-                                                                                : undefined
-                                                                        }
-                                                                        onMoveTop={
-                                                                            index !==
-                                                                            0
-                                                                                ? (
-                                                                                      id,
-                                                                                  ) =>
-                                                                                      moveActivity(
-                                                                                          id,
-                                                                                          "unschedule",
-                                                                                          0,
-                                                                                      )
-                                                                                : undefined
-                                                                        }
-                                                                        onMoveDown={
-                                                                            index !==
-                                                                            unscheduledActivities.length -
-                                                                                1
-                                                                                ? (
-                                                                                      id,
-                                                                                  ) =>
-                                                                                      moveActivity(
-                                                                                          id,
-                                                                                          "unschedule",
-                                                                                          activity.sortIndex +
-                                                                                              2,
-                                                                                      )
-                                                                                : undefined
-                                                                        }
-                                                                        onMoveBottom={
-                                                                            index !==
-                                                                            unscheduledActivities.length -
-                                                                                1
-                                                                                ? (
-                                                                                      id,
-                                                                                  ) =>
-                                                                                      moveActivity(
-                                                                                          id,
-                                                                                          "unschedule",
-                                                                                          unscheduledActivities.length,
-                                                                                      )
-                                                                                : undefined
-                                                                        }
-                                                                        isGlobalDragging={
-                                                                            !!activelyDraggedId
-                                                                        }
-                                                                    >
-                                                                        <Comments
-                                                                            activity={
-                                                                                activity
-                                                                            }
-                                                                            comments={
-                                                                                commentsByActivityId[
-                                                                                    activity
-                                                                                        .id
-                                                                                ]
-                                                                            }
-                                                                            onCreate={(
-                                                                                message,
-                                                                            ) =>
-                                                                                createComment(
-                                                                                    {
-                                                                                        message,
-                                                                                        activityId:
-                                                                                            activity.id,
-                                                                                    },
-                                                                                )
-                                                                            }
-                                                                            onDelete={
-                                                                                deleteComment
-                                                                            }
-                                                                            onEdit={
-                                                                                editComment
-                                                                            }
-                                                                        />
-                                                                    </ActivityDisplay>
-                                                                    {index ===
-                                                                        unscheduledActivities.length -
-                                                                            1 &&
-                                                                        isEditor() &&
-                                                                        activelyDraggedId !==
-                                                                            activity.id && (
-                                                                            <ActivityDrop
-                                                                                bucket="unschedule"
-                                                                                index={
-                                                                                    activity.sortIndex +
-                                                                                    1
-                                                                                }
-                                                                                id={`unschedule-${activity.id}-bottom`}
-                                                                            />
-                                                                        )}
-                                                                </div>
-                                                            ),
-                                                        )}
-                                                    </>
-                                                )}{" "}
-                                            </DndContext>
+                                                                    />
+                                                                </ActivityDisplay>
+                                                            </div>
+                                                        ),
+                                                    )}
+                                                </>
+                                            )}{" "}
                                             <ActivityForm
                                                 eventId={event.id}
                                                 onSubmit={createActivity}

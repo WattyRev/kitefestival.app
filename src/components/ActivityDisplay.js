@@ -11,7 +11,6 @@ import PlainButton from "./ui/PlainButton";
 import Modal from "./ui/Modal";
 import ActivityForm from "./ActivityForm";
 import LinkButton from "./ui/LinkButton";
-import { useDraggable } from "@dnd-kit/core";
 import Button from "./ui/Button";
 import ActivityMusicForm from "./ActivityMusicForm";
 
@@ -32,7 +31,6 @@ const ActivityDisplay = ({
     onEdit,
     children,
     allowHideDescription = true,
-    isGlobalDragging,
 }) => {
     const { isEditor, isPublic } = useAuth();
     const { openPrompt } = usePrompt();
@@ -80,22 +78,6 @@ const ActivityDisplay = ({
         setIsEditingMusic(false);
     }
 
-    const { attributes, listeners, setNodeRef, transform, isDragging } =
-        useDraggable({
-            id: activity.id,
-        });
-
-    const style =
-        transform && isEditor()
-            ? {
-                  opacity: isDragging ? 0.5 : 1,
-                  boxShadow: isDragging
-                      ? "2px 2px 2px 2px rgba(0, 0, 0, 0.5)"
-                      : undefined,
-                  transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-              }
-            : undefined;
-
     const truncatedDescriptionLength = 100;
 
     function isDescriptionTruncatable() {
@@ -128,7 +110,7 @@ const ActivityDisplay = ({
         return description;
     }
     return (
-        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+        <div>
             <Panel>
                 <div
                     className={css({
@@ -312,13 +294,7 @@ const ActivityDisplay = ({
                             )}
                         </div>
 
-                        <div
-                            className={`${isGlobalDragging && "minimal"} ${css({
-                                "&.minimal": {
-                                    display: "none",
-                                },
-                            })}`}
-                        >
+                        <div>
                             {!isPublic() > 0 && (
                                 <div
                                     data-testid="activity-music"
