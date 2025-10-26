@@ -22,7 +22,6 @@ const EventListItem = ({ event, onDelete = () => {} }) => {
 
         onDelete(event.id);
     }
-    console.log('event des', event.description);
     return (
         <div className={css({ 
             borderBottom: "1px solid", 
