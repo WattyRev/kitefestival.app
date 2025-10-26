@@ -121,11 +121,10 @@ export async function POST(req) {
             );
         }
 
-        await sql.query(`INSERT INTO events (name, slug, description) VALUES ($1, $2, $3)`, [
-            name.trim(),
-            slug.trim(),
-            description,
-        ]);
+        await sql.query(
+            `INSERT INTO events (name, slug, description) VALUES ($1, $2, $3)`,
+            [name.trim(), slug.trim(), description],
+        );
 
         const response =
             await sql`SELECT * FROM events WHERE name = ${name.trim()}`;
@@ -134,6 +133,7 @@ export async function POST(req) {
             id: response.rows[0].id,
             name: response.rows[0].name,
             slug: response.rows[0].slug,
+            description: response.rows[0].description || "",
         };
 
         return NextResponse.json({ event: savedEvent });

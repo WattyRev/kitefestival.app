@@ -4,10 +4,12 @@ import userEvent from "@testing-library/user-event";
 import { useAuth } from "../global/Auth";
 import { usePrompt } from "../ui/Prompt";
 import fetchWrapper from "../../util/fetch";
+import EventForm from "../EventForm";
 
 jest.mock("../global/Auth");
 jest.mock("../ui/Prompt");
 jest.mock("../../util/fetch");
+jest.mock("../EventForm");
 
 describe("EventListItem", () => {
     beforeEach(() => {
@@ -35,7 +37,8 @@ describe("EventListItem", () => {
         usePrompt.mockReturnValue({ openPrompt });
         render(<EventListItem event={event} onDelete={onDelete} />);
 
-        await userEvent.click(screen.getByTitle("Delete"));
+        await userEvent.click(screen.getByTestId("event-dropdown"));
+        await userEvent.click(screen.getByTestId("delete-event"));
 
         expect(openPrompt).toHaveBeenCalledWith(
             'Are you sure you want to delete "Event 1"? This will also delete all activities and comments associated with it.',
@@ -49,12 +52,46 @@ describe("EventListItem", () => {
         );
         expect(onDelete).toHaveBeenCalledWith(1);
     });
-    it("does not show delete button for non-editors", async () => {
+    it("calls onEdit when event is edited", async () => {
+        EventForm.mockImplementation(({ onSubmit }) => (
+            <button
+                onClick={() =>
+                    onSubmit({
+                        id: 1,
+                        name: "Edited Event",
+                        slug: "edited_event",
+                        description: "edited description",
+                    })
+                }
+                data-testid="submit-event"
+            >
+                Submit
+            </button>
+        ));
+
+        const event = { id: 1, name: "Event 1", slug: "event_1" };
+        const onEdit = jest.fn();
+        render(<EventListItem event={event} onEdit={onEdit} />);
+
+        await userEvent.click(screen.getByTestId("event-dropdown"));
+        await userEvent.click(screen.getByTestId("edit-event"));
+
+        // Simulate editing the event in the modal
+        await userEvent.click(screen.getByTestId("submit-event"));
+
+        expect(onEdit).toHaveBeenCalledWith({
+            id: 1,
+            name: "Edited Event",
+            slug: "edited_event",
+            description: "edited description",
+        });
+    });
+    it("does not show the action dropdown", async () => {
         useAuth.mockReturnValue({
             isEditor: () => false,
         });
         const event = { id: 1, name: "Event 1", slug: "event_1" };
         render(<EventListItem event={event} />);
-        expect(screen.queryByTitle("Delete")).not.toBeInTheDocument();
+        expect(screen.queryByTestId("event-dropdown")).not.toBeInTheDocument();
     });
 });

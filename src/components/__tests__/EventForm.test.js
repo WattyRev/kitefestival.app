@@ -20,7 +20,12 @@ describe("EventForm", () => {
         fetchWrapper.mockResolvedValue({
             ok: true,
             json: async () => ({
-                event: { id: 1, name: "New Event", slug: "new_event" },
+                event: {
+                    id: 1,
+                    name: "New Event",
+                    slug: "new_event",
+                    description: "Description",
+                },
             }),
         });
     });
@@ -33,7 +38,10 @@ describe("EventForm", () => {
         render(<EventForm onSubmit={handleSubmit} />);
 
         await userEvent.type(screen.getByTestId("event-name"), "My New Event");
-        await userEvent.type(screen.getByTestId("event-description"), "Description");
+        await userEvent.type(
+            screen.getByTestId("event-description"),
+            "Description",
+        );
         await userEvent.click(screen.getByTestId("save-event"));
 
         expect(fetchWrapper).toHaveBeenCalledWith(
@@ -44,7 +52,7 @@ describe("EventForm", () => {
                     event: {
                         name: "My New Event",
                         slug: "my_new_event",
-                        description: 'Description',
+                        description: "Description",
                     },
                 }),
             }),
@@ -53,7 +61,67 @@ describe("EventForm", () => {
             id: 1,
             name: "New Event",
             slug: "new_event",
+            description: "Description",
         });
     });
-    it("shows an alert if submission fails", async () => {});
+    describe("when editing an event", () => {
+        it("renders with initial values", () => {
+            render(
+                <EventForm
+                    isEdit
+                    initialEvent={{
+                        id: 2,
+                        name: "Old Name",
+                        description: "Old Desc",
+                    }}
+                />,
+            );
+            expect(screen.getByTestId("create-event-form")).toBeInTheDocument();
+        });
+        it("submits updated event data", async () => {
+            const handleSubmit = jest.fn();
+            render(
+                <EventForm
+                    isEdit
+                    initialEvent={{
+                        id: 2,
+                        name: "Old Name",
+                        description: "Old Desc",
+                    }}
+                    onSubmit={handleSubmit}
+                />,
+            );
+
+            await userEvent.clear(screen.getByTestId("event-name"));
+            await userEvent.type(
+                screen.getByTestId("event-name"),
+                "Updated Name",
+            );
+            await userEvent.clear(screen.getByTestId("event-description"));
+            await userEvent.type(
+                screen.getByTestId("event-description"),
+                "Updated Desc",
+            );
+            await userEvent.click(screen.getByTestId("save-event"));
+
+            expect(fetchWrapper).toHaveBeenCalledWith(
+                "/api/events/2",
+                expect.objectContaining({
+                    method: "PATCH",
+                    body: JSON.stringify({
+                        event: {
+                            name: "Updated Name",
+                            description: "Updated Desc",
+                        },
+                    }),
+                }),
+            );
+            expect(handleSubmit).toHaveBeenCalledWith({
+                id: 1,
+                name: "New Event",
+                slug: "new_event",
+                description: "Description",
+            });
+        });
+    });
 });

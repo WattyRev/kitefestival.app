@@ -92,3 +92,69 @@ export async function DELETE(_, { params }) {
         message: "Event deleted along with all linked activities and comments",
     });
 }
+
+export async function PATCH(req, { params }) {
+    const { eventId } = params;
+    const { event } = await req.json();
+    const cookieStore = cookies();
+    const passcode = cookieStore.get("passcode")?.value;
+    try {
+        await validatePasscode(passcode, ["editor"]);
+    } catch (error) {
+        if (error instanceof NoPasscodeError) {
+            return NextResponse.json(
+                { message: "No passcode provided" },
+                { status: 401 },
+            );
+        }
+        if (error instanceof InvalidPasscodeError) {
+            return NextResponse.json(
+                { message: "Provided passcode is invalid" },
+                { status: 403 },
+            );
+        }
+        throw error;
+    }
+
+    const patchableKeys = ["name", "slug", "description"];
+
+    const setStrings = patchableKeys.reduce(
+        (acc, key) => {
+            if (!Object.hasOwn(event, key)) {
+                return acc;
+            }
+            let value = event[key];
+            return {
+                query: `${acc.query}${acc.values.length ? ", " : ""}${key} = $${acc.values.length + 1}`,
+                values: [...acc.values, value],
+            };
+        },
+        {
+            query: "UPDATE events SET ",
+            values: [],
+        },
+    );
+
+    if (!setStrings.values.length) {
+        return NextResponse.json(
+            { message: "No patchable keys provided" },
+            { status: 400 },
+        );
+    }
+
+    await sql.query(
+        `${setStrings.query} WHERE id = $${setStrings.values.length + 1}`,
+        [...setStrings.values, eventId],
+    );
+
+    const response = await sql`SELECT * FROM events WHERE id = ${eventId}`;
+
+    const savedEvent = {
+        id: response.rows[0].id,
+        name: response.rows[0].name,
+        slug: response.rows[0].slug,
+        description: response.rows[0].description || "",
+    };
+
+    return NextResponse.json({ event: savedEvent });
+}

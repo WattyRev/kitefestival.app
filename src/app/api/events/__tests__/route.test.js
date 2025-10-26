@@ -29,7 +29,12 @@ describe("/api/events/route", () => {
         beforeEach(() => {
             sql.mockResolvedValue({
                 rows: [
-                    { id: 1, name: "Event 1", slug: "event-1", description: "stuff" },
+                    {
+                        id: 1,
+                        name: "Event 1",
+                        slug: "event-1",
+                        description: "stuff",
+                    },
                     { id: 2, name: "Event 2", slug: "event-2" },
                 ],
             });
@@ -42,8 +47,18 @@ describe("/api/events/route", () => {
             expect(response).toEqual({
                 data: {
                     events: [
-                        { id: 1, name: "Event 1", slug: "event-1", description: "stuff" },
-                        { id: 2, name: "Event 2", slug: "event-2", description: ""},
+                        {
+                            id: 1,
+                            name: "Event 1",
+                            slug: "event-1",
+                            description: "stuff",
+                        },
+                        {
+                            id: 2,
+                            name: "Event 2",
+                            slug: "event-2",
+                            description: "",
+                        },
                     ],
                 },
             });
@@ -99,7 +114,14 @@ describe("/api/events/route", () => {
                 ["New Event", "new-event", "Event description"],
             );
             expect(response).toEqual({
-                data: { event: { id: 1, name: "Event 1", slug: "event-1" } },
+                data: {
+                    event: {
+                        id: 1,
+                        name: "Event 1",
+                        slug: "event-1",
+                        description: "",
+                    },
+                },
             });
         });
         it("returns a 401 if no passcode is provided", async () => {
