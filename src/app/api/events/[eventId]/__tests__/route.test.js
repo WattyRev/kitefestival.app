@@ -4,7 +4,7 @@ import validatePasscode, {
     InvalidPasscodeError,
 } from "../../../passcodes/validatePasscode";
 import { cookies } from "next/headers";
-import { DELETE } from "../route";
+import { DELETE, PATCH } from "../route";
 
 jest.mock("../../../passcodes/validatePasscode");
 jest.mock("next/headers");
@@ -95,6 +95,60 @@ describe("/api/events/eventId/route", () => {
             expect(response).toEqual({
                 data: { message: "Provided passcode is invalid" },
                 status: 403,
+            });
+        });
+    });
+
+    describe("PATCH", () => {
+        beforeEach(() => {
+            sql.mockImplementation((values) => {
+                if (values[0] === "SELECT * FROM events WHERE id = ") {
+                    return Promise.resolve({
+                        rows: [
+                            {
+                                id: 1,
+                                name: "Test Event",
+                                slug: "test_event",
+                                description: "This is a test event.",
+                            },
+                        ],
+                    });
+                }
+                return Promise.resolve();
+            });
+        });
+        it("allows an editor to update an event", async () => {
+            cookieValues.userType = "editor";
+            const updatedEvent = {
+                name: "Updated Event Name",
+                slug: "updated_slug",
+                description: "Updated description",
+            };
+            const req = {
+                json: jest.fn().mockResolvedValue({ event: updatedEvent }),
+            };
+
+            const response = await PATCH(req, { params: { eventId: 1 } });
+
+            expect(sql.query).toHaveBeenCalledWith(
+                "UPDATE events SET name = $1, slug = $2, description = $3 WHERE id = $4",
+                [
+                    updatedEvent.name,
+                    updatedEvent.slug,
+                    updatedEvent.description,
+                    1,
+                ],
+            );
+
+            expect(response).toEqual({
+                data: {
+                    event: {
+                        id: 1,
+                        name: "Test Event",
+                        slug: "test_event",
+                        description: "This is a test event.",
+                    },
+                },
             });
         });
     });

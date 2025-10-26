@@ -9,6 +9,7 @@ import { useAlert } from "./ui/Alert";
 import fetch from "../util/fetch";
 import Textarea from "./ui/Textarea";
 import { css } from "../../styled-system/css";
+import Panel from "./ui/Panel";
 
 const makeSlugFromName = (name) => {
     return encodeURIComponent(
@@ -19,11 +20,18 @@ const makeSlugFromName = (name) => {
     );
 };
 
-const EventForm = ({ isEdit = false, onSubmit = () => {}, onCancel }) => {
+const EventForm = ({
+    initialEvent = {},
+    isEdit = false,
+    onSubmit = () => {},
+    onCancel,
+}) => {
     const { isEditor } = useAuth();
     const [pending, setPending] = useState(false);
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
+    const [name, setName] = useState(initialEvent.name || "");
+    const [description, setDescription] = useState(
+        initialEvent.description || "",
+    );
 
     const { openAlert } = useAlert();
 
@@ -31,27 +39,53 @@ const EventForm = ({ isEdit = false, onSubmit = () => {}, onCancel }) => {
         return null;
     }
 
+    async function createEvent() {
+        const response = await fetch("/api/events", {
+            method: "POST",
+            body: JSON.stringify({
+                event: {
+                    name,
+                    slug: makeSlugFromName(name),
+                    description,
+                },
+            }),
+        });
+        const json = await response.json();
+        if (!response.ok) {
+            errorMessage = json.message;
+            throw new Error(response.statusText);
+        }
+        return json.event;
+    }
+
+    async function updateEvent() {
+        const response = await fetch(`/api/events/${initialEvent.id}`, {
+            method: "PATCH",
+            body: JSON.stringify({
+                event: {
+                    name,
+                    description,
+                },
+            }),
+        });
+        const json = await response.json();
+        if (!response.ok) {
+            errorMessage = json.message;
+            throw new Error(response.statusText);
+        }
+        return json.event;
+    }
+
     async function submit() {
         setPending(true);
         let savedEvent;
         let errorMessage;
         try {
-            const response = await fetch("/api/events", {
-                method: "POST",
-                body: JSON.stringify({
-                    event: {
-                        name,
-                        slug: makeSlugFromName(name),
-                        description,
-                    },
-                }),
-            });
-            const json = await response.json();
-            if (!response.ok) {
-                errorMessage = json.message;
-                throw new Error(response.statusText);
+            if (isEdit) {
+                savedEvent = await updateEvent();
+            } else {
+                savedEvent = await createEvent();
             }
-            savedEvent = json.event;
         } catch (error) {
             openAlert("Failed to save event. Reason: " + errorMessage, "error");
             setPending(false);
@@ -72,30 +106,48 @@ const EventForm = ({ isEdit = false, onSubmit = () => {}, onCancel }) => {
             }}
         >
             <H1>{isEdit ? "Edit Event" : "Create Event"}</H1>
-            <TextInput
-                data-testid="event-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Event Name"
-                required
-            />
-            <p className={css({ marginBottom: "16px", fontStyle: "italic", fontSize: "14px" })}>
-                <em>URL Slug: {makeSlugFromName(name)}</em>
-            </p>
-            <Textarea
-                data-testid="event-description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Event Description"
-            />
-            <Button data-testid="save-event" type="submit" disabled={pending}>
-                Save
-            </Button>
-            {onCancel && (
-                <Button onClick={onCancel} className="secondary" disabled={pending}>
-                    Cancel
+            <Panel>
+                <label>Event Name (required)</label>
+                <TextInput
+                    data-testid="event-name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                />
+                <p
+                    className={css({
+                        marginBottom: "16px",
+                        fontStyle: "italic",
+                        fontSize: "14px",
+                    })}
+                >
+                    <em>
+                        URL Slug: {initialEvent.slug || makeSlugFromName(name)}
+                    </em>
+                </p>
+                <label>Description</label>
+                <Textarea
+                    data-testid="event-description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                />
+                <Button
+                    data-testid="save-event"
+                    type="submit"
+                    disabled={pending}
+                >
+                    Save
                 </Button>
-            )}
+                {onCancel && (
+                    <Button
+                        onClick={onCancel}
+                        className="secondary"
+                        disabled={pending}
+                    >
+                        Cancel
+                    </Button>
+                )}
+            </Panel>
         </form>
     );
 };

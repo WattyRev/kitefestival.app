@@ -33,6 +33,15 @@ function HomePage({ initialEvents }) {
                     onDelete={() =>
                         setEvents(events.filter((e) => e.id !== event.id))
                     }
+                    onEdit={(savedEvent) =>
+                        setEvents(
+                            events.map((_event) =>
+                                savedEvent.id === _event.id
+                                    ? savedEvent
+                                    : _event,
+                            ),
+                        )
+                    }
                 />
             ))}
             <EventForm onSubmit={(event) => setEvents([...events, event])} />
