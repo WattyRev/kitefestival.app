@@ -93,6 +93,19 @@ export async function DELETE(_, { params }) {
     });
 }
 
+/**
+ * Patches an existing event with new values.
+ *
+ * PATCH /api/events/:eventId
+ * {
+ *   event: Partial<Event>
+ * }
+ *
+ * Response:
+ * {
+ *   event: SavedEvent
+ * }
+ */
 export async function PATCH(req, { params }) {
     const { eventId } = params;
     const { event } = await req.json();
