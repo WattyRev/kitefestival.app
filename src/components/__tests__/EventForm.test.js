@@ -33,6 +33,7 @@ describe("EventForm", () => {
         render(<EventForm onSubmit={handleSubmit} />);
 
         await userEvent.type(screen.getByTestId("event-name"), "My New Event");
+        await userEvent.type(screen.getByTestId("event-description"), "Description");
         await userEvent.click(screen.getByTestId("save-event"));
 
         expect(fetchWrapper).toHaveBeenCalledWith(
@@ -43,6 +44,7 @@ describe("EventForm", () => {
                     event: {
                         name: "My New Event",
                         slug: "my_new_event",
+                        description: 'Description',
                     },
                 }),
             }),

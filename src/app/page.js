@@ -5,11 +5,12 @@ export const revalidate = 10;
 export default async function Home() {
     const eventsResponse = await sql`SELECT * FROM events ORDER BY id ASC`;
     const events = eventsResponse.rows.map((event) => {
-        const { id, name, slug } = event;
+        const { id, name, slug, description } = event;
         return {
             id,
             name,
             slug,
+            description: description || "",
         };
     });
 
