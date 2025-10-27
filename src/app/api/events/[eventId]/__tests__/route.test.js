@@ -65,7 +65,7 @@ describe("/api/events/eventId/route", () => {
             expect(response).toEqual({
                 data: {
                     message:
-                        "Event deleted along with all linked activities and comments",
+                        "Event deleted along with all linked activities, comments, and logs",
                 },
             });
         });

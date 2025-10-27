@@ -7,6 +7,7 @@ import { PromptProvider } from "../components/ui/Prompt";
 import { AlertProvider } from "../components/ui/Alert";
 import Script from "next/script";
 import { css } from "../../styled-system/css";
+import { Footer } from "../components/global/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -43,6 +44,7 @@ export default function RootLayout({ children }) {
                             >
                                 {children}
                             </div>
+                            <Footer />
                         </AlertProvider>
                     </PromptProvider>
                 </AuthProvider>
