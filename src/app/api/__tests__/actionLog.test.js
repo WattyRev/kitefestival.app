@@ -57,7 +57,7 @@ describe('actionLog', () => {
             })
         });
         it('retrieves logs for authenticated editors', async () => {
-            const response = await getLogs({});
+            await getLogs({});
 
             expect(sql.query).toHaveBeenCalledWith(`SELECT 
         log.id, 
