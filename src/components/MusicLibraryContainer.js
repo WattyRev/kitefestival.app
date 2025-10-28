@@ -6,8 +6,13 @@ import {
     useState,
 } from "react";
 import { useAlert } from "./ui/Alert";
-import fetch from "../util/fetch";
 import { useChangePolling } from "./ChangePollingContainer";
+import {
+    addToMusicLibrary,
+    deleteFromMusicLibrary,
+    editMusicEntry,
+    getMusicLibrary,
+} from "../app/api/musicLibrary";
 
 export const MusicLibraryContext = createContext({
     musicLibrary: [],
@@ -25,22 +30,15 @@ const MusicLibraryContainer = ({ children, initialMusicLibrary }) => {
     const [musicLibrary, setMusicLibrary] = useState(initialMusicLibrary);
 
     async function refresh() {
-        const response = await fetch("/api/music-library");
-        const { musicLibrary } = await response.json();
+        const { musicLibrary } = await getMusicLibrary();
         setMusicLibrary(musicLibrary);
     }
 
     async function addMusic(musicItems) {
-        const response = await fetch("/api/music-library", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ musicLibrary: musicItems }),
-        });
-
-        if (!response.ok) {
-            openAlert("Failed to add music", "error");
+        try {
+            await addToMusicLibrary(musicItems);
+        } catch (error) {
+            openAlert(error.message, "error");
             return;
         }
 
@@ -48,24 +46,17 @@ const MusicLibraryContainer = ({ children, initialMusicLibrary }) => {
     }
 
     async function deleteMusic(musicIds) {
-        await fetch("/api/music-library", {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ musicIds }),
-        });
+        try {
+            await deleteFromMusicLibrary(musicIds);
+        } catch (error) {
+            openAlert(error.message, "error");
+            return;
+        }
         await refresh();
     }
 
     async function updateMusic(musicId, value) {
-        await fetch(`/api/music-library/${musicId}`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ value }),
-        });
+        await editMusicEntry(musicId, value);
         await refresh();
     }
 
