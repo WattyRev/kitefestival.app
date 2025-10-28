@@ -78,12 +78,12 @@ describe('actionLog', () => {
         it('does not retrieve logs for unauthenticated users', async () => {
             validatePasscode.mockRejectedValue(new Error('Invalid passcode'));
             
-            const response = await getLogs({});
+            await getLogs({});
 
             expect(sql.query).not.toHaveBeenCalled();
         });
         it('supports changing the page size', async () => {
-            const response = await getLogs({ limit: 50 });
+            await getLogs({ limit: 50 });
 
             expect(sql.query).toHaveBeenCalledWith(`SELECT 
         log.id, 
@@ -101,7 +101,7 @@ describe('actionLog', () => {
             ]);
         });
         it('supports changing the offset', async () => {
-            const response = await getLogs({ offset: 20 });
+            await getLogs({ offset: 20 });
 
             expect(sql.query).toHaveBeenCalledWith(`SELECT 
         log.id, 
@@ -119,7 +119,7 @@ describe('actionLog', () => {
             ]);
         });
         it('supports changing the sort direction', async () => {
-            const response = await getLogs({ direction: 'ASC' });
+            await getLogs({ direction: 'ASC' });
 
             expect(sql.query).toHaveBeenCalledWith(`SELECT 
         log.id, 
@@ -137,7 +137,7 @@ describe('actionLog', () => {
             ]);
         });
         it('supports filtering by event ID', async () => {
-            const response = await getLogs({ eventId: 1 });
+            await getLogs({ eventId: 1 });
 
             expect(sql.query).toHaveBeenCalledWith(`SELECT 
         log.id, 
@@ -156,7 +156,7 @@ describe('actionLog', () => {
             ]);
         });
         it('supports filtering by action content', async () => {
-            const response = await getLogs({ actionContains: 'Update' });
+            await getLogs({ actionContains: 'Update' });
 
             expect(sql.query).toHaveBeenCalledWith(`SELECT 
         log.id, 
