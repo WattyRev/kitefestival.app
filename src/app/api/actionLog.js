@@ -14,7 +14,7 @@ export const logAction = async ({
     const passcode = cookieStore.get("passcode")?.value || null;
 
     try {
-        await validatePasscode(passcode, ["editor"]);
+        await validatePasscode(passcode, ["editor", "user"]);
     } catch (error) {
         return;
     }

@@ -2,10 +2,10 @@
 
 import { sql } from "@vercel/postgres";
 
-const columnOptions = ["id", "name", "slug", "description"];
+const COLUMN_OPTIONS = ["id", "name", "slug", "description"];
 
-export const getEvents = async ({ columns = columnOptions }) => {
-    const validColumns = columns.filter((col) => columnOptions.includes(col));
+export const getEvents = async ({ columns = COLUMN_OPTIONS }) => {
+    const validColumns = columns.filter((col) => COLUMN_OPTIONS.includes(col));
     if (!validColumns.length) {
         throw new Error("No valid columns requested");
     }

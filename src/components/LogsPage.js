@@ -7,6 +7,7 @@ import { css } from "../../styled-system/css";
 import TextInput from "./ui/TextInput";
 import { getLogs } from "../app/api/actionLog";
 import Button from "./ui/Button";
+import downloadAsCsv from "../util/downloadAsCsv";
 
 const filterEvents = async (eventId, actionContains) => {
     const logArgs = {};
@@ -78,15 +79,7 @@ const downloadCSV = async (eventFilter, actionFilter) => {
     ];
 
     const csvContent = csvRows.join("\n");
-    const blob = new Blob([csvContent], {
-        type: "text/csv",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "kite-festival-logs.csv";
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadAsCsv(csvContent, "kite-festival-logs.csv");
 };
 
 const LogsPage = ({ logs: initialLogs, events }) => {
@@ -120,7 +113,7 @@ const LogsPage = ({ logs: initialLogs, events }) => {
             <div className={css({ display: "flex", alignItems: "center" })}>
                 <div className={css({ marginRight: "16px" })}>
                     <select
-                        id="event-filter"
+                        data-testid="event-filter"
                         value={eventFilter || ""}
                         onChange={(e) => setEventFilter(e.target.value || null)}
                     >
@@ -134,13 +127,13 @@ const LogsPage = ({ logs: initialLogs, events }) => {
                 </div>
                 <div className={css({ marginRight: "16px" })}>
                     <TextInput
-                        id="action-filter"
+                        data-testid="action-filter"
                         value={actionFilter}
                         onChange={(e) => setActionFilter(e.target.value)}
                         placeholder="Filter by action text"
                     />
                 </div>
-                <Button onClick={handleDownloadCsv} disabled={pendingDownload}>
+                <Button data-testid="download-csv" onClick={handleDownloadCsv} disabled={pendingDownload}>
                     <i className="fa fa-save" /> Export CSV{" "}
                     {pendingDownload && <i className="fa fa-spinner fa-spin" />}
                 </Button>
@@ -157,7 +150,7 @@ const LogsPage = ({ logs: initialLogs, events }) => {
                 <Tbody>
                     {logs &&
                         logs.map((log) => (
-                            <Tr key={log.id}>
+                            <Tr key={log.id} data-testid="log-row">
                                 <Td>{log.timestamp.toLocaleString()}</Td>
                                 <Td>{log.action}</Td>
                                 <Td>{log.eventName || "N/A"}</Td>

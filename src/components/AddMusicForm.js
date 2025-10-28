@@ -7,6 +7,7 @@ import FileInput from "./ui/FileInput";
 import H2 from "./ui/H2";
 import { useAlert } from "./ui/Alert";
 import LinkButton from "./ui/LinkButton";
+import downloadAsCsv from "../util/downloadAsCsv";
 
 export function generateCSVExampleString() {
     return ["Song1", "Song2", "Song3", "Song4"].join("\n");
@@ -106,15 +107,7 @@ const AddMusicForm = ({ ...props }) => {
             <LinkButton
                 onClick={() => {
                     const exampleContent = generateCSVExampleString();
-                    const blob = new Blob([exampleContent], {
-                        type: "text/csv",
-                    });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement("a");
-                    link.href = url;
-                    link.download = "example-music.csv";
-                    link.click();
-                    URL.revokeObjectURL(url);
+                    downloadAsCsv(exampleContent, "example-music.csv");
                 }}
             >
                 Download Example CSV
