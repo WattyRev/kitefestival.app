@@ -133,7 +133,11 @@ const LogsPage = ({ logs: initialLogs, events }) => {
                         placeholder="Filter by action text"
                     />
                 </div>
-                <Button data-testid="download-csv" onClick={handleDownloadCsv} disabled={pendingDownload}>
+                <Button
+                    data-testid="download-csv"
+                    onClick={handleDownloadCsv}
+                    disabled={pendingDownload}
+                >
                     <i className="fa fa-save" /> Export CSV{" "}
                     {pendingDownload && <i className="fa fa-spinner fa-spin" />}
                 </Button>

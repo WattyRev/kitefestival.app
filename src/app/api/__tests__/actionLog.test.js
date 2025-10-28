@@ -7,11 +7,11 @@ jest.mock("@vercel/postgres");
 jest.mock("next/headers");
 jest.mock("../passcodes/validatePasscode");
 
-describe('actionLog', () => {
+describe("actionLog", () => {
     beforeEach(() => {
         const mockCookieStore = new Map();
         mockCookieStore.set("passcode", {
-            value: 'valid-passcode',
+            value: "valid-passcode",
         });
         cookies.mockReturnValue(mockCookieStore);
 
@@ -19,47 +19,51 @@ describe('actionLog', () => {
 
         sql.mockResolvedValue();
     });
-    describe('logAction', () => {
-        it('logs events from logged in users', async () => {
+    describe("logAction", () => {
+        it("logs events from logged in users", async () => {
             await logAction({});
 
             expect(sql).toHaveBeenCalledWith(
                 [
                     `
         INSERT INTO actionlog (action, event_id, activity_id, comment_id, timestamp)
-        VALUES (`, 
-                    ", ", 
-                    ", ", 
-                    ", ", 
+        VALUES (`,
+                    ", ",
+                    ", ",
+                    ", ",
                     `, NOW())
     `,
                 ],
-                "", null, null, null
+                "",
+                null,
+                null,
+                null,
             );
         });
-        it('does not log events from unauthenticated users', async () => {});
+        it("does not log events from unauthenticated users", async () => {});
     });
-    describe('getLogs', () => {
+    describe("getLogs", () => {
         beforeEach(() => {
             sql.query = jest.fn();
             sql.query.mockResolvedValue({
                 rows: [
                     {
                         id: 1,
-                        action: 'Sample Action',
-                        timestamp: '2024-01-01T00:00:00Z',
+                        action: "Sample Action",
+                        timestamp: "2024-01-01T00:00:00Z",
                         eventid: 1,
-                        eventname: 'Sample Event',
+                        eventname: "Sample Event",
                         activityid: 1,
-                        activitytitle: 'Sample Activity',
-                    }
-                ]
-            })
+                        activitytitle: "Sample Activity",
+                    },
+                ],
+            });
         });
-        it('retrieves logs for authenticated editors', async () => {
+        it("retrieves logs for authenticated editors", async () => {
             await getLogs({});
 
-            expect(sql.query).toHaveBeenCalledWith(`SELECT 
+            expect(sql.query).toHaveBeenCalledWith(
+                `SELECT 
         log.id, 
         log.action, 
         log.timestamp, 
@@ -69,23 +73,22 @@ describe('actionLog', () => {
         activity.title AS activitytitle
     FROM actionlog AS log
     LEFT JOIN events AS event on log.event_id = event.id
-    LEFT JOIN activities AS activity on log.activity_id = activity.id ORDER BY log.timestamp DESC LIMIT $1 OFFSET $2`, [
-                100,
-                0
-            ]);
-
+    LEFT JOIN activities AS activity on log.activity_id = activity.id ORDER BY log.timestamp DESC LIMIT $1 OFFSET $2`,
+                [100, 0],
+            );
         });
-        it('does not retrieve logs for unauthenticated users', async () => {
-            validatePasscode.mockRejectedValue(new Error('Invalid passcode'));
-            
+        it("does not retrieve logs for unauthenticated users", async () => {
+            validatePasscode.mockRejectedValue(new Error("Invalid passcode"));
+
             await getLogs({});
 
             expect(sql.query).not.toHaveBeenCalled();
         });
-        it('supports changing the page size', async () => {
+        it("supports changing the page size", async () => {
             await getLogs({ limit: 50 });
 
-            expect(sql.query).toHaveBeenCalledWith(`SELECT 
+            expect(sql.query).toHaveBeenCalledWith(
+                `SELECT 
         log.id, 
         log.action, 
         log.timestamp, 
@@ -95,15 +98,15 @@ describe('actionLog', () => {
         activity.title AS activitytitle
     FROM actionlog AS log
     LEFT JOIN events AS event on log.event_id = event.id
-    LEFT JOIN activities AS activity on log.activity_id = activity.id ORDER BY log.timestamp DESC LIMIT $1 OFFSET $2`, [
-                50,
-                0
-            ]);
+    LEFT JOIN activities AS activity on log.activity_id = activity.id ORDER BY log.timestamp DESC LIMIT $1 OFFSET $2`,
+                [50, 0],
+            );
         });
-        it('supports changing the offset', async () => {
+        it("supports changing the offset", async () => {
             await getLogs({ offset: 20 });
 
-            expect(sql.query).toHaveBeenCalledWith(`SELECT 
+            expect(sql.query).toHaveBeenCalledWith(
+                `SELECT 
         log.id, 
         log.action, 
         log.timestamp, 
@@ -113,15 +116,15 @@ describe('actionLog', () => {
         activity.title AS activitytitle
     FROM actionlog AS log
     LEFT JOIN events AS event on log.event_id = event.id
-    LEFT JOIN activities AS activity on log.activity_id = activity.id ORDER BY log.timestamp DESC LIMIT $1 OFFSET $2`, [
-                100,
-                20
-            ]);
+    LEFT JOIN activities AS activity on log.activity_id = activity.id ORDER BY log.timestamp DESC LIMIT $1 OFFSET $2`,
+                [100, 20],
+            );
         });
-        it('supports changing the sort direction', async () => {
-            await getLogs({ direction: 'ASC' });
+        it("supports changing the sort direction", async () => {
+            await getLogs({ direction: "ASC" });
 
-            expect(sql.query).toHaveBeenCalledWith(`SELECT 
+            expect(sql.query).toHaveBeenCalledWith(
+                `SELECT 
         log.id, 
         log.action, 
         log.timestamp, 
@@ -131,15 +134,15 @@ describe('actionLog', () => {
         activity.title AS activitytitle
     FROM actionlog AS log
     LEFT JOIN events AS event on log.event_id = event.id
-    LEFT JOIN activities AS activity on log.activity_id = activity.id ORDER BY log.timestamp ASC LIMIT $1 OFFSET $2`, [
-                100,
-                0
-            ]);
+    LEFT JOIN activities AS activity on log.activity_id = activity.id ORDER BY log.timestamp ASC LIMIT $1 OFFSET $2`,
+                [100, 0],
+            );
         });
-        it('supports filtering by event ID', async () => {
+        it("supports filtering by event ID", async () => {
             await getLogs({ eventId: 1 });
 
-            expect(sql.query).toHaveBeenCalledWith(`SELECT 
+            expect(sql.query).toHaveBeenCalledWith(
+                `SELECT 
         log.id, 
         log.action, 
         log.timestamp, 
@@ -149,16 +152,15 @@ describe('actionLog', () => {
         activity.title AS activitytitle
     FROM actionlog AS log
     LEFT JOIN events AS event on log.event_id = event.id
-    LEFT JOIN activities AS activity on log.activity_id = activity.id WHERE log.event_id = $1 ORDER BY log.timestamp DESC LIMIT $2 OFFSET $3`, [
-                1,
-                100,
-                0
-            ]);
+    LEFT JOIN activities AS activity on log.activity_id = activity.id WHERE log.event_id = $1 ORDER BY log.timestamp DESC LIMIT $2 OFFSET $3`,
+                [1, 100, 0],
+            );
         });
-        it('supports filtering by action content', async () => {
-            await getLogs({ actionContains: 'Update' });
+        it("supports filtering by action content", async () => {
+            await getLogs({ actionContains: "Update" });
 
-            expect(sql.query).toHaveBeenCalledWith(`SELECT 
+            expect(sql.query).toHaveBeenCalledWith(
+                `SELECT 
         log.id, 
         log.action, 
         log.timestamp, 
@@ -168,11 +170,9 @@ describe('actionLog', () => {
         activity.title AS activitytitle
     FROM actionlog AS log
     LEFT JOIN events AS event on log.event_id = event.id
-    LEFT JOIN activities AS activity on log.activity_id = activity.id WHERE log.action LIKE $1 ORDER BY log.timestamp DESC LIMIT $2 OFFSET $3`, [
-                '%Update%',
-                100,
-                0
-            ]);
+    LEFT JOIN activities AS activity on log.activity_id = activity.id WHERE log.action LIKE $1 ORDER BY log.timestamp DESC LIMIT $2 OFFSET $3`,
+                ["%Update%", 100, 0],
+            );
         });
     });
 });
