@@ -3,7 +3,6 @@
 import { css } from "../../../../styled-system/css";
 import { useAuth } from "../Auth";
 import { useAlert } from "../../ui/Alert";
-import fetch from "../../../util/fetch";
 import { useState } from "react";
 import Modal from "../../ui/Modal";
 import LogInForm from "./LogInForm";

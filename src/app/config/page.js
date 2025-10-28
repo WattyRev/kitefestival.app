@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import fetch from "../../util/fetch";
 import Button from "../../components/ui/Button";
 import Panel from "../../components/ui/Panel";
 import H1 from "../../components/ui/H1";
@@ -80,7 +79,7 @@ export default function ConfigPage() {
             openAlert(error.message, "error");
             return;
         }
-        openAlert(response.message, 'success');
+        openAlert(response.message, "success");
     };
 
     return (

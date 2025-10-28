@@ -1,10 +1,9 @@
-'use server';
+"use server";
 
 import { cookies } from "next/headers";
 import { sql } from "@vercel/postgres";
 import getPasscodeByName from "./passcodes/getPasscodeByName";
 import { randomUUID } from "./crypto";
-
 
 /**
  * Changes the provided passcodes.
@@ -14,15 +13,16 @@ import { randomUUID } from "./crypto";
  * @returns {Object} - An object containing a message indicating which passcodes have been updated.
  */
 export async function changePasscodes(config) {
-    const { adminPasscode, editorPasscode, userPasscode, authentication } = config;
+    const { adminPasscode, editorPasscode, userPasscode, authentication } =
+        config;
     if (!authentication) {
-        throw new Error('No authentication provided');
+        throw new Error("No authentication provided");
     }
 
     const currentPasscode = await getPasscodeByName("admin");
 
     if (authentication !== currentPasscode) {
-        throw new Error('Provided authentication is invalid');
+        throw new Error("Provided authentication is invalid");
     }
 
     const promises = [];
@@ -52,7 +52,6 @@ export async function changePasscodes(config) {
         message: `${passcodesUpdated.join(", ")} passcode${passcodesUpdated.length > 1 ? "s have" : " has"} been updated`,
     };
 }
-
 
 /**
  * Validates a passcode and returns the associated user type.

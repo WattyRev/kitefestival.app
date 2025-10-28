@@ -51,14 +51,17 @@ describe("passcodes", () => {
             });
         });
         it("throws an error if no authentication is provided", async () => {
-            await expect(() => changePasscodes({...mockPayload, authentication: null})).rejects.toThrow(
-                new Error("No authentication provided")
-            )
+            await expect(() =>
+                changePasscodes({ ...mockPayload, authentication: null }),
+            ).rejects.toThrow(new Error("No authentication provided"));
         });
         it("throws an error if the provided authentication does not match the admin passcode", async () => {
-            await expect(() => changePasscodes({...mockPayload, authentication: "not-admin"})).rejects.toThrow(
-                new Error("Provided authentication is invalid")
-            )
+            await expect(() =>
+                changePasscodes({
+                    ...mockPayload,
+                    authentication: "not-admin",
+                }),
+            ).rejects.toThrow(new Error("Provided authentication is invalid"));
         });
         it("only updates the admin passcode if that is all that was provided", async () => {
             const response = await changePasscodes({
@@ -70,7 +73,9 @@ describe("passcodes", () => {
                 "adminNew",
             );
             expect(sql).toHaveBeenCalledTimes(1);
-            expect(response).toEqual({ message: "Admin passcode has been updated" });
+            expect(response).toEqual({
+                message: "Admin passcode has been updated",
+            });
         });
         it("only updates the editor passcode if that is all that was provided", async () => {
             const response = await changePasscodes({
@@ -82,7 +87,9 @@ describe("passcodes", () => {
                 "boogers",
             );
             expect(sql).toHaveBeenCalledTimes(1);
-            expect(response).toEqual({ message: "Editor passcode has been updated" });
+            expect(response).toEqual({
+                message: "Editor passcode has been updated",
+            });
         });
         it("only updates the user passcode if that is all that was provided", async () => {
             const response = await changePasscodes({
@@ -94,7 +101,9 @@ describe("passcodes", () => {
                 "abcd",
             );
             expect(sql).toHaveBeenCalledTimes(1);
-            expect(response).toEqual({ message: "User passcode has been updated" });
+            expect(response).toEqual({
+                message: "User passcode has been updated",
+            });
         });
     });
     describe("validatePasscode", () => {
@@ -113,21 +122,22 @@ describe("passcodes", () => {
             expect(response).toEqual({ userType: "editor" });
         });
         it("returns user userType if user passcode is provided", async () => {
-            const response = await validatePasscode('abcd');
+            const response = await validatePasscode("abcd");
             expect(response).toEqual({ userType: "user" });
         });
         it("returns a 400 if no passcode was provided", async () => {
             await expect(() => validatePasscode()).rejects.toThrow(
-                new Error("No passcode provided"));
+                new Error("No passcode provided"),
+            );
         });
         it("returns a 401 if the passcode does not match a user type", async () => {
-            await expect(() => validatePasscode('nothing')).rejects.toThrow(
-                new Error("Invalid passcode")
+            await expect(() => validatePasscode("nothing")).rejects.toThrow(
+                new Error("Invalid passcode"),
             );
         });
         it("sets a userId cookie if one does not exist", async () => {
             mockHasCookie.mockReturnValue(false);
-            await validatePasscode('boogers');
+            await validatePasscode("boogers");
             expect(mockSetCookie).toHaveBeenCalledWith("userId", "uuid", {
                 expires: expect.any(Date),
                 sameSite: "strict",
@@ -135,7 +145,7 @@ describe("passcodes", () => {
             });
         });
         it("sets a userName cookie if a name is provided", async () => {
-            await validatePasscode('boogers', 'Stubby');
+            await validatePasscode("boogers", "Stubby");
             expect(mockSetCookie).toHaveBeenCalledWith("userName", "Stubby", {
                 expires: expect.any(Date),
                 sameSite: "strict",
@@ -143,7 +153,7 @@ describe("passcodes", () => {
             });
         });
         it("sets a passcode cookie if the passcode was valid", async () => {
-            await validatePasscode('boogers');
+            await validatePasscode("boogers");
             expect(mockSetCookie).toHaveBeenCalledWith("passcode", "boogers", {
                 expires: expect.any(Date),
                 sameSite: "strict",
@@ -151,7 +161,7 @@ describe("passcodes", () => {
             });
         });
         it("does not set a passcode cookie if the passcode was not valid", async () => {
-            await validatePasscode('nothing').catch(() => {});
+            await validatePasscode("nothing").catch(() => {});
             expect(mockSetCookie).not.toHaveBeenCalledWith(
                 "passcode",
                 "boogers",
@@ -163,7 +173,7 @@ describe("passcodes", () => {
             );
         });
         it("sets a userType to editor if the passcode validated as an editor", async () => {
-            await validatePasscode('boogers');
+            await validatePasscode("boogers");
             expect(mockSetCookie).toHaveBeenCalledWith("userType", "editor", {
                 expires: expect.any(Date),
                 sameSite: "strict",
@@ -171,7 +181,7 @@ describe("passcodes", () => {
             });
         });
         it("sets a userType to user if the passcode validated as a user", async () => {
-            await validatePasscode('abcd');
+            await validatePasscode("abcd");
             expect(mockSetCookie).toHaveBeenCalledWith("userType", "user", {
                 expires: expect.any(Date),
                 sameSite: "strict",

@@ -43,7 +43,10 @@ describe("AuthSelection", () => {
             );
             await userEvent.click(screen.getByTestId("submit-log-in"));
 
-            expect(validatePasscode).toHaveBeenCalledWith("cool passcode", "Cool guy");
+            expect(validatePasscode).toHaveBeenCalledWith(
+                "cool passcode",
+                "Cool guy",
+            );
             expect(mockSetAuthentication).toHaveBeenCalledWith({
                 userType: "editor",
                 passcode: "cool passcode",
