@@ -88,8 +88,19 @@ export async function DELETE(_, { params }) {
         );
     }
 
+    // Delete logs
+    try {
+        await sql`DELETE FROM actionlog WHERE event_id = ${eventId}`;
+    } catch (error) {
+        return NextResponse.json(
+            { message: "Failed to delete logs" },
+            { status: 500 },
+        );
+    }
+
     return NextResponse.json({
-        message: "Event deleted along with all linked activities and comments",
+        message:
+            "Event deleted along with all linked activities, comments, and logs",
     });
 }
 

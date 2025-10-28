@@ -62,10 +62,14 @@ describe("/api/events/eventId/route", () => {
                 ["DELETE FROM events WHERE id = ", ""],
                 1,
             );
+            expect(sql).toHaveBeenCalledWith(
+                ["DELETE FROM actionlog WHERE event_id = ", ""],
+                1,
+            );
             expect(response).toEqual({
                 data: {
                     message:
-                        "Event deleted along with all linked activities and comments",
+                        "Event deleted along with all linked activities, comments, and logs",
                 },
             });
         });

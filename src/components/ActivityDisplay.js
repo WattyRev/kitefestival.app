@@ -1,7 +1,7 @@
 "use client";
 
 import Panel from "./ui/Panel";
-import H2 from "./ui/H2";
+import H3 from "./ui/H3";
 import { useState, useEffect } from "react";
 import { useAuth } from "./global/Auth";
 import { usePrompt } from "./ui/Prompt";
@@ -116,6 +116,7 @@ const ActivityDisplay = ({
                 <div
                     className={css({
                         display: "flex",
+                        alignContent: "center",
                     })}
                 >
                     <div className={css({ flexGrow: 1 })}>
@@ -126,7 +127,7 @@ const ActivityDisplay = ({
                                 alignItems: "flex-start",
                             })}
                         >
-                            <H2
+                            <H3
                                 className={css({
                                     display: "flex",
                                 })}
@@ -164,7 +165,7 @@ const ActivityDisplay = ({
                                     />
                                 )}
                                 {activity.title}
-                            </H2>
+                            </H3>
                             {isEditor() && (
                                 <Dropdown
                                     dropdownContent={() => (

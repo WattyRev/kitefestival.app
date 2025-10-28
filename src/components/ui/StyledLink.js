@@ -1,19 +1,8 @@
 import Link from "next/link";
-import { css } from "../../../styled-system/css";
+import { buttonStyles } from "./LinkButton";
 
 const StyledLink = ({ className = "", ...props }) => {
-    return (
-        <Link
-            className={`${className} ${css({
-                color: "link",
-                textDecoration: "underline",
-                _hover: {
-                    color: "linkHoverColor",
-                },
-            })}`}
-            {...props}
-        />
-    );
+    return <Link className={`${className} ${buttonStyles}`} {...props} />;
 };
 
 export default StyledLink;

@@ -14,16 +14,16 @@ import H2 from "./ui/H2";
 import { PaneProvider } from "./ui/Pane";
 import UndoButton from "./ui/UndoButton";
 import MusicLibraryContainer from "./MusicLibraryContainer";
+import { logAction } from "../app/api/actionLog";
 
 const EventPageContainer = ({
     event,
     activities: initialActivities,
     musicLibrary: initialMusicLibrary,
 }) => {
-    const { isEditor } = useAuth();
+    const { isEditor, auth } = useAuth();
     return (
         <ChangePollingContainer>
-            <H1>{event.name}</H1>
             <MusicLibraryContainer initialMusicLibrary={initialMusicLibrary}>
                 <ActivitiesContainer initialActivities={initialActivities}>
                     {({
@@ -54,6 +54,7 @@ const EventPageContainer = ({
                                             }
                                         />
                                         <div data-testid="home-page">
+                                            <H1>{event.name}</H1>
                                             {!scheduledActivities.length && (
                                                 <>
                                                     <p
@@ -75,7 +76,7 @@ const EventPageContainer = ({
                                                     <div key={activity.id}>
                                                         {" "}
                                                         {index === 0 && (
-                                                            <H1
+                                                            <H2
                                                                 className={css({
                                                                     paddingLeft:
                                                                         {
@@ -85,7 +86,7 @@ const EventPageContainer = ({
                                                                 })}
                                                             >
                                                                 Happening Now
-                                                            </H1>
+                                                            </H2>
                                                         )}
                                                         {index === 1 && (
                                                             <H2
@@ -122,6 +123,18 @@ const EventPageContainer = ({
                                                                               id,
                                                                               "unschedule",
                                                                               unscheduledActivities.length,
+                                                                          ).then(
+                                                                              () => {
+                                                                                  logAction(
+                                                                                      {
+                                                                                          action: `Activity completed by ${auth.userType}, ${auth.userName} (${auth.userId})`,
+                                                                                          activityId:
+                                                                                              id,
+                                                                                          eventId:
+                                                                                              event.id,
+                                                                                      },
+                                                                                  );
+                                                                              },
                                                                           )
                                                                     : null
                                                             }
@@ -227,7 +240,7 @@ const EventPageContainer = ({
                                             )}
                                             {isEditor() && (
                                                 <>
-                                                    <H1
+                                                    <H2
                                                         data-testid="unscheduled"
                                                         className={css({
                                                             paddingLeft: {
@@ -241,7 +254,7 @@ const EventPageContainer = ({
                                                         })}
                                                     >
                                                         Unscheduled Activities
-                                                    </H1>
+                                                    </H2>
                                                     {!unscheduledActivities.length && (
                                                         <>
                                                             <p
