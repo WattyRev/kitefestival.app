@@ -6,10 +6,10 @@ import H1 from "./ui/H1";
 import TextInput from "./ui/TextInput";
 import Button from "./ui/Button";
 import { useAlert } from "./ui/Alert";
-import fetch from "../util/fetch";
 import Textarea from "./ui/Textarea";
 import { css } from "../../styled-system/css";
 import Panel from "./ui/Panel";
+import { createEvent, editEvent } from "../app/api/events";
 
 const makeSlugFromName = (name) => {
     return encodeURIComponent(
@@ -39,41 +39,35 @@ const EventForm = ({
         return null;
     }
 
-    async function createEvent() {
-        const response = await fetch("/api/events", {
-            method: "POST",
-            body: JSON.stringify({
-                event: {
-                    name,
-                    slug: makeSlugFromName(name),
-                    description,
-                },
-            }),
-        });
-        const json = await response.json();
-        if (!response.ok) {
-            errorMessage = json.message;
+    async function createNewEvent() {
+        let response;
+        try {
+            const payload = {
+                name,
+                slug: makeSlugFromName(name),
+                description: description,
+            };
+            response = await createEvent(payload);
+        } catch (error) {
+            errorMessage = error.message;
             throw new Error(response.statusText);
         }
-        return json.event;
+        return response.event;
     }
 
     async function updateEvent() {
-        const response = await fetch(`/api/events/${initialEvent.id}`, {
-            method: "PATCH",
-            body: JSON.stringify({
-                event: {
-                    name,
-                    description,
-                },
-            }),
-        });
-        const json = await response.json();
-        if (!response.ok) {
-            errorMessage = json.message;
+        let response;
+        try {
+            response = await editEvent(initialEvent.id, {
+                name,
+                description,
+            });
+        } catch (error) {
+            errorMessage = error.message;
             throw new Error(response.statusText);
         }
-        return json.event;
+
+        return response.event;
     }
 
     async function submit() {
@@ -84,7 +78,7 @@ const EventForm = ({
             if (isEdit) {
                 savedEvent = await updateEvent();
             } else {
-                savedEvent = await createEvent();
+                savedEvent = await createNewEvent();
             }
         } catch (error) {
             openAlert("Failed to save event. Reason: " + errorMessage, "error");

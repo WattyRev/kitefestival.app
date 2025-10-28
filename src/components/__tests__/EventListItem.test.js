@@ -3,13 +3,13 @@ import EventListItem from "../EventListItem";
 import userEvent from "@testing-library/user-event";
 import { useAuth } from "../global/Auth";
 import { usePrompt } from "../ui/Prompt";
-import fetchWrapper from "../../util/fetch";
 import EventForm from "../EventForm";
+import { deleteEvent } from "../../app/api/events";
 
 jest.mock("../global/Auth");
 jest.mock("../ui/Prompt");
-jest.mock("../../util/fetch");
 jest.mock("../EventForm");
+jest.mock("../../app/api/events");
 
 describe("EventListItem", () => {
     beforeEach(() => {
@@ -19,7 +19,7 @@ describe("EventListItem", () => {
         usePrompt.mockReturnValue({
             openPrompt: jest.fn(),
         });
-        fetchWrapper.mockResolvedValue({ ok: true, json: async () => ({}) });
+        deleteEvent.mockResolvedValue({});
     });
     it("renders", async () => {
         const event = { id: 1, name: "Event 1", slug: "event_1" };
@@ -44,12 +44,7 @@ describe("EventListItem", () => {
             'Are you sure you want to delete "Event 1"? This will also delete all activities and comments associated with it.',
             "confirm",
         );
-        expect(fetchWrapper).toHaveBeenCalledWith(
-            "/api/events/1",
-            expect.objectContaining({
-                method: "DELETE",
-            }),
-        );
+        expect(deleteEvent).toHaveBeenCalledWith(1);
         expect(onDelete).toHaveBeenCalledWith(1);
     });
     it("calls onEdit when event is edited", async () => {
