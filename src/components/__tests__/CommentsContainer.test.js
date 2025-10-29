@@ -44,9 +44,11 @@ describe("components/CommentsContainer", () => {
             ],
         });
         createComment.mockResolvedValue({
-            id: 4,
-            message: "new boogers",
-            activityId: "activity-1",
+            comment: {
+                id: 4,
+                message: "new boogers",
+                activityId: "activity-1",
+            },
         });
     });
     it("provides comments", async () => {

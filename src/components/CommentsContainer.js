@@ -166,14 +166,14 @@ const CommentsContainer = ({ children }) => {
         commentsByActivityId: commentsData.commentsByActivityId,
         isLoading,
         createComment: async ({ message, activityId }) => {
-            let updatedComment;
+            let createResponse;
             try {
-                updatedComment = await createComment({ message, activityId });
+                createResponse = await createComment({ message, activityId });
             } catch (error) {
                 openAlert("Failed to create comment", "error");
                 return;
             }
-            dispatch({ type: "create", comment: updatedComment });
+            dispatch({ type: "create", comment: createResponse.comment });
         },
         deleteComment: async (id) => {
             try {
@@ -186,7 +186,7 @@ const CommentsContainer = ({ children }) => {
         },
         editComment: async (id, message) => {
             try {
-                await editComment(id, message);
+                await editComment(id, { message });
             } catch (error) {
                 openAlert("Failed to edit comment", "error");
                 return;
