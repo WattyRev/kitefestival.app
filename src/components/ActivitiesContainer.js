@@ -5,9 +5,15 @@ import {
     useState,
     useCallback,
 } from "react";
-import fetch from "../util/fetch";
 import { useAlert } from "./ui/Alert";
 import { useChangePolling } from "./ChangePollingContainer";
+import {
+    createActivity,
+    deleteActivity,
+    editActivities,
+    editActivity,
+    getActivities,
+} from "../app/api/activities";
 
 export const ActivitiesContext = createContext({
     activities: [],
@@ -155,9 +161,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
 
     const fetchActivities = useCallback(async () => {
         setIsLoading(true);
-        const activitiesResponse = await fetch("/api/activities");
-        const activitiesJson = await activitiesResponse.json();
-        const { activities } = activitiesJson;
+        const { activities } = await getActivities();
         dispatch({
             type: "refresh",
             newState: {
@@ -196,28 +200,26 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
         unscheduledActivities: activitiesData.unscheduledActivities,
         isLoading,
         createActivity: async ({ title, description, music, eventId }) => {
-            const response = await fetch("/api/activities", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ title, description, music, eventId }),
-            });
-            if (!response.ok) {
+            let updatedActivity;
+            try {
+                updatedActivity = await createActivity({
+                    title,
+                    description,
+                    music,
+                    eventId,
+                });
+            } catch (error) {
                 openAlert("Failed to create activity", "error");
                 return;
             }
-            const updatedActivityJson = await response.json();
-            const updatedActivity = updatedActivityJson.activities[0];
             dispatch({ type: "create", activity: updatedActivity });
             // Clear undo since creating an activity changes the list
             setUndoState(null);
         },
         deleteActivity: async (id) => {
-            const response = await fetch(`/api/activities/${id}`, {
-                method: "DELETE",
-            });
-            if (!response.ok) {
+            try {
+                await deleteActivity(id);
+            } catch (error) {
                 openAlert("Failed to delete activity", "error");
                 return;
             }
@@ -226,12 +228,10 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             setUndoState(null);
         },
         editActivity: async (activity) => {
-            const response = await fetch(`/api/activities/${activity.id}`, {
-                method: "PATCH",
-                body: JSON.stringify({ activity }),
-            });
-            if (!response.ok) {
-                openAlert("Failed to update activity", "error");
+            try {
+                await editActivity(activity.id, activity);
+            } catch (error) {
+                openAlert("Failed to edit activity", "error");
                 return;
             }
             dispatch({ type: "patch", activity });
@@ -267,20 +267,10 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 reindexActivities(activitiesClone);
 
             // Patch changed activities (fire and forget for responsive UI, but handle errors)
-            fetch("/api/activities", {
-                method: "PATCH",
-                body: JSON.stringify({
-                    activities: changedActivities,
-                }),
-            })
-                .then((response) => {
-                    if (!response.ok) {
-                        openAlert("Failed to move activities", "error");
-                    }
-                })
-                .catch(() => {
-                    openAlert("Failed to move activities", "error");
-                });
+            // Don't wait for request to complete before updating state
+            editActivities(changedActivities).catch(() => {
+                openAlert("Failed to move activities", "error");
+            });
 
             // Store undo state after successful server update
             setUndoState(previousState);
@@ -320,20 +310,10 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
             setUndoState(null);
 
             // Patch all activities back to their previous state (fire and forget)
-            fetch("/api/activities", {
-                method: "PATCH",
-                body: JSON.stringify({
-                    activities: previousState.activities,
-                }),
-            })
-                .then((response) => {
-                    if (!response.ok) {
-                        openAlert("Failed to undo move", "error");
-                    }
-                })
-                .catch(() => {
-                    openAlert("Failed to undo move", "error");
-                });
+            // Don't wait for request to complete before updating state
+            editActivities(previousState.activities).catch(() => {
+                openAlert("Failed to undo move", "error");
+            });
         },
         hasUndo: !!undoState,
         clearUndo: () => setUndoState(null),

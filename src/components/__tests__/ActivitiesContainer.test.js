@@ -1,18 +1,24 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import fetch from "../../util/fetch";
 import setInterval from "../../util/setInterval";
 import { useAuth } from "../global/Auth";
 import { useAlert } from "../ui/Alert";
 import { useChangePolling } from "../ChangePollingContainer";
 import ActivitiesContainer from "../ActivitiesContainer";
+import {
+    createActivity,
+    deleteActivity,
+    editActivities,
+    editActivity,
+    getActivities,
+} from "../../app/api/activities";
 
-jest.mock("../../util/fetch");
 jest.mock("../../util/setInterval");
 jest.mock("../../util/clearInterval");
 jest.mock("../global/Auth");
 jest.mock("../ui/Alert");
 jest.mock("../ChangePollingContainer");
+jest.mock("../../app/api/activities");
 
 describe("ActivitiesContainer", () => {
     let initialActivities;
@@ -21,10 +27,12 @@ describe("ActivitiesContainer", () => {
         useChangePolling.mockReturnValue({
             changes: [],
         });
-        fetch.mockResolvedValue({
-            ok: true,
-            json: jest.fn().mockResolvedValue({}),
-        });
+        createActivity.mockResolvedValue({});
+        deleteActivity.mockResolvedValue({});
+        editActivities.mockResolvedValue({});
+        editActivity.mockResolvedValue({});
+        getActivities.mockResolvedValue({});
+
         setInterval.mockReturnValue(1);
         initialActivities = [
             {
@@ -133,18 +141,13 @@ describe("ActivitiesContainer", () => {
             ],
         });
         let activitiesResolver;
-        fetch.mockImplementation((url) => {
-            if (url === "/api/activities") {
-                return new Promise((resolve) => {
-                    activitiesResolver = () =>
-                        resolve({
-                            ok: true,
-                            json: jest.fn().mockResolvedValue({
-                                activities: initialActivities,
-                            }),
-                        });
-                });
-            }
+        getActivities.mockImplementation(() => {
+            return new Promise((resolve) => {
+                activitiesResolver = () =>
+                    resolve({
+                        activities: initialActivities,
+                    });
+            });
         });
 
         render(
@@ -175,28 +178,12 @@ describe("ActivitiesContainer", () => {
     });
     describe("activity creation", () => {
         it("allows a user to create an activity", async () => {
-            fetch.mockImplementation((url, options) => {
-                if (url === "/api/activities" && options.method === "POST") {
-                    const { title, description } = JSON.parse(options.body);
-                    return Promise.resolve({
-                        ok: true,
-                        json: jest.fn().mockResolvedValue({
-                            activities: [
-                                {
-                                    id: "5",
-                                    name: title,
-                                    description,
-                                    sortIndex: 1,
-                                    scheduleIndex: null,
-                                },
-                            ],
-                        }),
-                    });
-                }
-                return Promise.resolve({
-                    ok: true,
-                    json: jest.fn().mockResolvedValue({}),
-                });
+            createActivity.mockResolvedValue({
+                id: "5",
+                name: "title",
+                description: "description",
+                sortIndex: 1,
+                scheduleIndex: null,
             });
             render(
                 <ActivitiesContainer initialActivities={initialActivities}>
@@ -228,32 +215,16 @@ describe("ActivitiesContainer", () => {
 
             await userEvent.click(screen.getByTestId("create-activity"));
 
-            expect(fetch).toHaveBeenCalledWith("/api/activities", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    title: "Activity 5",
-                    description: "Description 5",
-                    music: ["song1", "song2"],
-                }),
+            expect(createActivity).toHaveBeenCalledWith({
+                title: "Activity 5",
+                description: "Description 5",
+                music: ["song1", "song2"],
             });
 
             expect(screen.queryAllByTestId("activity")).toHaveLength(5);
         });
         it("alerts if activity creation fails", async () => {
-            fetch.mockImplementation((url, options) => {
-                if (url === "/api/activities" && options.method === "POST") {
-                    return Promise.resolve({
-                        ok: false,
-                    });
-                }
-                return Promise.resolve({
-                    ok: true,
-                    json: jest.fn().mockResolvedValue({}),
-                });
-            });
+            createActivity.mockRejectedValue();
             render(
                 <ActivitiesContainer initialActivities={initialActivities}>
                     {({ createActivity }) => (
@@ -284,20 +255,6 @@ describe("ActivitiesContainer", () => {
     });
     describe("activity deletion", () => {
         it("allows a user to delete an activity", async () => {
-            fetch.mockImplementation((url, options) => {
-                if (
-                    url === "/api/activities/2" &&
-                    options.method === "DELETE"
-                ) {
-                    return Promise.resolve({
-                        ok: true,
-                    });
-                }
-                return Promise.resolve({
-                    ok: true,
-                    json: jest.fn().mockResolvedValue({}),
-                });
-            });
             render(
                 <ActivitiesContainer initialActivities={initialActivities}>
                     {({ deleteActivity, activities }) => (
@@ -322,27 +279,12 @@ describe("ActivitiesContainer", () => {
 
             await userEvent.click(screen.getByTestId("delete-activity"));
 
-            expect(fetch).toHaveBeenCalledWith("/api/activities/2", {
-                method: "DELETE",
-            });
+            expect(deleteActivity).toHaveBeenCalledWith("2");
 
             expect(screen.queryAllByTestId("activity")).toHaveLength(3);
         });
         it("alerts if activity deletion fails", async () => {
-            fetch.mockImplementation((url, options) => {
-                if (
-                    url === "/api/activities/2" &&
-                    options.method === "DELETE"
-                ) {
-                    return Promise.resolve({
-                        ok: false,
-                    });
-                }
-                return Promise.resolve({
-                    ok: true,
-                    json: jest.fn().mockResolvedValue({}),
-                });
-            });
+            deleteActivity.mockRejectedValue();
             render(
                 <ActivitiesContainer initialActivities={initialActivities}>
                     {({ deleteActivity }) => (
@@ -368,17 +310,6 @@ describe("ActivitiesContainer", () => {
     });
     describe("activity editing", () => {
         it("allows a user to edit an activity", async () => {
-            fetch.mockImplementation((url, options) => {
-                if (url === "/api/activities/2" && options.method === "PATCH") {
-                    return Promise.resolve({
-                        ok: true,
-                    });
-                }
-                return Promise.resolve({
-                    ok: true,
-                    json: jest.fn().mockResolvedValue({}),
-                });
-            });
             render(
                 <ActivitiesContainer initialActivities={initialActivities}>
                     {({ editActivity, activities }) => (
@@ -407,29 +338,14 @@ describe("ActivitiesContainer", () => {
 
             await userEvent.click(screen.getByTestId("edit-activity"));
 
-            expect(fetch).toHaveBeenCalledWith("/api/activities/2", {
-                method: "PATCH",
-                body: JSON.stringify({
-                    activity: {
-                        id: "2",
-                        title: "edited",
-                        description: "also edited",
-                    },
-                }),
+            expect(editActivity).toHaveBeenCalledWith("2", {
+                id: "2",
+                title: "edited",
+                description: "also edited",
             });
         });
         it("alerts if activity deletion fails", async () => {
-            fetch.mockImplementation((url, options) => {
-                if (url === "/api/activities/2" && options.method === "PATCH") {
-                    return Promise.resolve({
-                        ok: false,
-                    });
-                }
-                return Promise.resolve({
-                    ok: true,
-                    json: jest.fn().mockResolvedValue({}),
-                });
-            });
+            editActivity.mockRejectedValue();
             render(
                 <ActivitiesContainer initialActivities={initialActivities}>
                     {({ editActivity }) => (
@@ -454,24 +370,13 @@ describe("ActivitiesContainer", () => {
             await userEvent.click(screen.getByTestId("edit-activity"));
 
             expect(mockOpenAlert).toHaveBeenCalledWith(
-                "Failed to update activity",
+                "Failed to edit activity",
                 "error",
             );
         });
     });
     describe("scheduling an activity", () => {
         it("allows a user to schedule an activity", async () => {
-            fetch.mockImplementation((url, options) => {
-                if (url === "/api/activities" && options.method === "PATCH") {
-                    return Promise.resolve({
-                        ok: true,
-                    });
-                }
-                return Promise.resolve({
-                    ok: true,
-                    json: jest.fn().mockResolvedValue({}),
-                });
-            });
             render(
                 <ActivitiesContainer initialActivities={initialActivities}>
                     {({
@@ -509,27 +414,22 @@ describe("ActivitiesContainer", () => {
 
             await userEvent.click(screen.getByTestId("schedule-activity"));
 
-            expect(fetch).toHaveBeenCalledWith("/api/activities", {
-                method: "PATCH",
-                body: JSON.stringify({
-                    activities: [
-                        {
-                            id: "3",
-                            name: "Activity 3",
-                            description: "Description 3",
-                            sortIndex: null,
-                            scheduleIndex: 2,
-                        },
-                        {
-                            id: "4",
-                            name: "Activity 4",
-                            description: "Description 4",
-                            sortIndex: 0,
-                            scheduleIndex: null,
-                        },
-                    ],
-                }),
-            });
+            expect(editActivities).toHaveBeenCalledWith([
+                {
+                    id: "3",
+                    name: "Activity 3",
+                    description: "Description 3",
+                    sortIndex: null,
+                    scheduleIndex: 2,
+                },
+                {
+                    id: "4",
+                    name: "Activity 4",
+                    description: "Description 4",
+                    sortIndex: 0,
+                    scheduleIndex: null,
+                },
+            ]);
 
             expect(screen.queryAllByTestId("scheduled")).toHaveLength(3);
             expect(screen.queryAllByTestId("scheduled")[2]).toHaveTextContent(
@@ -538,17 +438,7 @@ describe("ActivitiesContainer", () => {
             expect(screen.queryAllByTestId("unscheduled")).toHaveLength(1);
         });
         it("alerts if activity scheduling fails", async () => {
-            fetch.mockImplementation((url, options) => {
-                if (url === "/api/activities" && options.method === "PATCH") {
-                    return Promise.resolve({
-                        ok: false,
-                    });
-                }
-                return Promise.resolve({
-                    ok: true,
-                    json: jest.fn().mockResolvedValue({}),
-                });
-            });
+            editActivities.mockRejectedValue();
             render(
                 <ActivitiesContainer initialActivities={initialActivities}>
                     {({ moveActivity }) => (
@@ -574,17 +464,6 @@ describe("ActivitiesContainer", () => {
     });
     describe("unscheduling an activity", () => {
         it("allows a user to unschedule an activity", async () => {
-            fetch.mockImplementation((url, options) => {
-                if (url === "/api/activities" && options.method === "PATCH") {
-                    return Promise.resolve({
-                        ok: true,
-                    });
-                }
-                return Promise.resolve({
-                    ok: true,
-                    json: jest.fn().mockResolvedValue({}),
-                });
-            });
             render(
                 <ActivitiesContainer initialActivities={initialActivities}>
                     {({
@@ -624,41 +503,36 @@ describe("ActivitiesContainer", () => {
 
             await userEvent.click(screen.getByTestId("unschedule-activity"));
 
-            expect(fetch).toHaveBeenCalledWith("/api/activities", {
-                method: "PATCH",
-                body: JSON.stringify({
-                    activities: [
-                        {
-                            id: "2",
-                            name: "Activity 2",
-                            description: "Description 2",
-                            sortIndex: null,
-                            scheduleIndex: 0,
-                        },
-                        {
-                            id: "1",
-                            name: "Activity 1",
-                            description: "Description 1",
-                            sortIndex: 0,
-                            scheduleIndex: null,
-                        },
-                        {
-                            id: "3",
-                            name: "Activity 3",
-                            description: "Description 3",
-                            sortIndex: 1,
-                            scheduleIndex: null,
-                        },
-                        {
-                            id: "4",
-                            name: "Activity 4",
-                            description: "Description 4",
-                            sortIndex: 2,
-                            scheduleIndex: null,
-                        },
-                    ],
-                }),
-            });
+            expect(editActivities).toHaveBeenCalledWith([
+                {
+                    id: "2",
+                    name: "Activity 2",
+                    description: "Description 2",
+                    sortIndex: null,
+                    scheduleIndex: 0,
+                },
+                {
+                    id: "1",
+                    name: "Activity 1",
+                    description: "Description 1",
+                    sortIndex: 0,
+                    scheduleIndex: null,
+                },
+                {
+                    id: "3",
+                    name: "Activity 3",
+                    description: "Description 3",
+                    sortIndex: 1,
+                    scheduleIndex: null,
+                },
+                {
+                    id: "4",
+                    name: "Activity 4",
+                    description: "Description 4",
+                    sortIndex: 2,
+                    scheduleIndex: null,
+                },
+            ]);
 
             expect(screen.queryAllByTestId("scheduled")).toHaveLength(1);
             expect(screen.queryAllByTestId("unscheduled")).toHaveLength(3);
@@ -667,18 +541,7 @@ describe("ActivitiesContainer", () => {
             );
         });
         it("alerts if activity unscheduling fails", async () => {
-            fetch.mockImplementation((url, options) => {
-                if (url === "/api/activities" && options.method === "PATCH") {
-                    return Promise.resolve({
-                        ok: false,
-                    });
-                }
-                console.log("unexpected fetch", url, options);
-                return Promise.resolve({
-                    ok: true,
-                    json: jest.fn().mockResolvedValue({}),
-                });
-            });
+            editActivities.mockRejectedValue();
             render(
                 <ActivitiesContainer initialActivities={initialActivities}>
                     {({ moveActivity }) => (
@@ -1154,19 +1017,14 @@ describe("ActivitiesContainer", () => {
             });
 
             // Create activity should clear undo
-            fetch.mockResolvedValueOnce({
-                ok: true,
-                json: jest.fn().mockResolvedValue({
-                    activities: [
-                        {
-                            id: "4",
-                            title: "New Activity",
-                            description: "New Description",
-                            sortIndex: 2,
-                            scheduleIndex: null,
-                        },
-                    ],
-                }),
+            createActivity.mockResolvedValue({
+                activity: {
+                    id: "4",
+                    title: "New Activity",
+                    description: "New Description",
+                    sortIndex: 2,
+                    scheduleIndex: null,
+                },
             });
 
             await userEvent.click(screen.getByTestId("create-activity"));
@@ -1209,9 +1067,7 @@ describe("ActivitiesContainer", () => {
             });
 
             // Mock failure response for undo
-            fetch.mockResolvedValueOnce({
-                ok: false,
-            });
+            editActivities.mockRejectedValue();
 
             await userEvent.click(screen.getByTestId("undo-move"));
 
