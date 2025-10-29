@@ -1,15 +1,15 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import fetch from "../../util/fetch";
 import { useAlert } from "../ui/Alert";
 import { useChangePolling } from "../ChangePollingContainer";
 import { useAuth } from "../global/Auth";
 import CommentsContainer from "../CommentsContainer";
 import userEvent from "@testing-library/user-event";
+import { createComment, getComments } from "../../app/api/comments";
 
 jest.mock("../ui/Alert");
-jest.mock("../../util/fetch");
 jest.mock("../ChangePollingContainer");
 jest.mock("../global/Auth");
+jest.mock("../../app/api/comments");
 
 describe("components/CommentsContainer", () => {
     beforeEach(() => {
@@ -24,27 +24,29 @@ describe("components/CommentsContainer", () => {
         useAlert.mockReturnValue({
             openAlert: jest.fn(),
         });
-        fetch.mockResolvedValue({
-            ok: true,
-            json: jest.fn().mockResolvedValue({
-                comments: [
-                    {
-                        id: 1,
-                        message: "boogers",
-                        activityId: "activity-1",
-                    },
-                    {
-                        id: 2,
-                        message: "more boogers",
-                        activityId: "activity-1",
-                    },
-                    {
-                        id: 3,
-                        message: "something else",
-                        activityId: "activity-2",
-                    },
-                ],
-            }),
+        getComments.mockResolvedValue({
+            comments: [
+                {
+                    id: 1,
+                    message: "boogers",
+                    activityId: "activity-1",
+                },
+                {
+                    id: 2,
+                    message: "more boogers",
+                    activityId: "activity-1",
+                },
+                {
+                    id: 3,
+                    message: "something else",
+                    activityId: "activity-2",
+                },
+            ],
+        });
+        createComment.mockResolvedValue({
+            id: 4,
+            message: "new boogers",
+            activityId: "activity-1",
         });
     });
     it("provides comments", async () => {
@@ -82,10 +84,10 @@ describe("components/CommentsContainer", () => {
         );
     });
     it("indicates when it is loading", async () => {
-        let resolveFetch;
-        fetch.mockImplementation(() => {
+        let resolveGetComments;
+        getComments.mockImplementation(() => {
             return new Promise((resolve) => {
-                resolveFetch = resolve;
+                resolveGetComments = resolve;
             });
         });
         render(
@@ -102,27 +104,24 @@ describe("components/CommentsContainer", () => {
             expect(screen.getByTestId("isLoading")).toHaveTextContent("true"),
         );
 
-        resolveFetch({
-            ok: true,
-            json: jest.fn().mockResolvedValue({
-                comments: [
-                    {
-                        id: 1,
-                        message: "boogers",
-                        activityId: "activity-1",
-                    },
-                    {
-                        id: 2,
-                        message: "more boogers",
-                        activityId: "activity-1",
-                    },
-                    {
-                        id: 3,
-                        message: "something else",
-                        activityId: "activity-2",
-                    },
-                ],
-            }),
+        resolveGetComments({
+            comments: [
+                {
+                    id: 1,
+                    message: "boogers",
+                    activityId: "activity-1",
+                },
+                {
+                    id: 2,
+                    message: "more boogers",
+                    activityId: "activity-1",
+                },
+                {
+                    id: 3,
+                    message: "something else",
+                    activityId: "activity-2",
+                },
+            ],
         });
 
         await waitFor(() =>
