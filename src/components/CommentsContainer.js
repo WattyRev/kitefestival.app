@@ -5,10 +5,15 @@ import {
     useState,
     useCallback,
 } from "react";
-import fetch from "../util/fetch";
 import { useAlert } from "./ui/Alert";
 import { useChangePolling } from "./ChangePollingContainer";
 import { useAuth } from "./global/Auth";
+import {
+    createComment,
+    deleteComment,
+    editComment,
+    getComments,
+} from "../app/api/comments";
 
 export const CommentsContext = createContext({
     comments: [],
@@ -119,9 +124,7 @@ const CommentsContainer = ({ children }) => {
             return;
         }
         setIsLoading(true);
-        const commentsResponse = await fetch("/api/comments");
-        const commentsJson = await commentsResponse.json();
-        const { comments } = commentsJson;
+        const { comments } = await getComments();
         dispatch({
             type: "refresh",
             newState: {
@@ -163,34 +166,28 @@ const CommentsContainer = ({ children }) => {
         commentsByActivityId: commentsData.commentsByActivityId,
         isLoading,
         createComment: async ({ message, activityId }) => {
-            const response = await fetch("/api/comments", {
-                method: "POST",
-                body: JSON.stringify({ message, activityId }),
-            });
-            if (!response.ok) {
+            let createResponse;
+            try {
+                createResponse = await createComment({ message, activityId });
+            } catch (error) {
                 openAlert("Failed to create comment", "error");
                 return;
             }
-            const updatedCommentJson = await response.json();
-            const updatedComment = updatedCommentJson.comments[0];
-            dispatch({ type: "create", comment: updatedComment });
+            dispatch({ type: "create", comment: createResponse.comment });
         },
         deleteComment: async (id) => {
-            const response = await fetch(`/api/comments/${id}`, {
-                method: "DELETE",
-            });
-            if (!response.ok) {
+            try {
+                await deleteComment(id);
+            } catch (error) {
                 openAlert("Failed to delete comment", "error");
                 return;
             }
             dispatch({ type: "delete", id });
         },
         editComment: async (id, message) => {
-            const response = await fetch(`/api/comments/${id}`, {
-                method: "PATCH",
-                body: JSON.stringify({ comment: { message } }),
-            });
-            if (!response.ok) {
+            try {
+                await editComment(id, { message });
+            } catch (error) {
                 openAlert("Failed to edit comment", "error");
                 return;
             }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import fetch from "../../util/fetch";
 import Button from "../../components/ui/Button";
 import Panel from "../../components/ui/Panel";
 import H1 from "../../components/ui/H1";
@@ -9,6 +8,7 @@ import H2 from "../../components/ui/H2";
 import TextInput from "../../components/ui/TextInput";
 import { usePrompt } from "../../components/ui/Prompt";
 import { useAlert } from "../../components/ui/Alert";
+import { changePasscodes } from "../api/passcodes";
 
 const usePasscode = () => {
     const [enabled, setEnabled] = useState(false);
@@ -72,13 +72,14 @@ export default function ConfigPage() {
         if (useUserPasscode) {
             payload.userPasscode = userPasscode;
         }
-        const response = await fetch("/api/passcodes", {
-            method: "PUT",
-            body: JSON.stringify(payload),
-        });
-        const type = response.ok ? "success" : "error";
-        const { message } = await response.json();
-        openAlert(message, type);
+        let response;
+        try {
+            response = await changePasscodes(payload);
+        } catch (error) {
+            openAlert(error.message, "error");
+            return;
+        }
+        openAlert(response.message, "success");
     };
 
     return (

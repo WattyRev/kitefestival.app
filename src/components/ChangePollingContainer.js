@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import fetch from "../util/fetch";
 import setInterval from "../util/setInterval";
 import clearInterval from "../util/clearInterval";
+import { getChanges } from "../app/api/changes";
 
 const PollingContext = createContext({});
 
@@ -12,16 +12,12 @@ export const useChangePolling = () => {
 const ChangePollingContainer = ({ children }) => {
     const [changes, setChanges] = useState([]);
     const checkForUpdates = async () => {
-        const changesResponse = await fetch("/api/changes");
-        if (!changesResponse.ok) {
+        const changesResponse = await getChanges().catch(() => {});
+        const latestChanges = changesResponse?.changes;
+        if (!latestChanges?.length) {
             return;
         }
-        const changesJson = await changesResponse.json();
-        const updatedChanges = changesJson.changes;
-        if (!updatedChanges?.length) {
-            return;
-        }
-        setChanges(updatedChanges);
+        setChanges(latestChanges);
     };
 
     useEffect(() => {

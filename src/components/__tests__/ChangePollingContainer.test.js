@@ -1,22 +1,16 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import fetch from "../../util/fetch";
+import { getChanges } from "../../app/api/changes";
 import ChangePollingContainer, {
     useChangePolling,
 } from "../ChangePollingContainer";
 
-jest.mock("../../util/fetch");
+jest.mock("../../app/api/changes");
 
 describe("components/ChangePollingContainer", () => {
     let MockConsumer;
     beforeEach(() => {
-        fetch.mockResolvedValue({
-            ok: true,
-            json: jest.fn().mockResolvedValue({
-                changes: [
-                    { tablename: "comments" },
-                    { tablename: "activities" },
-                ],
-            }),
+        getChanges.mockResolvedValue({
+            changes: [{ tablename: "comments" }, { tablename: "activities" }],
         });
         MockConsumer = function MockBoi() {
             const { changes } = useChangePolling();
@@ -41,15 +35,8 @@ describe("components/ChangePollingContainer", () => {
         );
     });
     it("should handle API failure gracefully", async () => {
-        fetch.mockResolvedValue({
-            ok: false,
-            json: jest.fn().mockResolvedValue({
-                changes: [
-                    { tablename: "comments" },
-                    { tablename: "activities" },
-                ],
-            }),
-        });
+        getChanges.mockRejectedValue();
+
         render(
             <ChangePollingContainer>
                 <MockConsumer />

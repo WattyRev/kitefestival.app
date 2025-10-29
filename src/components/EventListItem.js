@@ -1,7 +1,6 @@
 import { css } from "../../styled-system/css";
 import { useAuth } from "./global/Auth";
 import { usePrompt } from "./ui/Prompt";
-import fetch from "../util/fetch";
 import H2 from "./ui/H2";
 import StyledLink from "./ui/StyledLink";
 import Panel from "./ui/Panel";
@@ -10,6 +9,7 @@ import PlainButton from "./ui/PlainButton";
 import { useState } from "react";
 import Modal from "./ui/Modal";
 import EventForm from "./EventForm";
+import { deleteEvent as deleteEventApi } from "../app/api/events";
 
 const EventListItem = ({ event, onDelete = () => {}, onEdit = () => {} }) => {
     const { isEditor } = useAuth();
@@ -25,9 +25,7 @@ const EventListItem = ({ event, onDelete = () => {}, onEdit = () => {} }) => {
 
         setPending(true);
 
-        await fetch(`/api/events/${event.id}`, {
-            method: "DELETE",
-        });
+        await deleteEventApi(event.id);
 
         setPending(false);
 

@@ -1,46 +1,33 @@
-import { NextResponse } from "next/server";
-import { sql } from "@vercel/postgres";
-import getPasscodeByName from "./getPasscodeByName";
+"use server";
+
 import { cookies } from "next/headers";
-import { randomUUID } from "../crypto";
+import { sql } from "@vercel/postgres";
+import getPasscodeByName from "./passcodes/getPasscodeByName";
+import { randomUUID } from "./crypto";
 
 /**
- * Change passcodes
+ * Changes the provided passcodes.
  *
- * PUT /api/passcodes
- * {
- *   adminPasscode?: string
- *   editorPasscode?: string
- *   userPasscode?: string
- *   authentication: string // The current admin passcode is required
- * }
- *
- * Response:
- * {
- *   message: string
- * }
+ * @param {Object} config - An object containing the admin, editor, and user passcodes, as well as the authentication.
+ * @throws {Error} - If the authentication is invalid or no authentication is provided.
+ * @returns {Object} - An object containing a message indicating which passcodes have been updated.
  */
-export async function PUT(req) {
+export async function changePasscodes(config) {
     const { adminPasscode, editorPasscode, userPasscode, authentication } =
-        await req.json();
+        config;
     if (!authentication) {
-        return NextResponse.json(
-            { message: "No authentication provided" },
-            { status: 401 },
-        );
+        throw new Error("No authentication provided");
     }
 
     const currentPasscode = await getPasscodeByName("admin");
 
     if (authentication !== currentPasscode) {
-        return NextResponse.json(
-            { message: "Provided authentication is invalid" },
-            { status: 403 },
-        );
+        throw new Error("Provided authentication is invalid");
     }
 
     const promises = [];
     const passcodesUpdated = [];
+
     if (adminPasscode) {
         promises.push(
             sql`UPDATE passcodes SET passcode = ${adminPasscode} WHERE name = 'admin'`,
@@ -61,26 +48,20 @@ export async function PUT(req) {
     }
     await Promise.all(promises);
 
-    return NextResponse.json({
+    return {
         message: `${passcodesUpdated.join(", ")} passcode${passcodesUpdated.length > 1 ? "s have" : " has"} been updated`,
-    });
+    };
 }
 
 /**
- * Validate a passcode
+ * Validates a passcode and returns the associated user type.
  *
- * POST /api/passcodes
- * {
- *   passcode: string
- *   name: string
- * }
- *
- * Response:
- * {
- *    userType: 'editor' | 'user' // The user type matched by the provided passcode
- * }
+ * @param {string} passcode - The passcode to validate.
+ * @param {string} name - The name associated with the passcode.
+ * @throws {Error} - If the passcode is invalid or if no passcode is provided.
+ * @returns {Object} - An object containing the user type associated with the passcode.
  */
-export async function POST(req) {
+export async function validatePasscode(passcode, name) {
     const identifyCookieExpiration = new Date(
         Date.now() + 1000 * 60 * 60 * 24 * 365,
     );
@@ -93,7 +74,6 @@ export async function POST(req) {
             secure: true,
         });
     }
-    const { passcode, name } = await req.json();
 
     if (name) {
         cookieStore.set("userName", name, {
@@ -104,10 +84,7 @@ export async function POST(req) {
     }
 
     if (!passcode) {
-        return NextResponse.json(
-            { message: "No passcode provided" },
-            { status: 400 },
-        );
+        throw new Error("No passcode provided");
     }
     const authCookieExpiration = new Date(Date.now() + 1000 * 60 * 60 * 24 * 3);
     const editorPasscode = await getPasscodeByName("editor");
@@ -122,7 +99,7 @@ export async function POST(req) {
             sameSite: "strict",
             secure: true,
         });
-        return NextResponse.json({ userType: "editor" });
+        return { userType: "editor" };
     }
     const userPasscode = await getPasscodeByName("user");
     if (passcode === userPasscode) {
@@ -136,8 +113,8 @@ export async function POST(req) {
             sameSite: "strict",
             secure: true,
         });
-        return NextResponse.json({ userType: "user" });
+        return { userType: "user" };
     }
 
-    return NextResponse.json({ message: "Invalid passcode" }, { status: 401 });
+    throw new Error("Invalid passcode");
 }

@@ -4,9 +4,14 @@ import MusicLibraryContainer, {
 } from "../MusicLibraryContainer";
 import userEvent from "@testing-library/user-event";
 import { useChangePolling } from "../ChangePollingContainer";
-import fetch from "../../util/fetch";
+import {
+    addToMusicLibrary,
+    deleteFromMusicLibrary,
+    editMusicEntry,
+    getMusicLibrary,
+} from "../../app/api/musicLibrary";
 
-jest.mock("../../util/fetch");
+jest.mock("../../app/api/musicLibrary");
 jest.mock("../ChangePollingContainer");
 
 describe("MusicLibraryContainer", () => {
@@ -16,11 +21,8 @@ describe("MusicLibraryContainer", () => {
         useChangePolling.mockReturnValue({
             changes: [],
         });
-        fetch.mockResolvedValue({
-            ok: true,
-            json: jest.fn().mockResolvedValue({
-                musicLibrary: [{ value: "a", id: "A" }],
-            }),
+        getMusicLibrary.mockResolvedValue({
+            musicLibrary: [{ value: "a", id: "A" }],
         });
         /* eslint-disable-next-line react/display-name */
         MockConsumer = () => {
@@ -84,7 +86,7 @@ describe("MusicLibraryContainer", () => {
             </MusicLibraryContainer>,
         );
         await userEvent.click(screen.getByText("Refresh"));
-        expect(fetch).toHaveBeenCalledWith("/api/music-library");
+        expect(getMusicLibrary).toHaveBeenCalled();
         expect(screen.getByTestId("music-library")).toHaveTextContent(
             JSON.stringify([{ value: "a", id: "A" }]),
         );
@@ -96,19 +98,11 @@ describe("MusicLibraryContainer", () => {
             </MusicLibraryContainer>,
         );
         await userEvent.click(screen.getByText("Add"));
-        expect(fetch).toHaveBeenCalledWith("/api/music-library", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                musicLibrary: [
-                    { value: "d", id: "D" },
-                    { value: "e", id: "E" },
-                    { value: "f", id: "F" },
-                ],
-            }),
-        });
+        expect(addToMusicLibrary).toHaveBeenCalledWith([
+            { value: "d", id: "D" },
+            { value: "e", id: "E" },
+            { value: "f", id: "F" },
+        ]);
         expect(screen.getByTestId("music-library")).toHaveTextContent(
             JSON.stringify([{ value: "a", id: "A" }]),
         );
@@ -120,13 +114,7 @@ describe("MusicLibraryContainer", () => {
             </MusicLibraryContainer>,
         );
         await userEvent.click(screen.getByText("Delete"));
-        expect(fetch).toHaveBeenCalledWith("/api/music-library", {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ musicIds: ["A", "B", "C"] }),
-        });
+        expect(deleteFromMusicLibrary).toHaveBeenCalledWith(["A", "B", "C"]);
         expect(screen.getByTestId("music-library")).toHaveTextContent(
             JSON.stringify([{ value: "a", id: "A" }]),
         );
@@ -138,13 +126,7 @@ describe("MusicLibraryContainer", () => {
             </MusicLibraryContainer>,
         );
         await userEvent.click(screen.getByText("Update"));
-        expect(fetch).toHaveBeenCalledWith("/api/music-library/C", {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ value: "g" }),
-        });
+        expect(editMusicEntry).toHaveBeenCalledWith("C", "g");
         expect(screen.getByTestId("music-library")).toHaveTextContent(
             JSON.stringify([{ value: "a", id: "A" }]),
         );

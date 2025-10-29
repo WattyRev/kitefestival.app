@@ -2,23 +2,20 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useAlert } from "../../../ui/Alert";
 import { useAuth } from "../../Auth";
-import fetch from "../../../../util/fetch";
 import AuthSelection from "../AuthSelection";
 import { usePrompt } from "../../../ui/Prompt";
+import { validatePasscode } from "../../../../app/api/passcodes";
 
 jest.mock("../../../ui/Alert");
 jest.mock("../../Auth");
-jest.mock("../../../../util/fetch");
 jest.mock("../../../ui/Prompt");
+jest.mock("../../../../app/api/passcodes");
 
 describe("AuthSelection", () => {
     let mockSetAuthentication;
     let mockOpenAlert;
     beforeEach(() => {
-        fetch.mockResolvedValue({
-            ok: true,
-            json: jest.fn().mockResolvedValue({ userType: "editor" }),
-        });
+        validatePasscode.mockResolvedValue({ userType: "editor" });
         mockSetAuthentication = jest.fn();
         useAuth.mockReturnValue({
             setAuthentication: mockSetAuthentication,
@@ -46,22 +43,17 @@ describe("AuthSelection", () => {
             );
             await userEvent.click(screen.getByTestId("submit-log-in"));
 
-            expect(fetch).toHaveBeenCalledWith("/api/passcodes", {
-                method: "POST",
-                body: JSON.stringify({
-                    passcode: "cool passcode",
-                    name: "Cool guy",
-                }),
-            });
+            expect(validatePasscode).toHaveBeenCalledWith(
+                "cool passcode",
+                "Cool guy",
+            );
             expect(mockSetAuthentication).toHaveBeenCalledWith({
                 userType: "editor",
                 passcode: "cool passcode",
             });
         });
         it("shows an error alert if log in is unsuccessful", async () => {
-            fetch.mockResolvedValue({
-                ok: false,
-            });
+            validatePasscode.mockRejectedValue(new Error("Invalid passcode"));
 
             render(<AuthSelection />);
 

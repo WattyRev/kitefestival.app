@@ -3,11 +3,11 @@ import EventForm from "../EventForm";
 import userEvent from "@testing-library/user-event";
 import { useAuth } from "../global/Auth";
 import { useAlert } from "../ui/Alert";
-import fetchWrapper from "../../util/fetch";
+import { createEvent, editEvent } from "../../app/api/events";
 
 jest.mock("../global/Auth");
 jest.mock("../ui/Alert");
-jest.mock("../../util/fetch");
+jest.mock("../../app/api/events");
 
 describe("EventForm", () => {
     beforeEach(() => {
@@ -17,16 +17,22 @@ describe("EventForm", () => {
         useAlert.mockReturnValue({
             openAlert: jest.fn(),
         });
-        fetchWrapper.mockResolvedValue({
-            ok: true,
-            json: async () => ({
-                event: {
-                    id: 1,
-                    name: "New Event",
-                    slug: "new_event",
-                    description: "Description",
-                },
-            }),
+
+        editEvent.mockResolvedValue({
+            event: {
+                id: 1,
+                name: "New Event",
+                slug: "new_event",
+                description: "Description",
+            },
+        });
+        createEvent.mockResolvedValue({
+            event: {
+                id: 1,
+                name: "New Event",
+                slug: "new_event",
+                description: "Description",
+            },
         });
     });
     it("renders", async () => {
@@ -44,19 +50,11 @@ describe("EventForm", () => {
         );
         await userEvent.click(screen.getByTestId("save-event"));
 
-        expect(fetchWrapper).toHaveBeenCalledWith(
-            "/api/events",
-            expect.objectContaining({
-                method: "POST",
-                body: JSON.stringify({
-                    event: {
-                        name: "My New Event",
-                        slug: "my_new_event",
-                        description: "Description",
-                    },
-                }),
-            }),
-        );
+        expect(createEvent).toHaveBeenCalledWith({
+            name: "My New Event",
+            slug: "my_new_event",
+            description: "Description",
+        });
         expect(handleSubmit).toHaveBeenCalledWith({
             id: 1,
             name: "New Event",
@@ -104,18 +102,10 @@ describe("EventForm", () => {
             );
             await userEvent.click(screen.getByTestId("save-event"));
 
-            expect(fetchWrapper).toHaveBeenCalledWith(
-                "/api/events/2",
-                expect.objectContaining({
-                    method: "PATCH",
-                    body: JSON.stringify({
-                        event: {
-                            name: "Updated Name",
-                            description: "Updated Desc",
-                        },
-                    }),
-                }),
-            );
+            expect(editEvent).toHaveBeenCalledWith(2, {
+                name: "Updated Name",
+                description: "Updated Desc",
+            });
             expect(handleSubmit).toHaveBeenCalledWith({
                 id: 1,
                 name: "New Event",

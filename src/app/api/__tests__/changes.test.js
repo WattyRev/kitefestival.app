@@ -1,8 +1,8 @@
 import { sql } from "@vercel/postgres";
-import { GET } from "../route";
+import { getChanges } from "../changes";
 
 describe("changes/route", () => {
-    describe("GET", () => {
+    describe("getChanges", () => {
         it("should return a list of changes", async () => {
             sql.mockResolvedValue({
                 rows: [
@@ -12,17 +12,15 @@ describe("changes/route", () => {
                     },
                 ],
             });
-            const response = await GET();
+            const response = await getChanges();
             expect(sql).toHaveBeenCalledWith(["SELECT * FROM changes"]);
             expect(response).toEqual({
-                data: {
-                    changes: [
-                        {
-                            tablename: "activities",
-                            updated: "2023-01-01T00:00:00.000Z",
-                        },
-                    ],
-                },
+                changes: [
+                    {
+                        tablename: "activities",
+                        updated: "2023-01-01T00:00:00.000Z",
+                    },
+                ],
             });
         });
     });
