@@ -179,11 +179,13 @@ describe("ActivitiesContainer", () => {
     describe("activity creation", () => {
         it("allows a user to create an activity", async () => {
             createActivity.mockResolvedValue({
-                id: "5",
-                name: "title",
-                description: "description",
-                sortIndex: 1,
-                scheduleIndex: null,
+                activity: {
+                    id: "5",
+                    name: "title",
+                    description: "description",
+                    sortIndex: 1,
+                    scheduleIndex: null,
+                },
             });
             render(
                 <ActivitiesContainer initialActivities={initialActivities}>

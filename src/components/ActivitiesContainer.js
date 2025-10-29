@@ -200,9 +200,9 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
         unscheduledActivities: activitiesData.unscheduledActivities,
         isLoading,
         createActivity: async ({ title, description, music, eventId }) => {
-            let updatedActivity;
+            let creationResponse;
             try {
-                updatedActivity = await createActivity({
+                creationResponse = await createActivity({
                     title,
                     description,
                     music,
@@ -212,7 +212,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
                 openAlert("Failed to create activity", "error");
                 return;
             }
-            dispatch({ type: "create", activity: updatedActivity });
+            dispatch({ type: "create", activity: creationResponse.activity });
             // Clear undo since creating an activity changes the list
             setUndoState(null);
         },
