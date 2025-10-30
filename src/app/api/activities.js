@@ -19,9 +19,15 @@ import { cookies } from "next/headers";
  * const activities = await getActivities();
  * console.log(activities.activities.map((activity) => activity.title));
  */
-export async function getActivities() {
-    const activitiesResponse =
-        await sql`SELECT * FROM activities ORDER BY scheduleIndex ASC, sortIndex ASC`;
+export async function getActivities(eventId) {
+    let queryString = `SELECT * from activities`;
+    let queryArgs = [];
+    if (eventId) {
+        queryString += ` WHERE event_id = $1`;
+        queryArgs.push(eventId);
+    }
+    queryString += " ORDER BY scheduleIndex ASC, sortIndex ASC";
+    const activitiesResponse = await sql.query(queryString, queryArgs);
     const activities = activitiesResponse.rows.map((activity) => {
         const { id, title, description, sortindex, scheduleindex, event_id } =
             activity;

@@ -1,17 +1,9 @@
 import MusicLibraryPage from "../../components/MusicLibraryPage";
-import { sql } from "@vercel/postgres";
+import { getMusicLibrary } from "../api/musicLibrary";
 
 export const revalidate = 10;
 export default async function MusicLibrary() {
-    const musicLibraryResponse =
-        await sql`SELECT * FROM musiclibrary ORDER BY id ASC`;
-    const musicLibrary = musicLibraryResponse.rows.map((music) => {
-        const { id, value } = music;
-        return {
-            id,
-            value,
-        };
-    });
+    const { musicLibrary } = await getMusicLibrary();
 
     return <MusicLibraryPage initialMusicLibrary={musicLibrary} />;
 }
