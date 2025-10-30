@@ -31,10 +31,11 @@ describe("activities", () => {
         cookies.mockReturnValue({
             get: mockGetCookie,
         });
+        sql.query = jest.fn();
     });
     describe("getActivities", () => {
         it("should return a list of activities", async () => {
-            sql.mockResolvedValue({
+            sql.query.mockResolvedValue({
                 rows: [
                     {
                         id: "1",

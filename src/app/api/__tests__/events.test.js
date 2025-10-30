@@ -63,25 +63,28 @@ describe("events", () => {
             });
         });
         it("retrieves events with all valid columns", async () => {
-            const events = await getEvents({});
+            const response = await getEvents({});
 
             expect(sql.query).toHaveBeenCalledWith(
                 "SELECT id, name, slug, description FROM events ORDER BY id ASC",
+                [],
             );
-            expect(events).toEqual([
-                {
-                    id: 1,
-                    name: "Event One",
-                    slug: "event-one",
-                    description: "The first event",
-                },
-                {
-                    id: 2,
-                    name: "Event Two",
-                    slug: "event-two",
-                    description: "The second event",
-                },
-            ]);
+            expect(response).toEqual({
+                events: [
+                    {
+                        id: 1,
+                        name: "Event One",
+                        slug: "event-one",
+                        description: "The first event",
+                    },
+                    {
+                        id: 2,
+                        name: "Event Two",
+                        slug: "event-two",
+                        description: "The second event",
+                    },
+                ],
+            });
         });
         it("retrieves events with a subset of valid columns", async () => {
             sql.query.mockResolvedValue({
@@ -96,10 +99,12 @@ describe("events", () => {
                     },
                 ],
             });
-            const events = await getEvents({ columns: ["id", "name"] });
+            const response = await getEvents({ columns: ["id", "name"] });
+            const { events } = response;
 
             expect(sql.query).toHaveBeenCalledWith(
                 "SELECT id, name FROM events ORDER BY id ASC",
+                [],
             );
 
             expect(events).toEqual([
@@ -116,6 +121,13 @@ describe("events", () => {
                     description: undefined,
                 },
             ]);
+        });
+        it("retrieves events based on a provided slug", async () => {
+            await getEvents({ slug: "event-one" });
+            expect(sql.query).toHaveBeenCalledWith(
+                "SELECT id, name, slug, description FROM events WHERE slug = $1 ORDER BY id ASC",
+                ["event-one"],
+            );
         });
         it("throws an error when no valid columns are requested", async () => {
             await expect(

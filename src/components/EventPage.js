@@ -25,7 +25,10 @@ const EventPageContainer = ({
     return (
         <ChangePollingContainer>
             <MusicLibraryContainer initialMusicLibrary={initialMusicLibrary}>
-                <ActivitiesContainer initialActivities={initialActivities}>
+                <ActivitiesContainer
+                    eventId={event.id}
+                    initialActivities={initialActivities}
+                >
                     {({
                         scheduledActivities,
                         unscheduledActivities,

@@ -18,21 +18,28 @@ const COLUMN_OPTIONS = ["id", "name", "slug", "description"];
  * const events = await getEvents();
  * console.log(events.map((event) => event.name));
  */
-export const getEvents = async ({ columns = COLUMN_OPTIONS }) => {
+export const getEvents = async ({ columns = COLUMN_OPTIONS, slug }) => {
     const validColumns = columns.filter((col) => COLUMN_OPTIONS.includes(col));
     if (!validColumns.length) {
         throw new Error("No valid columns requested");
     }
-    const response = await sql.query(
-        `SELECT ${validColumns.join(", ")} FROM events ORDER BY id ASC`,
-    );
+    let queryString = `SELECT ${validColumns.join(", ")} FROM events`;
+    let queryArgs = [];
+    if (slug) {
+        queryString += ` WHERE slug = $1`;
+        queryArgs.push(slug);
+    }
+    queryString += " ORDER BY id ASC";
+    const response = await sql.query(queryString, queryArgs);
 
-    return response.rows.map((row) => ({
+    const events = response.rows.map((row) => ({
         id: row.id,
         name: row.name,
         slug: row.slug,
         description: row.description,
     }));
+
+    return { events };
 };
 
 /**

@@ -144,7 +144,7 @@ function reindexActivities(activities) {
     return { changedActivities, newActivities };
 }
 
-const ActivitiesContainer = ({ children, initialActivities }) => {
+const ActivitiesContainer = ({ children, initialActivities, eventId }) => {
     const [activitiesData, dispatch] = useReducer(ActivitiesReducer, {
         activities: initialActivities,
         scheduledActivities: initialActivities.filter(
@@ -161,7 +161,7 @@ const ActivitiesContainer = ({ children, initialActivities }) => {
 
     const fetchActivities = useCallback(async () => {
         setIsLoading(true);
-        const { activities } = await getActivities();
+        const { activities } = await getActivities(eventId);
         dispatch({
             type: "refresh",
             newState: {
