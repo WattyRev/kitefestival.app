@@ -4,12 +4,16 @@ import { css } from "../../styled-system/css";
 import Button from "./ui/Button";
 import { usePrompt } from "./ui/Prompt";
 
-const MusicLibraryActions = ({ music, ...props }) => {
+const MusicLibraryActions = ({ music, pending = false, ...props }) => {
     const { openPrompt } = usePrompt();
     const { deleteMusic, updateMusic } = useMusicLibrary();
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(pending);
 
     async function handleDelete() {
+        await openPrompt(
+            `Are you sure you want to delete an item from the music library?`,
+            "confirm",
+        );
         setIsLoading(true);
         await deleteMusic([music.id]);
         setIsLoading(false);

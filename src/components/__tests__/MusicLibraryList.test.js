@@ -3,18 +3,22 @@ import MusicLibraryList from "../MusicLibraryList";
 import { useMusicLibrary } from "../MusicLibraryContainer";
 import { useAuth } from "../global/Auth";
 import userEvent from "@testing-library/user-event";
+import { PromptProvider } from "../ui/Prompt";
 
 jest.mock("../MusicLibraryContainer");
 jest.mock("../global/Auth");
 
 describe("MusicLibraryList", () => {
+    let mockDeleteMusic;
     beforeEach(() => {
+        mockDeleteMusic = jest.fn().mockResolvedValue();
         useMusicLibrary.mockReturnValue({
             musicLibrary: [
                 { value: "a", id: "A" },
                 { value: "b", id: "B" },
                 { value: "c", id: "C" },
             ],
+            deleteMusic: mockDeleteMusic,
         });
         useAuth.mockReturnValue({
             isEditor: () => true,
@@ -83,5 +87,39 @@ describe("MusicLibraryList", () => {
 
         await userEvent.click(screen.getByTestId("clear-search"));
         expect(screen.getAllByRole("row")).toHaveLength(4);
+    });
+    it("allows an editor to delete multiple music items", async () => {
+        useAuth.mockReturnValue({
+            isEditor: () => true,
+        });
+        render(
+            <PromptProvider>
+                <MusicLibraryList />
+            </PromptProvider>,
+        );
+
+        const checkboxes = screen.getAllByTestId("select-music");
+        await userEvent.click(checkboxes[0]);
+        await userEvent.click(checkboxes[1]);
+        await userEvent.click(screen.getByTestId("delete-multiple"));
+        await userEvent.click(screen.getByTestId("prompt-submit"));
+
+        expect(mockDeleteMusic).toHaveBeenCalledWith(["A", "B"]);
+    });
+    it("allows an editor to delete all music items", async () => {
+        useAuth.mockReturnValue({
+            isEditor: () => true,
+        });
+        render(
+            <PromptProvider>
+                <MusicLibraryList />
+            </PromptProvider>,
+        );
+
+        await userEvent.click(screen.getByTestId("select-all"));
+        await userEvent.click(screen.getByTestId("delete-multiple"));
+        await userEvent.click(screen.getByTestId("prompt-submit"));
+
+        expect(mockDeleteMusic).toHaveBeenCalledWith(["A", "B", "C"]);
     });
 });

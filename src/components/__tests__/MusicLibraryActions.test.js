@@ -38,6 +38,7 @@ describe("MusicLibraryActions", () => {
         );
 
         await userEvent.click(screen.getByTitle("Delete"));
+        await userEvent.click(screen.getByTestId("prompt-submit"));
 
         expect(mockDelete).toHaveBeenCalledWith([mockMusic.id]);
     });
