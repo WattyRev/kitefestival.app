@@ -12,9 +12,9 @@ import { usePrompt } from "./ui/Prompt";
 
 const MusicLibraryList = ({ ...props }) => {
     const { musicLibrary, deleteMusic } = useMusicLibrary();
-    const [ pending, setPending ] = useState(false);
+    const [pending, setPending] = useState(false);
     const { isEditor } = useAuth();
-    const [ selectedMusic, setSelectedMusic ] = useState([]);
+    const [selectedMusic, setSelectedMusic] = useState([]);
     const { openPrompt } = usePrompt();
 
     const [searchTerm, setSearchTerm] = useState("");
@@ -71,7 +71,9 @@ const MusicLibraryList = ({ ...props }) => {
                         disabled={!selectedMusic.length || pending}
                         onClick={deleteSelectedMusic}
                     >
-                        <i className="fa-solid fa-trash"></i> Delete {selectedMusic.length} item{selectedMusic.length === 1 ? "" : "s"} 
+                        <i className="fa-solid fa-trash"></i> Delete{" "}
+                        {selectedMusic.length} item
+                        {selectedMusic.length === 1 ? "" : "s"}
                     </Button>
                 </div>
             )}
@@ -80,13 +82,24 @@ const MusicLibraryList = ({ ...props }) => {
                     <Tr>
                         {isEditor() && (
                             <Th className={css({ width: "35px" })}>
-                                <Checkbox 
+                                <Checkbox
                                     data-testid="select-all"
-                                    indeterminate = {selectedMusic.length > 0 && selectedMusic.length < musicLibrary.length}
-                                    checked = {selectedMusic.length === musicLibrary.length}
+                                    indeterminate={
+                                        selectedMusic.length > 0 &&
+                                        selectedMusic.length <
+                                            musicLibrary.length
+                                    }
+                                    checked={
+                                        selectedMusic.length ===
+                                        musicLibrary.length
+                                    }
                                     onChange={(e) => {
                                         if (e.target.checked) {
-                                            setSelectedMusic(musicLibrary.map((music) => music.id));
+                                            setSelectedMusic(
+                                                musicLibrary.map(
+                                                    (music) => music.id,
+                                                ),
+                                            );
                                         } else {
                                             setSelectedMusic([]);
                                         }
@@ -115,12 +128,21 @@ const MusicLibraryList = ({ ...props }) => {
                                 <Td className={css({ width: "35px" })}>
                                     <Checkbox
                                         data-testid="select-music"
-                                        checked={selectedMusic.includes(music.id)}
+                                        checked={selectedMusic.includes(
+                                            music.id,
+                                        )}
                                         onChange={(e) => {
                                             if (e.target.checked) {
-                                                setSelectedMusic([...selectedMusic, music.id]);
+                                                setSelectedMusic([
+                                                    ...selectedMusic,
+                                                    music.id,
+                                                ]);
                                             } else {
-                                                setSelectedMusic(selectedMusic.filter((id) => id !== music.id));
+                                                setSelectedMusic(
+                                                    selectedMusic.filter(
+                                                        (id) => id !== music.id,
+                                                    ),
+                                                );
                                             }
                                         }}
                                     />
@@ -132,7 +154,10 @@ const MusicLibraryList = ({ ...props }) => {
                                     className={css({ width: "140px" })}
                                     data-testid="actions"
                                 >
-                                    <MusicLibraryActions music={music} pending={pending} />
+                                    <MusicLibraryActions
+                                        music={music}
+                                        pending={pending}
+                                    />
                                 </Td>
                             )}
                         </Tr>

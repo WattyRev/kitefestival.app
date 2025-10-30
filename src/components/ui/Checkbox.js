@@ -8,8 +8,13 @@ import { useEffect, useRef } from "react";
  * @param {boolean} indeterminate Whether the checkbox is in an indeterminate state.
  * @param {function} onChange Called when the checkbox is changed.
  */
-const Checkbox = ({ className = "", checked, indeterminate, onChange, ...props }) => {
-
+const Checkbox = ({
+    className = "",
+    checked,
+    indeterminate,
+    onChange,
+    ...props
+}) => {
     const checkboxRef = useRef(null);
     useEffect(() => {
         checkboxRef.current.indeterminate = indeterminate;
@@ -24,7 +29,7 @@ const Checkbox = ({ className = "", checked, indeterminate, onChange, ...props }
             checked={checked}
             onChange={onChange}
         />
-    )
-}
+    );
+};
 
 export default Checkbox;

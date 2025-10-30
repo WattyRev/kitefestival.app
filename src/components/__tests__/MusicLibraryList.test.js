@@ -88,11 +88,15 @@ describe("MusicLibraryList", () => {
         await userEvent.click(screen.getByTestId("clear-search"));
         expect(screen.getAllByRole("row")).toHaveLength(4);
     });
-    it('allows an editor to delete multiple music items', async () => {
+    it("allows an editor to delete multiple music items", async () => {
         useAuth.mockReturnValue({
             isEditor: () => true,
         });
-        render(<PromptProvider><MusicLibraryList /></PromptProvider>);
+        render(
+            <PromptProvider>
+                <MusicLibraryList />
+            </PromptProvider>,
+        );
 
         const checkboxes = screen.getAllByTestId("select-music");
         await userEvent.click(checkboxes[0]);
@@ -102,11 +106,15 @@ describe("MusicLibraryList", () => {
 
         expect(mockDeleteMusic).toHaveBeenCalledWith(["A", "B"]);
     });
-    it('allows an editor to delete all music items', async () => {
+    it("allows an editor to delete all music items", async () => {
         useAuth.mockReturnValue({
             isEditor: () => true,
         });
-        render(<PromptProvider><MusicLibraryList /></PromptProvider>);
+        render(
+            <PromptProvider>
+                <MusicLibraryList />
+            </PromptProvider>,
+        );
 
         await userEvent.click(screen.getByTestId("select-all"));
         await userEvent.click(screen.getByTestId("delete-multiple"));
