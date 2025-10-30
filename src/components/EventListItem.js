@@ -22,13 +22,9 @@ const EventListItem = ({ event, onDelete = () => {}, onEdit = () => {} }) => {
             `Are you sure you want to delete "${event.name}"? This will also delete all activities and comments associated with it.`,
             "confirm",
         );
-
         setPending(true);
-
         await deleteEventApi(event.id);
-
         setPending(false);
-
         onDelete(event.id);
     }
     return (
