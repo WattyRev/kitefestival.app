@@ -10,17 +10,20 @@ function HomePage({ initialEvents }) {
     const [events, setEvents] = useState(initialEvents);
     if (!events.length) {
         return (
-            <p
-                className={css({
-                    paddingLeft: {
-                        base: "12px",
-                        sm: "16px",
-                    },
-                })}
-                data-testid="empty-events"
-            >
-                There are no events right now
-            </p>
+            <>
+                <p
+                    className={css({
+                        paddingLeft: {
+                            base: "12px",
+                            sm: "16px",
+                        },
+                    })}
+                    data-testid="empty-events"
+                >
+                    There are no events right now
+                </p>
+                <EventForm onSubmit={(event) => setEvents([...events, event])} />
+            </>
         );
     }
     return (

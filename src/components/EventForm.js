@@ -34,7 +34,6 @@ const EventForm = ({
     );
 
     const { openAlert } = useAlert();
-
     if (!isEditor()) {
         return null;
     }
