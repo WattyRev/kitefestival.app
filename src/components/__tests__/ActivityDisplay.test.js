@@ -30,6 +30,7 @@ describe("ActivityDisplay", () => {
         useAuth.mockReturnValue({
             isEditor: jest.fn().mockReturnValue(false),
             isPublic: jest.fn().mockReturnValue(true),
+            isUser: jest.fn().mockReturnValue(false)
         });
     });
     it("renders activity title", async () => {
@@ -133,6 +134,7 @@ describe("ActivityDisplay", () => {
             useAuth.mockReturnValue({
                 isEditor: jest.fn().mockReturnValue(true),
                 isPublic: jest.fn().mockReturnValue(false),
+                isUser:  jest.fn().mockReturnValue(false)
             });
         });
         it("allows an editor to delete an activity", async () => {
@@ -373,6 +375,7 @@ describe("ActivityDisplay", () => {
                 useAuth.mockReturnValue({
                     isEditor: jest.fn().mockReturnValue(false),
                     isPublic: jest.fn().mockReturnValue(true),
+                    isUser: jest.fn().mockReturnValue(false)
                 });
 
                 render(
@@ -420,6 +423,7 @@ describe("ActivityDisplay", () => {
             useAuth.mockReturnValue({
                 isEditor: jest.fn().mockReturnValue(false),
                 isPublic: jest.fn().mockReturnValue(false),
+                isUser: jest.fn().mockReturnValue(true)
             });
         });
         it("does not display the dropdown if the user is a user", async () => {
@@ -454,6 +458,7 @@ describe("ActivityDisplay", () => {
             useAuth.mockReturnValue({
                 isEditor: jest.fn().mockReturnValue(false),
                 isPublic: jest.fn().mockReturnValue(true),
+                isUser: jest.fn().mockReturnValue(false)
             });
         });
         it("does not display the dropdown if the user is general public", async () => {

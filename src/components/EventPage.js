@@ -124,8 +124,8 @@ const EventPageContainer = ({
                                                                     ? (id) =>
                                                                           moveActivity(
                                                                               id,
-                                                                              "unschedule",
-                                                                              unscheduledActivities.length,
+                                                                              "schedule",
+                                                                              scheduledActivities.length,
                                                                           ).then(
                                                                               () => {
                                                                                   logAction(
