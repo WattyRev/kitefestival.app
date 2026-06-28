@@ -38,6 +38,7 @@ export const getLogs = async ({
     try {
         await validatePasscode(passcode, ["editor"]);
     } catch (error) {
+        console.error(error);
         return;
     }
 
@@ -74,6 +75,8 @@ export const getLogs = async ({
     queryArgs.push(offset);
 
     const response = await sql.query(queryString, queryArgs);
+
+    console.log('response', response);
 
     const logs = response.rows.map((log) => {
         const {

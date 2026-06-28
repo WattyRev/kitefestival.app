@@ -89,6 +89,8 @@ const LogsPage = ({ logs: initialLogs, events }) => {
     const [eventFilter, setEventFilter] = useState(null);
     const [actionFilter, setActionFilter] = useState("");
 
+    console.log('logs', logs);
+
     useEffect(() => {
         setPending(true);
         filterEvents(eventFilter, actionFilter)
