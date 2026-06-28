@@ -33,7 +33,7 @@ const ActivityDisplay = ({
     children,
     allowHideDescription = true,
 }) => {
-    const { isEditor, isPublic } = useAuth();
+    const { isEditor, isUser, isPublic } = useAuth();
     const { openPrompt } = usePrompt();
     const [isDescriptionVisible, setIsDescriptionVisible] = useState(false);
 
@@ -163,6 +163,9 @@ const ActivityDisplay = ({
                                             }
                                         }}
                                     />
+                                )}
+                                {isUser() && scheduleIndex !== null && (
+                                    <span>{scheduleIndex}.&nbsp;</span>
                                 )}
                                 {activity.title}
                             </H3>
